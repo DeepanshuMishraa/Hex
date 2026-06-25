@@ -433,6 +433,7 @@ private extension TranscriptionFeature {
 
     transcriptionFeatureLogger.info("Raw transcription: '\(result)'")
     let remappings = state.hexSettings.wordRemappings
+    let snippets = state.hexSettings.snippets
     let removalsEnabled = state.hexSettings.wordRemovalsEnabled
     let removals = state.hexSettings.wordRemovals
     let aiMode = state.hexSettings.aiPostProcessingMode
@@ -455,7 +456,11 @@ private extension TranscriptionFeature {
       if remappedResult != output {
         transcriptionFeatureLogger.info("Applied \(remappings.count) word remapping(s)")
       }
-      modifiedResult = remappedResult
+      let snippetResult = SnippetApplier.apply(remappedResult, snippets: snippets)
+      if snippetResult != remappedResult {
+        transcriptionFeatureLogger.info("Applied snippet expansion(s)")
+      }
+      modifiedResult = snippetResult
     }
 
     guard !modifiedResult.isEmpty else {

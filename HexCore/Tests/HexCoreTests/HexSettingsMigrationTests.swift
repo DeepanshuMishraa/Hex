@@ -27,6 +27,8 @@ final class HexSettingsMigrationTests: XCTestCase {
 		XCTAssertEqual(decoded.hasCompletedStorageMigration, true)
 		XCTAssertEqual(decoded.selectedStyleIndex, 2)
 		XCTAssertFalse(decoded.hasSelectedStyle)
+		XCTAssertEqual(decoded.snippets.count, 3)
+		XCTAssertEqual(decoded.snippets[0].shortcut, "LinkedIn")
 	}
 
 	func testEncodeDecodeRoundTripPreservesDefaults() throws {

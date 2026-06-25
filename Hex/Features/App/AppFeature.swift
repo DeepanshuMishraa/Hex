@@ -11,7 +11,6 @@ struct AppFeature {
     case dictionary
     case snippets
     case style
-    case notes
     case settings
     case help
   }
@@ -466,9 +465,6 @@ struct AppView: View {
         SidebarItem(icon: "slider.horizontal.3", title: "Style", isActive: store.activeTab == .style) {
           store.send(.setActiveTab(.style))
         }
-        SidebarItem(icon: "note.text", title: "Notes", isActive: store.activeTab == .notes) {
-          store.send(.setActiveTab(.notes))
-        }
       }
       .padding(.horizontal, 12)
       
@@ -505,16 +501,13 @@ struct AppView: View {
           case .home:
             homeTabContent
           case .dictionary:
-            DictionaryTabView(store: store)
+            DictionaryTabView()
               .padding(24)
           case .snippets:
             SnippetsTabView()
               .padding(24)
           case .style:
             StyleTabView(isWizardPresented: $isPersonalisationWizardPresented)
-              .padding(24)
-          case .notes:
-            NotesTabView()
               .padding(24)
           case .settings:
             SettingsView(
@@ -590,7 +583,6 @@ struct AppView: View {
     case .dictionary: return "Dictionary"
     case .snippets: return "Snippets"
     case .style: return "Style"
-    case .notes: return "Notes"
     case .settings: return "Settings"
     case .help: return "Help"
     }
@@ -1208,13 +1200,9 @@ struct WizardStyleCard: View {
 // MARK: - Dictionary Tab
 
 struct DictionaryTabView: View {
-  @Bindable var store: StoreOf<AppFeature>
-  @State private var selectedTab = 0
+  @Shared(.hexSettings) var hexSettings: HexSettings
   @State private var isBannerVisible = true
-  @State private var mockItems = ["ARCHIMOOD", "MOCK", "GPT", "fellos", "16/9"]
   @State private var isAddingWord = false
-  @State private var newWord = ""
-  @State private var newReplacement = ""
   @State private var searchText = ""
   
   var body: some View {
@@ -1237,14 +1225,27 @@ struct DictionaryTabView: View {
       }
       .padding(.bottom, 16)
 
+      // Search bar
       HStack {
-        CustomSegmentedControl(items: ["All", "Personal", "Shared with team"], selectedIndex: $selectedTab)
+        HStack {
+          Image(systemName: "magnifyingglass")
+            .foregroundStyle(TickColor.textSecondary)
+          TextField("Search words...", text: $searchText)
+            .textFieldStyle(.plain)
+            .font(TickFont.bodyFunc(13))
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .background(TickColor.canvas)
+        .cornerRadius(8)
+        .overlay(
+          RoundedRectangle(cornerRadius: 8)
+            .stroke(TickColor.line, lineWidth: 1)
+        )
 
         Spacer()
 
         HStack(spacing: 12) {
-          Image(systemName: "magnifyingglass")
-            .foregroundStyle(TickColor.textSecondary)
           Image(systemName: "arrow.up.arrow.down")
             .foregroundStyle(TickColor.textSecondary)
           Image(systemName: "arrow.clockwise")
@@ -1309,28 +1310,69 @@ struct DictionaryTabView: View {
           }
           
           VStack(alignment: .leading, spacing: 0) {
-            ForEach(mockItems.filter { searchText.isEmpty ? true : $0.lowercased().contains(searchText.lowercased()) }, id: \.self) { item in
+            let filteredRemappings = hexSettings.wordRemappings.filter { remapping in
+              searchText.isEmpty ? true : (
+                remapping.match.lowercased().contains(searchText.lowercased()) ||
+                remapping.replacement.lowercased().contains(searchText.lowercased())
+              )
+            }
+
+            if filteredRemappings.isEmpty {
               HStack {
-                Text(item)
-                  .font(TickFont.labelFunc(13))
-                Text("✨")
-                  .font(TickFont.captionFunc(11))
-                
                 Spacer()
-                
-                Button(action: {
-                  mockItems.removeAll { $0 == item }
-                }) {
-                  Image(systemName: "trash")
-                    .font(TickFont.captionFunc(11))
-                    .foregroundStyle(TickColor.textSecondary)
-                }
-                .buttonStyle(.plain)
+                Text("No dictionary terms found")
+                  .font(TickFont.captionFunc(13))
+                  .foregroundStyle(TickColor.textSecondary)
+                  .padding(.vertical, 24)
+                Spacer()
               }
-              .padding(.vertical, 14)
-              .padding(.horizontal, 16)
-              
-              Divider()
+            } else {
+              ForEach(filteredRemappings) { item in
+                HStack {
+                  VStack(alignment: .leading, spacing: 4) {
+                    Text(item.match)
+                      .font(TickFont.labelFunc(13, weight: .medium))
+                      .foregroundStyle(TickColor.textPrimary)
+                    Text("Match term")
+                      .font(TickFont.captionFunc(9))
+                      .foregroundStyle(TickColor.textSecondary)
+                  }
+
+                  Spacer()
+                  
+                  Image(systemName: "arrow.right")
+                    .font(TickFont.captionFunc(12))
+                    .foregroundStyle(TickColor.textSecondary)
+
+                  Spacer()
+
+                  VStack(alignment: .leading, spacing: 4) {
+                    Text(item.replacement)
+                      .font(TickFont.labelFunc(13, weight: .medium))
+                      .foregroundStyle(TickColor.textPrimary)
+                    Text("Replacement")
+                      .font(TickFont.captionFunc(9))
+                      .foregroundStyle(TickColor.textSecondary)
+                  }
+
+                  Spacer()
+
+                  Button(action: {
+                    $hexSettings.withLock {
+                      $0.wordRemappings.removeAll { $0.id == item.id }
+                    }
+                  }) {
+                    Image(systemName: "trash")
+                      .font(TickFont.captionFunc(11))
+                      .foregroundStyle(TickColor.textSecondary)
+                  }
+                  .buttonStyle(.plain)
+                }
+                .padding(.vertical, 14)
+                .padding(.horizontal, 16)
+                
+                Divider()
+              }
             }
           }
           .background(Color(nsColor: .controlBackgroundColor))
@@ -1341,55 +1383,151 @@ struct DictionaryTabView: View {
           )
         }
       }
-      
-      if isAddingWord {
+    }
+    .sheet(isPresented: $isAddingWord) {
+      AddWordSheet()
+    }
+  }
+}
+
+struct AddWordSheet: View {
+  @Environment(\.dismiss) var dismiss
+  @Shared(.hexSettings) var hexSettings: HexSettings
+  
+  @State private var originalWord = ""
+  @State private var replacementWord = ""
+  @FocusState private var focusedField: Field?
+  
+  enum Field: Hashable {
+    case original
+    case replacement
+  }
+  
+  var body: some View {
+    VStack(alignment: .leading, spacing: 20) {
+      // Header
+      HStack(spacing: 12) {
         ZStack {
-          Color.black.opacity(0.1)
-            .edgesIgnoringSafeArea(.all)
-          
-          VStack(spacing: 16) {
-            Text("Add new dictionary term")
-              .font(TickFont.headingFunc(15, weight: .bold))
-            
-            TextField("Original text (e.g. Whispr)", text: $newWord)
-              .textFieldStyle(.roundedBorder)
-              .frame(width: 260)
-            
-            TextField("Replacement (e.g. Wisper)", text: $newReplacement)
-              .textFieldStyle(.roundedBorder)
-              .frame(width: 260)
-            
-            HStack {
-              Button("Cancel") {
-                isAddingWord = false
-                newWord = ""
-                newReplacement = ""
-              }
-              .buttonStyle(.bordered)
-              
-              Button("Save") {
-                if !newWord.isEmpty {
-                  let newRemap = WordRemapping(match: newWord, replacement: newReplacement.isEmpty ? "✨" : newReplacement)
-                  var current = store.settings.hexSettings.wordRemappings
-                  current.insert(newRemap, at: 0)
-                  store.send(.settings(.setWordRemappings(current)))
-                  
-                  mockItems.insert(newWord + (newReplacement.isEmpty ? "" : " → \(newReplacement)"), at: 0)
-                  
-                  newWord = ""
-                  newReplacement = ""
-                  isAddingWord = false
-                }
-              }
-              .buttonStyle(.borderedProminent)
-            }
-          }
-          .padding(20)
-          .background(Color(nsColor: .windowBackgroundColor))
-          .cornerRadius(16)
-          .shadow(radius: 10)
+          RoundedRectangle(cornerRadius: 10)
+            .fill(TickColor.brand.opacity(0.1))
+            .frame(width: 40, height: 40)
+          Image(systemName: "book.closed.fill")
+            .font(.system(size: 18))
+            .foregroundStyle(TickColor.brand)
         }
+        
+        VStack(alignment: .leading, spacing: 2) {
+          Text("Add Dictionary Term")
+            .font(TickFont.headingFunc(16, weight: .bold))
+            .foregroundStyle(TickColor.textPrimary)
+          Text("Tick will auto-replace the spoken word in your transcription.")
+            .font(TickFont.captionFunc(11))
+            .foregroundStyle(TickColor.textSecondary)
+        }
+        Spacer()
       }
+      .padding(.bottom, 4)
+      
+      // Original Word
+      VStack(alignment: .leading, spacing: 6) {
+        HStack {
+          Text("Original Word (Spoken)")
+            .font(TickFont.captionFunc(12, weight: .medium))
+            .foregroundStyle(TickColor.textPrimary)
+          Spacer()
+          Text("Case-insensitive")
+            .font(TickFont.captionFunc(10))
+            .foregroundStyle(TickColor.textTertiary)
+        }
+        
+        TextField("e.g. Whispr or Flow", text: $originalWord)
+          .textFieldStyle(.plain)
+          .focused($focusedField, equals: .original)
+          .padding(.horizontal, 14)
+          .padding(.vertical, 10)
+          .background(TickColor.canvas)
+          .cornerRadius(10)
+          .overlay(
+            RoundedRectangle(cornerRadius: 10)
+              .stroke(focusedField == .original ? TickColor.brand : TickColor.line, lineWidth: focusedField == .original ? 1.5 : 1)
+              .animation(.easeOut(duration: 0.15), value: focusedField)
+          )
+      }
+      
+      // Replacement Word
+      VStack(alignment: .leading, spacing: 6) {
+        Text("Replacement Word (Written)")
+          .font(TickFont.captionFunc(12, weight: .medium))
+          .foregroundStyle(TickColor.textPrimary)
+        
+        TextField("e.g. Whisper or Hex", text: $replacementWord)
+          .textFieldStyle(.plain)
+          .focused($focusedField, equals: .replacement)
+          .padding(.horizontal, 14)
+          .padding(.vertical, 10)
+          .background(TickColor.canvas)
+          .cornerRadius(10)
+          .overlay(
+            RoundedRectangle(cornerRadius: 10)
+              .stroke(focusedField == .replacement ? TickColor.brand : TickColor.line, lineWidth: focusedField == .replacement ? 1.5 : 1)
+              .animation(.easeOut(duration: 0.15), value: focusedField)
+          )
+      }
+      
+      // Action Buttons
+      HStack(spacing: 12) {
+        Spacer()
+        
+        Button(action: {
+          dismiss()
+        }) {
+          Text("Cancel")
+            .font(TickFont.labelFunc(13, weight: .semibold))
+            .foregroundStyle(TickColor.textPrimary)
+            .frame(width: 80, height: 36)
+            .background(
+              RoundedRectangle(cornerRadius: 10)
+                .fill(TickColor.canvas)
+                .overlay(
+                  RoundedRectangle(cornerRadius: 10)
+                    .stroke(TickColor.line, lineWidth: 1)
+                )
+            )
+        }
+        .buttonStyle(.plain)
+        
+        Button(action: {
+          let trimmedOrig = originalWord.trimmingCharacters(in: .whitespacesAndNewlines)
+          let trimmedRepl = replacementWord.trimmingCharacters(in: .whitespacesAndNewlines)
+          if !trimmedOrig.isEmpty && !trimmedRepl.isEmpty {
+            $hexSettings.withLock {
+              $0.wordRemappings.insert(
+                WordRemapping(match: trimmedOrig, replacement: trimmedRepl),
+                at: 0
+              )
+            }
+            dismiss()
+          }
+        }) {
+          Text("Save")
+            .font(TickFont.labelFunc(13, weight: .semibold))
+            .foregroundStyle(.white)
+            .frame(width: 80, height: 36)
+            .background(
+              RoundedRectangle(cornerRadius: 10)
+                .fill(originalWord.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || replacementWord.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? TickColor.brand.opacity(0.5) : TickColor.brand)
+            )
+        }
+        .buttonStyle(.plain)
+        .disabled(originalWord.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || replacementWord.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+      }
+      .padding(.top, 8)
+    }
+    .padding(28)
+    .frame(width: 440)
+    .background(TickColor.surface)
+    .onAppear {
+      focusedField = .original
     }
   }
 }
@@ -1413,22 +1551,10 @@ struct DictionaryPill: View {
 // MARK: - Snippets Tab
 
 struct SnippetsTabView: View {
-  @State private var selectedTab = 0
+  @Shared(.hexSettings) var hexSettings: HexSettings
   @State private var isBannerVisible = true
-  @State private var snippets = [
-    Snippet(shortcut: "LinkedIn", content: "https://www.linkedin.com/in/john-doe-9b0139134/"),
-    Snippet(shortcut: "intro email", content: "Hey, would love to find some time to chat later..."),
-    Snippet(shortcut: "my calendly link", content: "calendly.com/you/invite-name")
-  ]
   @State private var isAddingSnippet = false
-  @State private var shortcutInput = ""
-  @State private var contentInput = ""
-  
-  struct Snippet: Identifiable, Hashable {
-    let id = UUID()
-    let shortcut: String
-    let content: String
-  }
+  @State private var searchText = ""
   
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
@@ -1450,14 +1576,27 @@ struct SnippetsTabView: View {
       }
       .padding(.bottom, 16)
 
+      // Search bar
       HStack {
-        CustomSegmentedControl(items: ["All", "Personal", "Shared with team"], selectedIndex: $selectedTab)
+        HStack {
+          Image(systemName: "magnifyingglass")
+            .foregroundStyle(TickColor.textSecondary)
+          TextField("Search snippets...", text: $searchText)
+            .textFieldStyle(.plain)
+            .font(TickFont.bodyFunc(13))
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .background(TickColor.canvas)
+        .cornerRadius(8)
+        .overlay(
+          RoundedRectangle(cornerRadius: 8)
+            .stroke(TickColor.line, lineWidth: 1)
+        )
 
         Spacer()
 
         HStack(spacing: 12) {
-          Image(systemName: "magnifyingglass")
-            .foregroundStyle(TickColor.textSecondary)
           Image(systemName: "arrow.up.arrow.down")
             .foregroundStyle(TickColor.textSecondary)
           Image(systemName: "arrow.clockwise")
@@ -1520,47 +1659,82 @@ struct SnippetsTabView: View {
           }
           
           VStack(alignment: .leading, spacing: 0) {
-            ForEach(snippets) { snippet in
+            let filteredSnippets = hexSettings.snippets.filter { snippet in
+              searchText.isEmpty ? true : (
+                snippet.shortcut.lowercased().contains(searchText.lowercased()) ||
+                snippet.content.lowercased().contains(searchText.lowercased())
+              )
+            }
+
+            if filteredSnippets.isEmpty {
               HStack {
-                Text(snippet.shortcut)
-                  .font(TickFont.labelFunc(13))
-                  .foregroundStyle(TickColor.textPrimary)
-                
-                Image(systemName: "arrow.right")
-                  .font(TickFont.captionFunc(10))
-                  .foregroundStyle(TickColor.textSecondary)
-                
-                Text(snippet.content)
+                Spacer()
+                Text("No snippets found")
                   .font(TickFont.captionFunc(13))
                   .foregroundStyle(TickColor.textSecondary)
-                  .lineLimit(1)
-                
+                  .padding(.vertical, 24)
                 Spacer()
-                
-                Button(action: {
-                  NSPasteboard.general.clearContents()
-                  NSPasteboard.general.setString(snippet.content, forType: .string)
-                }) {
-                  Image(systemName: "doc.on.doc")
-                    .font(TickFont.captionFunc(11))
-                    .foregroundStyle(TickColor.textSecondary)
-                }
-                .buttonStyle(.plain)
-                
-                Button(action: {
-                  snippets.removeAll { $0.id == snippet.id }
-                }) {
-                  Image(systemName: "trash")
-                    .font(TickFont.captionFunc(11))
-                    .foregroundStyle(TickColor.textSecondary)
-                    .padding(.leading, 8)
-                }
-                .buttonStyle(.plain)
               }
-              .padding(.vertical, 14)
-              .padding(.horizontal, 16)
-              
-              Divider()
+            } else {
+              ForEach(filteredSnippets) { snippet in
+                HStack {
+                  VStack(alignment: .leading, spacing: 4) {
+                    Text(snippet.shortcut)
+                      .font(TickFont.labelFunc(13, weight: .medium))
+                      .foregroundStyle(TickColor.textPrimary)
+                    Text("Shortcut")
+                      .font(TickFont.captionFunc(9))
+                      .foregroundStyle(TickColor.textSecondary)
+                  }
+
+                  Spacer()
+                  
+                  Image(systemName: "arrow.right")
+                    .font(TickFont.captionFunc(12))
+                    .foregroundStyle(TickColor.textSecondary)
+
+                  Spacer()
+
+                  VStack(alignment: .leading, spacing: 4) {
+                    Text(snippet.content)
+                      .font(TickFont.labelFunc(13))
+                      .foregroundStyle(TickColor.textSecondary)
+                      .lineLimit(1)
+                    Text("Expansion")
+                      .font(TickFont.captionFunc(9))
+                      .foregroundStyle(TickColor.textSecondary)
+                  }
+
+                  Spacer()
+
+                  HStack(spacing: 12) {
+                    Button(action: {
+                      NSPasteboard.general.clearContents()
+                      NSPasteboard.general.setString(snippet.content, forType: .string)
+                    }) {
+                      Image(systemName: "doc.on.doc")
+                        .font(TickFont.captionFunc(11))
+                        .foregroundStyle(TickColor.textSecondary)
+                    }
+                    .buttonStyle(.plain)
+                    
+                    Button(action: {
+                      $hexSettings.withLock {
+                        $0.snippets.removeAll { $0.id == snippet.id }
+                      }
+                    }) {
+                      Image(systemName: "trash")
+                        .font(TickFont.captionFunc(11))
+                        .foregroundStyle(TickColor.textSecondary)
+                    }
+                    .buttonStyle(.plain)
+                  }
+                }
+                .padding(.vertical, 14)
+                .padding(.horizontal, 16)
+                
+                Divider()
+              }
             }
           }
           .background(Color(nsColor: .controlBackgroundColor))
@@ -1571,49 +1745,152 @@ struct SnippetsTabView: View {
           )
         }
       }
-      
-      if isAddingSnippet {
+    }
+    .sheet(isPresented: $isAddingSnippet) {
+      AddSnippetSheet()
+    }
+  }
+}
+
+struct AddSnippetSheet: View {
+  @Environment(\.dismiss) var dismiss
+  @Shared(.hexSettings) var hexSettings: HexSettings
+  
+  @State private var shortcut = ""
+  @State private var expansion = ""
+  @FocusState private var focusedField: Field?
+  
+  enum Field: Hashable {
+    case shortcut
+    case expansion
+  }
+  
+  var body: some View {
+    VStack(alignment: .leading, spacing: 20) {
+      // Header
+      HStack(spacing: 12) {
         ZStack {
-          Color.black.opacity(0.1)
-            .edgesIgnoringSafeArea(.all)
-          
-          VStack(spacing: 16) {
-            Text("Add new snippet shortcut")
-              .font(TickFont.headingFunc(15, weight: .bold))
-            
-            TextField("Shortcut keyword (e.g. LinkedIn)", text: $shortcutInput)
-              .textFieldStyle(.roundedBorder)
-              .frame(width: 260)
-            
-            TextField("Expanded content...", text: $contentInput)
-              .textFieldStyle(.roundedBorder)
-              .frame(width: 260)
-            
-            HStack {
-              Button("Cancel") {
-                isAddingSnippet = false
-                shortcutInput = ""
-                contentInput = ""
-              }
-              .buttonStyle(.bordered)
-              
-              Button("Save") {
-                if !shortcutInput.isEmpty && !contentInput.isEmpty {
-                  snippets.insert(Snippet(shortcut: shortcutInput, content: contentInput), at: 0)
-                  shortcutInput = ""
-                  contentInput = ""
-                  isAddingSnippet = false
-                }
-              }
-              .buttonStyle(.borderedProminent)
-            }
-          }
-          .padding(20)
-          .background(Color(nsColor: .windowBackgroundColor))
-          .cornerRadius(16)
-          .shadow(radius: 10)
+          RoundedRectangle(cornerRadius: 10)
+            .fill(TickColor.brand.opacity(0.1))
+            .frame(width: 40, height: 40)
+          Image(systemName: "scissors")
+            .font(.system(size: 18))
+            .foregroundStyle(TickColor.brand)
         }
+        
+        VStack(alignment: .leading, spacing: 2) {
+          Text("Add Snippet Shortcut")
+            .font(TickFont.headingFunc(16, weight: .bold))
+            .foregroundStyle(TickColor.textPrimary)
+          Text("Speak the shortcut phrase, and Tick expands it into the full text.")
+            .font(TickFont.captionFunc(11))
+            .foregroundStyle(TickColor.textSecondary)
+        }
+        Spacer()
       }
+      .padding(.bottom, 4)
+      
+      // Shortcut Phrase
+      VStack(alignment: .leading, spacing: 6) {
+        HStack {
+          Text("Shortcut Phrase (Spoken)")
+            .font(TickFont.captionFunc(12, weight: .medium))
+            .foregroundStyle(TickColor.textPrimary)
+          Spacer()
+          Text("Case-insensitive")
+            .font(TickFont.captionFunc(10))
+            .foregroundStyle(TickColor.textTertiary)
+        }
+        
+        TextField("e.g. My Calendly or Intro email", text: $shortcut)
+          .textFieldStyle(.plain)
+          .focused($focusedField, equals: .shortcut)
+          .padding(.horizontal, 14)
+          .padding(.vertical, 10)
+          .background(TickColor.canvas)
+          .cornerRadius(10)
+          .overlay(
+            RoundedRectangle(cornerRadius: 10)
+              .stroke(focusedField == .shortcut ? TickColor.brand : TickColor.line, lineWidth: focusedField == .shortcut ? 1.5 : 1)
+              .animation(.easeOut(duration: 0.15), value: focusedField)
+          )
+      }
+      
+      // Expansion Content
+      VStack(alignment: .leading, spacing: 6) {
+        Text("Expansion Content (Pasted)")
+          .font(TickFont.captionFunc(12, weight: .medium))
+          .foregroundStyle(TickColor.textPrimary)
+        
+        TextEditor(text: $expansion)
+          .font(TickFont.bodyFunc(13))
+          .scrollContentBackground(.hidden)
+          .focused($focusedField, equals: .expansion)
+          .padding(8)
+          .frame(height: 100)
+          .background(TickColor.canvas)
+          .cornerRadius(10)
+          .overlay(
+            RoundedRectangle(cornerRadius: 10)
+              .stroke(focusedField == .expansion ? TickColor.brand : TickColor.line, lineWidth: focusedField == .expansion ? 1.5 : 1)
+              .animation(.easeOut(duration: 0.15), value: focusedField)
+          )
+      }
+      
+      // Action Buttons
+      HStack(spacing: 12) {
+        Spacer()
+        
+        Button(action: {
+          dismiss()
+        }) {
+          Text("Cancel")
+            .font(TickFont.labelFunc(13, weight: .semibold))
+            .foregroundStyle(TickColor.textPrimary)
+            .frame(width: 80, height: 36)
+            .background(
+              RoundedRectangle(cornerRadius: 10)
+                .fill(TickColor.canvas)
+                .overlay(
+                  RoundedRectangle(cornerRadius: 10)
+                    .stroke(TickColor.line, lineWidth: 1)
+                )
+            )
+        }
+        .buttonStyle(.plain)
+        
+        Button(action: {
+          let trimmedShort = shortcut.trimmingCharacters(in: .whitespacesAndNewlines)
+          let trimmedExp = expansion.trimmingCharacters(in: .whitespacesAndNewlines)
+          if !trimmedShort.isEmpty && !trimmedExp.isEmpty {
+            $hexSettings.withLock {
+              $0.snippets.insert(
+                SnippetSetting(shortcut: trimmedShort, content: trimmedExp),
+                at: 0
+              )
+            }
+            dismiss()
+          }
+        }) {
+          Text("Save")
+            .font(TickFont.labelFunc(13, weight: .semibold))
+            .foregroundStyle(.white)
+            .frame(width: 80, height: 36)
+            .background(
+              RoundedRectangle(cornerRadius: 10)
+                .fill(shortcut.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || expansion.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? TickColor.brand.opacity(0.5) : TickColor.brand)
+            )
+        }
+        .buttonStyle(.plain)
+        .disabled(shortcut.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || expansion.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+      }
+      .padding(.top, 8)
+    }
+    .padding(28)
+    .frame(width: 440)
+    .background(TickColor.surface)
+    .onAppear {
+      focusedField = .shortcut
     }
   }
 }
@@ -1916,107 +2193,6 @@ struct MediumIcon: View {
   }
 }
 
-// MARK: - Notes Tab
-
-struct NotesTabView: View {
-  @State private var notes = [
-    Note(title: "Project Kickoff Notes", body: "Discussed model requirements, cache locations for Parakeet models on macOS sandbox. Need to complete initial layout by tomorrow.", date: "Today, 10:45 AM"),
-    Note(title: "Feature Remappings Idea", body: "Create a list of common regex patterns for clearing background fillers like 'um', 'ah', 'like'. Let users toggle this under settings.", date: "Yesterday, 3:15 PM")
-  ]
-  @State private var selectedNoteId: UUID?
-  
-  struct Note: Identifiable {
-    let id = UUID()
-    var title: String
-    var body: String
-    let date: String
-  }
-  
-  var body: some View {
-    VStack(alignment: .leading, spacing: 20) {
-      HStack {
-        Text("Notes")
-          .font(TickFont.headingFunc(24, weight: .semibold))
-          .foregroundStyle(TickColor.textPrimary)
-        Spacer()
-        Button(action: {
-          let newNote = Note(title: "Untitled Note", body: "", date: "Just now")
-          notes.insert(newNote, at: 0)
-          selectedNoteId = newNote.id
-        }) {
-          Label("New Note", systemImage: "plus")
-        }
-        .buttonStyle(.bordered)
-        .controlSize(.small)
-      }
-      
-      HStack(alignment: .top, spacing: 16) {
-        ScrollView {
-          VStack(spacing: 8) {
-            ForEach(notes) { note in
-              Button(action: { selectedNoteId = note.id }) {
-                VStack(alignment: .leading, spacing: 4) {
-                  Text(note.title.isEmpty ? "Untitled Note" : note.title)
-                    .font(TickFont.labelFunc(13, weight: .medium))
-                    .foregroundStyle(TickColor.textPrimary)
-                    .lineLimit(1)
-                  
-                  Text(note.body.isEmpty ? "Empty note" : note.body)
-                    .font(TickFont.captionFunc(11))
-                    .foregroundStyle(TickColor.textSecondary)
-                    .lineLimit(2)
-                  
-                  Text(note.date)
-                    .font(TickFont.captionFunc(9))
-                    .foregroundStyle(TickColor.textSecondary)
-                    .padding(.top, 2)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(10)
-                .background(
-                  RoundedRectangle(cornerRadius: 8)
-                    .fill(selectedNoteId == note.id ? Color.primary.opacity(0.06) : Color.clear)
-                )
-              }
-              .buttonStyle(.plain)
-            }
-          }
-        }
-        .frame(width: 180)
-        
-        Divider()
-        
-        if let selectedId = selectedNoteId ?? notes.first?.id,
-           let index = notes.firstIndex(where: { $0.id == selectedId }) {
-          VStack(alignment: .leading, spacing: 16) {
-            TextField("Title", text: Binding(
-              get: { notes[index].title },
-              set: { notes[index].title = $0 }
-            ))
-            .font(TickFont.labelFunc(18))
-            .textFieldStyle(.plain)
-            
-            TextEditor(text: Binding(
-              get: { notes[index].body },
-              set: { notes[index].body = $0 }
-            ))
-            .font(TickFont.captionFunc(13))
-            .lineSpacing(4)
-          }
-          .padding(.leading, 8)
-          .frame(maxWidth: .infinity, alignment: .topLeading)
-        } else {
-          VStack {
-            Text("No Note Selected")
-              .foregroundStyle(TickColor.textSecondary)
-          }
-          .frame(maxWidth: .infinity, maxHeight: .infinity)
-        }
-      }
-      .frame(height: 380)
-    }
-  }
-}
 
 // MARK: - Help Tab
 

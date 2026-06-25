@@ -208,6 +208,7 @@ public struct HexSettings: Codable, Equatable, Sendable {
 	public var aiPostProcessingModel: String
 	public var selectedStyleIndex: Int
 	public var hasSelectedStyle: Bool
+	public var snippets: [SnippetSetting]
 
 	private mutating func normalizeDoubleTapSettings() {
 		if !doubleTapLockEnabled {
@@ -244,7 +245,12 @@ public struct HexSettings: Codable, Equatable, Sendable {
 		aiPostProcessingMode: AIPostProcessingMode = .off,
 		aiPostProcessingModel: String = "llama-3.3-70b-versatile",
 		selectedStyleIndex: Int = 2,
-		hasSelectedStyle: Bool = false
+		hasSelectedStyle: Bool = false,
+		snippets: [SnippetSetting] = [
+			.init(shortcut: "LinkedIn", content: "https://www.linkedin.com/in/john-doe-9b0139134/"),
+			.init(shortcut: "intro email", content: "Hey, would love to find some time to chat later..."),
+			.init(shortcut: "my calendly link", content: "calendly.com/you/invite-name")
+		]
 	) {
 		self.soundEffectsEnabled = soundEffectsEnabled
 		self.soundEffectsVolume = soundEffectsVolume
@@ -275,6 +281,7 @@ public struct HexSettings: Codable, Equatable, Sendable {
 		self.aiPostProcessingModel = aiPostProcessingModel
 		self.selectedStyleIndex = selectedStyleIndex
 		self.hasSelectedStyle = hasSelectedStyle
+		self.snippets = snippets
 		normalizeDoubleTapSettings()
 	}
 
@@ -328,6 +335,7 @@ private enum HexSettingKey: String, CodingKey, CaseIterable {
 	case aiPostProcessingModel
 	case selectedStyleIndex
 	case hasSelectedStyle
+	case snippets
 }
 
 private struct SettingsField<Value: Codable & Sendable> {
@@ -472,6 +480,7 @@ private enum HexSettingsSchema {
 		SettingsField(.aiPostProcessingMode, keyPath: \.aiPostProcessingMode, default: defaults.aiPostProcessingMode).eraseToAny(),
 		SettingsField(.aiPostProcessingModel, keyPath: \.aiPostProcessingModel, default: defaults.aiPostProcessingModel).eraseToAny(),
 		SettingsField(.selectedStyleIndex, keyPath: \.selectedStyleIndex, default: defaults.selectedStyleIndex).eraseToAny(),
-		SettingsField(.hasSelectedStyle, keyPath: \.hasSelectedStyle, default: defaults.hasSelectedStyle).eraseToAny()
+		SettingsField(.hasSelectedStyle, keyPath: \.hasSelectedStyle, default: defaults.hasSelectedStyle).eraseToAny(),
+		SettingsField(.snippets, keyPath: \.snippets, default: defaults.snippets).eraseToAny()
 	]
 }
