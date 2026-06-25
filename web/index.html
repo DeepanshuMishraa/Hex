@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tick — On-device voice-to-text dictation for macOS</title>
+  <meta name="description" content="Tick is a native, offline-first voice transcription utility for macOS. Press a hotkey, dictate, and auto-paste text formatted perfectly for any app.">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="nav-logo">
+        <svg class="logo-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="logo-text">tick.</span>
+      </div>
+      <div class="nav-links">
+        <a href="#features" class="nav-link">Features</a>
+        <a href="#shortcuts" class="nav-link">Shortcuts</a>
+        <a href="#privacy" class="nav-link">Privacy</a>
+        <a href="https://hex-updates.s3.amazonaws.com/appcast.xml" class="nav-btn-secondary" target="_blank">Changelog</a>
+        <a href="https://hex-updates.s3.amazonaws.com/hex-latest.dmg" class="nav-btn">Download for macOS</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <header class="hero">
+    <div class="hero-container">
+      <div class="hero-content">
+        <div class="badge">
+          <span class="badge-icon">#</span>
+          <span class="badge-text">Hex — Voice → Text</span>
+        </div>
+        
+        <h1 class="hero-title">
+          Speak it.<br>
+          <span class="highlight">Type it.</span>
+        </h1>
+        
+        <p class="hero-desc">
+          Press-and-hold a hotkey to transcribe your voice and paste the result wherever you're typing.
+        </p>
+        
+        <div class="hero-actions">
+          <a href="https://hex-updates.s3.amazonaws.com/hex-latest.dmg" class="btn-primary">
+            <svg class="apple-svg" viewBox="0 0 170 170" fill="currentColor">
+              <path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.75 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.37.13-9.13-1.9-14.28-6.07-3.47-2.79-7.27-7.42-11.4-13.9-4.7-7.41-8.59-15.67-11.66-24.77-3.07-9.11-4.63-17.84-4.63-26.2 0-12.62 3.18-23.08 9.53-31.39 6.35-8.3 14.35-12.49 24.01-12.56 5.26 0 10.45 1.45 15.58 4.36 5.13 2.9 8.78 4.36 10.95 4.36 1.79 0 5.48-1.51 11.06-4.53 5.58-3.02 10.68-4.46 15.3-4.3 11.97.45 21.25 4.86 27.85 13.25-9.84 5.98-14.65 14.37-14.44 25.16.21 8.22 3.3 15.11 9.28 20.68 5.98 5.58 13.08 8.88 21.3 9.9 2.24 6.26.17 14.18-6.2 23.79zm-29.62-119c0 6.66-2.52 12.83-7.56 17.51-5.04 4.68-11.2 7.15-18.49 7.41.11-6.55 2.63-12.77 7.56-17.65 4.93-4.88 11.23-7.39 18.49-7.53.11.26.11.8.11 1.63z"/>
+            </svg>
+            Download for macOS
+          </a>
+          <button class="btn-secondary" id="watch-btn">
+            <svg class="play-svg" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M8 5v14l11-7z"/>
+            </svg>
+            Watch how it works
+          </button>
+        </div>
+        
+        <div class="hero-features-list">
+          <div class="hero-feature-item">
+            <svg class="shield-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+            <span>Works offline. Your data stays on your Mac.</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="hero-visual">
+        <div class="visual-wrapper">
+          <div class="glow-aura"></div>
+          <div class="hexagon-grid">
+            <div class="hex-outline outline-1"></div>
+            <div class="hex-outline outline-2"></div>
+            <div class="hex-outline outline-3"></div>
+          </div>
+          <img src="assets/hero.jpg" alt="Tick App Icon Floating Key" class="hero-3d-image">
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Interactive Terminal/App Showcase Section -->
+  <section class="demo-section">
+    <div class="demo-container">
+      <div class="mac-window">
+        <div class="window-header">
+          <div class="window-controls">
+            <span class="control close"></span>
+            <span class="control minimize"></span>
+            <span class="control expand"></span>
+          </div>
+          <div class="window-title-pill">
+            <span class="pill-text">Try it: Hold</span>
+            <kbd class="kbd-key">⌥</kbd>
+            <kbd class="kbd-key">Space</kbd>
+            <span class="pill-text">and speak</span>
+          </div>
+          <div class="window-placeholder"></div>
+        </div>
+        
+        <div class="window-body">
+          <div class="demo-display">
+            <div class="demo-input-text" id="demo-typing-text">
+              <!-- Animated typewriter text will go here -->
+              "Hey team, just wanted to follow up on the design review. The new direction looks great—let's |"
+            </div>
+            
+            <div class="visualizer-container">
+              <div class="wave-bar"></div>
+              <div class="wave-bar animate-1"></div>
+              <div class="wave-bar animate-2"></div>
+              <div class="wave-bar animate-3"></div>
+              <div class="wave-bar animate-4"></div>
+              <div class="wave-bar animate-2"></div>
+              <div class="wave-bar animate-1"></div>
+              <div class="wave-bar"></div>
+            </div>
+            
+            <div class="demo-app-icon">
+              <svg class="demo-logo-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Grid Section -->
+  <section id="features" class="features-section">
+    <div class="features-container">
+      <div class="features-grid">
+        <!-- Feature 1 -->
+        <div class="feature-card">
+          <div class="feature-icon-wrapper">
+            <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+            </svg>
+          </div>
+          <h3 class="feature-title">Blazing fast</h3>
+          <p class="feature-desc">Transcribe in real-time with near-zero latency.</p>
+        </div>
+        
+        <!-- Feature 2 -->
+        <div class="feature-card">
+          <div class="feature-icon-wrapper">
+            <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="2" y1="12" x2="22" y2="12"/>
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+            </svg>
+          </div>
+          <h3 class="feature-title">Works everywhere</h3>
+          <p class="feature-desc">Paste text in any app—notes, emails, docs, anywhere.</p>
+        </div>
+        
+        <!-- Feature 3 -->
+        <div class="feature-card">
+          <div class="feature-icon-wrapper">
+            <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+          </div>
+          <h3 class="feature-title">Private by design</h3>
+          <p class="feature-desc">100% offline transcription. Your data never leaves your Mac.</p>
+        </div>
+        
+        <!-- Feature 4 -->
+        <div class="feature-card">
+          <div class="feature-icon-wrapper">
+            <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="4" width="20" height="16" rx="2" ry="2"/>
+              <line x1="6" y1="8" x2="6" y2="8"/>
+              <line x1="10" y1="8" x2="10" y2="8"/>
+              <line x1="14" y1="8" x2="14" y2="8"/>
+              <line x1="18" y1="8" x2="18" y2="8"/>
+              <line x1="6" y1="12" x2="6" y2="12"/>
+              <line x1="10" y1="12" x2="10" y2="12"/>
+              <line x1="14" y1="12" x2="14" y2="12"/>
+              <line x1="18" y1="12" x2="18" y2="12"/>
+              <line x1="7" y1="16" x2="17" y2="16"/>
+            </svg>
+          </div>
+          <h3 class="feature-title">Always one shortcut away</h3>
+          <p class="feature-desc">Press, speak, release. It just works.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-container">
+      <p class="footer-text">© 2026 Tick. All rights reserved. Tick is a fork of <a href="https://hex.kitlangton.com" target="_blank" class="footer-link">Hex</a>.</p>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script type="module" src="main.js"></script>
+</body>
+</html>
