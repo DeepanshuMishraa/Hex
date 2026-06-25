@@ -42,7 +42,6 @@ struct AIPostProcessingClientLive {
 	@Shared(.hexSettings) var hexSettings: HexSettings
 
 	private let groqBaseURL = "https://api.groq.com/openai/v1/chat/completions"
-	private let model = "meta-llama/llama-4-scout-17b-16e-instruct"
 
 
 
@@ -63,8 +62,9 @@ struct AIPostProcessingClientLive {
 			return text
 		}
 
+		let selectedModel = hexSettings.aiPostProcessingModel
 		let request = GroqRequest(
-			model: model,
+			model: selectedModel,
 			messages: [
 				["role": "system", "content": systemPrompt],
 				["role": "user", "content": "Transcription: \(text)"]
@@ -91,7 +91,7 @@ struct AIPostProcessingClientLive {
 			aiLogger.debug("Groq API request body: \(jsonString, privacy: .public)")
 		}
 
-		aiLogger.info("Sending text to Groq for post-processing, mode: \(mode.displayName), app: \(appContext?.appName ?? "unknown")")
+		aiLogger.info("Sending text to Groq for post-processing with model \(selectedModel), mode: \(mode.displayName), app: \(appContext?.appName ?? "unknown")")
 
 		let startTime = Date()
 
@@ -127,9 +127,10 @@ struct AIPostProcessingClientLive {
 			throw AIPostProcessingError.invalidAPIKey
 		}
 
+		let selectedModel = hexSettings.aiPostProcessingModel
 		// Make a minimal API call to validate the key
 		let request = GroqRequest(
-			model: model,
+			model: selectedModel,
 			messages: [
 				["role": "system", "content": "You are a helpful assistant."],
 				["role": "user", "content": "Test"]

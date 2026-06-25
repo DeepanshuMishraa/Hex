@@ -29,22 +29,23 @@ public enum AppCategory: String, Codable, CaseIterable, Equatable, Sendable {
 		switch self {
 		case .terminal:
 			return """
-			The user is dictating into a terminal/command-line application. Format the output as a command or sequence of commands:
-			- Use lowercase unless the user clearly says proper nouns or acronyms
-			- Remove filler words and self-corrections entirely
-			- Do not add periods or other sentence-ending punctuation
-			- If dictating multiple commands, put each on its own line
-			- Convert natural language to appropriate command syntax where obvious (e.g., "list all files" → "ls -la")
-			- Preserve flags and options the user specifies
+			The user is dictating into a terminal/command-line application. Format the output strictly as a raw shell command or sequence of commands:
+			- Return ONLY the executable command line. Do NOT wrap the command in markdown code fences or blocks (e.g., do NOT use ```bash or ```).
+			- Convert spoken punctuation or names into code syntax: e.g. "dash dash" to "--", "hyphen" to "-", "slash" to "/", "dot" to ".", "space" to " ", "star" to "*".
+			- Use lowercase for command names, parameters, and flags unless specifically stated or required (e.g., "git add dot" → "git add .", "git commit status message" → "git commit -m \"status message\"").
+			- Remove all filler words, self-corrections, and conversational explanations completely.
+			- Do not add periods, punctuation, or other sentence-ending characters at the end of the command line.
+			- If dictating multiple commands, separate them onto their own lines or join them with "&&" depending on context.
 			"""
 		case .email:
 			return """
-			The user is dictating into an email application. Format the output as a well-structured email:
-			- Add an appropriate greeting if the content suggests one
-			- Use proper paragraphs and punctuation
-			- Professional but natural tone
-			- Add a sign-off (e.g., "Best regards,") only if the content suggests the email is complete
-			- Clean up filler words and self-corrections
+			The user is dictating into an email application. Format the output strictly as a well-structured email message:
+			- Format the greeting (e.g., "Dear Name,", "Hi Name,") on its own line at the start, followed by a blank line.
+			- Separate body paragraphs with clean blank lines for readability.
+			- Use a professional yet natural tone.
+			- Add a sign-off (e.g., "Best regards,", "Thanks,", "Sincerely,") on its own line at the end only if the dictation implies closing.
+			- Remove all spoken formatting cues (like "new line", "comma", "period", "bullet point") and replace them with actual formatting.
+			- Clean up filler words and self-corrections.
 			"""
 		case .codeEditor:
 			return """
@@ -67,11 +68,11 @@ public enum AppCategory: String, Codable, CaseIterable, Equatable, Sendable {
 			"""
 		case .browser:
 			return """
-			The user is dictating into a web browser. Format the output based on the likely context:
-			- If on an email site (Gmail, Outlook, etc.), format as an email
-			- If on a social media site, format as a post or message
-			- If on a document editing site, format as document text
-			- Default: clean up with proper punctuation and grammar without over-formatting
+			The user is dictating into a web browser. Format the output based on the website's context:
+			- If on an email site (Gmail, Outlook, Yahoo Mail), strictly format the output as a well-structured email: put the greeting at the top, separate the body paragraphs with blank lines, and put the sign-off at the bottom.
+			- If on a messaging or chat site (Slack web, WhatsApp web, Discord web), format as a concise, conversational message.
+			- If on a document editor (Google Docs, Notion), format as organized text with proper formatting and structure.
+			- Default: clean up filler words, add punctuation, and format nicely without conversational filler.
 			"""
 		case .notes:
 			return """

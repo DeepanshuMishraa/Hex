@@ -109,6 +109,7 @@ struct SettingsFeature {
 
     // AI Post-Processing
     case setAIPostProcessingMode(AIPostProcessingMode)
+    case setAIPostProcessingModel(String)
     case setGroqAPIKey(String)
     case validateGroqAPIKey
     case groqAPIKeyValidationResult(Result<Bool, Error>)
@@ -484,6 +485,10 @@ struct SettingsFeature {
 
       case let .setAIPostProcessingMode(mode):
         state.$hexSettings.withLock { $0.aiPostProcessingMode = mode }
+        return .none
+
+      case let .setAIPostProcessingModel(model):
+        state.$hexSettings.withLock { $0.aiPostProcessingModel = model }
         return .none
 
       case let .setGroqAPIKey(key):

@@ -1073,7 +1073,7 @@ actor RecordingClientLive {
     for state in states {
       if state.usedHardwareMute {
         if !state.wasPreviouslyMuted {
-          setDeviceMuteState(deviceID: state.deviceID, muted: false)
+          _ = setDeviceMuteState(deviceID: state.deviceID, muted: false)
           mediaLogger.notice("Unmuted output device \(state.deviceName) via hardware mute")
           
           // CRITICAL: Restore original volume level in addition to unmuting, because some

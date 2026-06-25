@@ -96,19 +96,33 @@ Output rules:
 	private static func urlHint(for host: String) -> String {
 		let lower = host.lowercased()
 		if lower.contains("mail.google.com") || lower.contains("gmail.com") {
-			return "The user is in Gmail — format as an email with greeting, body, and appropriate tone."
+			return """
+			- The user is in Gmail: strictly format as a professional email. Put the greeting (e.g. "Dear ...," or "Hi ...,") on its own line followed by a blank line, separate body paragraphs with blank lines, and put the sign-off (e.g. "Best regards,", "Thanks,") on its own line at the bottom.
+			"""
 		} else if lower.contains("outlook.") || lower.contains("mail.yahoo.com") {
-			return "The user is in an email client — format as an email."
+			return """
+			- The user is in an email client (Outlook/Yahoo): format as a professional email with a greeting on its own line, body paragraphs separated by blank lines, and a closing sign-off on its own line.
+			"""
 		} else if lower.contains("slack.com") || lower.contains("discord.com") {
-			return "The user is in a messaging app — format as a chat message."
+			return """
+			- The user is in a messaging app (Slack/Discord): format as a concise, natural, conversational chat message. Keep paragraphs brief and do not use formal email greetings/closings.
+			"""
 		} else if lower.contains("notion.so") || lower.contains("notion.site") {
-			return "The user is in Notion — format as structured notes."
+			return """
+			- The user is in Notion: format as clean, structured markdown notes with bullet points or headers ("## ") where appropriate.
+			"""
 		} else if lower.contains("docs.google.com") {
-			return "The user is in Google Docs — format as document text."
+			return """
+			- The user is in Google Docs: format as document prose with proper paragraphs, grammar, and formal punctuation.
+			"""
 		} else if lower.contains("github.com") {
-			return "The user is on GitHub — format appropriately (commit message, issue comment, PR description, etc.)."
+			return """
+			- The user is on GitHub: format as markdown code comments, issue descriptions, pull requests, or commit messages depending on the dictated content.
+			"""
 		} else if lower.contains("jira.") || lower.contains("atlassian.net") {
-			return "The user is in a project management tool — format as a ticket description or comment."
+			return """
+			- The user is in Jira: format as structured bug reports or task descriptions with bullet points.
+			"""
 		}
 		return ""
 	}
@@ -157,6 +171,7 @@ public struct HexSettings: Codable, Equatable, Sendable {
 	public var wordRemappings: [WordRemapping]
 	public var groqAPIKey: String?
 	public var aiPostProcessingMode: AIPostProcessingMode
+	public var aiPostProcessingModel: String
 
 	private mutating func normalizeDoubleTapSettings() {
 		if !doubleTapLockEnabled {
@@ -190,7 +205,8 @@ public struct HexSettings: Codable, Equatable, Sendable {
 		wordRemovals: [WordRemoval] = HexSettings.defaultWordRemovals,
 		wordRemappings: [WordRemapping] = [],
 		groqAPIKey: String? = nil,
-		aiPostProcessingMode: AIPostProcessingMode = .off
+		aiPostProcessingMode: AIPostProcessingMode = .off,
+		aiPostProcessingModel: String = "llama-3.3-70b-versatile"
 	) {
 		self.soundEffectsEnabled = soundEffectsEnabled
 		self.soundEffectsVolume = soundEffectsVolume
@@ -218,6 +234,7 @@ public struct HexSettings: Codable, Equatable, Sendable {
 		self.wordRemappings = wordRemappings
 		self.groqAPIKey = groqAPIKey
 		self.aiPostProcessingMode = aiPostProcessingMode
+		self.aiPostProcessingModel = aiPostProcessingModel
 		normalizeDoubleTapSettings()
 	}
 
@@ -268,6 +285,7 @@ private enum HexSettingKey: String, CodingKey, CaseIterable {
 	case wordRemappings
 	case groqAPIKey
 	case aiPostProcessingMode
+	case aiPostProcessingModel
 }
 
 private struct SettingsField<Value: Codable & Sendable> {
@@ -409,6 +427,7 @@ private enum HexSettingsSchema {
 				try container.encodeIfPresent(value, forKey: key)
 			}
 		).eraseToAny(),
-		SettingsField(.aiPostProcessingMode, keyPath: \.aiPostProcessingMode, default: defaults.aiPostProcessingMode).eraseToAny()
+		SettingsField(.aiPostProcessingMode, keyPath: \.aiPostProcessingMode, default: defaults.aiPostProcessingMode).eraseToAny(),
+		SettingsField(.aiPostProcessingModel, keyPath: \.aiPostProcessingModel, default: defaults.aiPostProcessingModel).eraseToAny()
 	]
 }

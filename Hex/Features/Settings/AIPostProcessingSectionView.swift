@@ -42,7 +42,7 @@ struct AIPostProcessingSectionView: View {
 								.font(TickFont.eyebrow)
 								.tracking(0.8)
 								.foregroundStyle(TickColor.textTertiary)
-							Text("Off / On / App-Aware")
+							Text("Off / App-Aware")
 								.font(TickFont.body)
 								.foregroundStyle(TickColor.textPrimary)
 							Text("App-Aware detects the active application and adapts formatting")
@@ -57,12 +57,44 @@ struct AIPostProcessingSectionView: View {
 							),
 							options: [
 								(.off, "Off", "nosign"),
-								(.on, "On", "wand.and.stars"),
 								(.appAware, "App-Aware", "app.badge")
 							]
 						)
 					}
 					.padding(.vertical, TickSpacing.s)
+
+					if store.hexSettings.aiPostProcessingMode != .off {
+						Rectangle().fill(TickColor.line).frame(height: 1)
+
+						HStack(alignment: .center, spacing: TickSpacing.l) {
+							VStack(alignment: .leading, spacing: 4) {
+								Text("MODEL".uppercased())
+									.font(TickFont.eyebrow)
+									.tracking(0.8)
+									.foregroundStyle(TickColor.textTertiary)
+								Text(store.hexSettings.aiPostProcessingModel == "llama-3.3-70b-versatile" ? "Llama 3.3 70B" :
+									 store.hexSettings.aiPostProcessingModel == "qwen/qwen3-32b" ? "Qwen 3 32B" : "Qwen 3.6 27B")
+									.font(TickFont.body)
+									.foregroundStyle(TickColor.textPrimary)
+								Text("Select the LLM model to process your transcriptions")
+									.font(TickFont.caption)
+									.foregroundStyle(TickColor.textSecondary)
+							}
+							Spacer()
+							CustomMenuPicker(
+								selection: Binding(
+									get: { store.hexSettings.aiPostProcessingModel },
+									set: { store.send(.setAIPostProcessingModel($0)) }
+								),
+								options: [
+									("llama-3.3-70b-versatile", "Llama 3.3 70B", "brain"),
+									("qwen/qwen3-32b", "Qwen 3 32B", "brain.headsprout"),
+									("qwen/qwen3.6-27b", "Qwen 3.6 27B", "brain.headsprout")
+								]
+							)
+						}
+						.padding(.vertical, TickSpacing.s)
+					}
 
 					if store.hexSettings.aiPostProcessingMode != .off {
 						Rectangle().fill(TickColor.line).frame(height: 1)
@@ -105,7 +137,7 @@ struct AIPostProcessingSectionView: View {
 								}
 							}
 
-							Text("Uses meta-llama/llama-4-scout-17b-16e-instruct via Groq.")
+							Text("Uses \(store.hexSettings.aiPostProcessingModel) via Groq.")
 								.font(TickFont.caption)
 								.foregroundStyle(TickColor.textTertiary)
 						}
