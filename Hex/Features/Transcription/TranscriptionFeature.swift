@@ -520,6 +520,8 @@ private extension TranscriptionFeature {
       try? FileManager.default.removeItem(at: audioURL)
     }
 
+    soundEffect.play(.error)
+
     return .none
   }
 

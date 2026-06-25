@@ -683,10 +683,11 @@ struct AppView: View {
         Spacer()
       }
       .padding(.horizontal, 24)
+      .padding(.top, store.hexSettings.hasSelectedStyle ? 24 : 0)
       .padding(.bottom, 10)
       
-      VStack(alignment: .leading, spacing: 0) {
-        ForEach(Array(displayTranscripts.enumerated()), id: \.element.id) { index, transcript in
+      LazyVStack(alignment: .leading, spacing: 0) {
+        ForEach(displayTranscripts) { transcript in
           TranscriptRow(
             transcript: transcript,
             isPlaying: store.state.history.playingTranscriptID == transcript.id,
@@ -695,7 +696,7 @@ struct AppView: View {
             onDelete: { store.send(.history(.deleteTranscript(transcript.id))) }
           )
           
-          if index < displayTranscripts.count - 1 {
+          if transcript.id != displayTranscripts.last?.id {
             Divider()
               .background(Color.primary.opacity(0.05))
           }
@@ -777,19 +778,47 @@ struct TranscriptRow: View {
   let onCopy: () -> Void
   let onDelete: () -> Void
   
+  let isSilence: Bool
+  
   @State private var isHovered = false
   @State private var showCopied = false
   @State private var copyTask: Task<Void, Error>?
   
+  init(
+    transcript: Transcript,
+    isPlaying: Bool,
+    onPlay: @escaping () -> Void,
+    onCopy: @escaping () -> Void,
+    onDelete: @escaping () -> Void
+  ) {
+    self.transcript = transcript
+    self.isPlaying = isPlaying
+    self.onPlay = onPlay
+    self.onCopy = onCopy
+    self.onDelete = onDelete
+    
+    let textLower = transcript.text.lowercased()
+    self.isSilence = textLower.contains("silence") || textLower.contains("slince")
+  }
+  
+  private enum TimeFormatter {
+    static let shared: DateFormatter = {
+      let formatter = DateFormatter()
+      formatter.dateStyle = .none
+      formatter.timeStyle = .short
+      return formatter
+    }()
+  }
+  
   var body: some View {
     HStack(alignment: .center, spacing: 20) {
-      Text(transcript.timestamp.formatted(date: .omitted, time: .shortened))
+      Text(TimeFormatter.shared.string(from: transcript.timestamp))
         .font(TickFont.captionFunc(13))
         .foregroundStyle(TickColor.textSecondary)
         .frame(width: 75, alignment: .leading)
       
       HStack(spacing: 6) {
-        if transcript.text.lowercased().contains("silence") || transcript.text.lowercased().contains("slince") {
+        if isSilence {
           Text(transcript.text)
             .font(TickFont.captionFunc(13))
             .italic()
@@ -808,37 +837,38 @@ struct TranscriptRow: View {
       Spacer()
       
       HStack(spacing: 12) {
-        if isHovered {
-          Button(action: {
-            onCopy()
-            showCopyAnimation()
-          }) {
-            Image(systemName: showCopied ? "checkmark" : "doc.on.doc")
-              .font(TickFont.captionFunc(12))
-              .foregroundColor(showCopied ? .green : .secondary)
-          }
-          .buttonStyle(.plain)
-          
-          Button(action: {}) {
-            Image(systemName: "flag")
-              .font(TickFont.captionFunc(12))
-              .foregroundStyle(TickColor.textSecondary)
-          }
-          .buttonStyle(.plain)
-          
-          Menu {
-            Button(isPlaying ? "Stop Audio" : "Play Audio", action: onPlay)
-            Button("Delete", role: .destructive, action: onDelete)
-          } label: {
-            Image(systemName: "ellipsis")
-              .font(TickFont.captionFunc(12))
-              .foregroundStyle(TickColor.textSecondary)
-          }
-          .menuStyle(.button)
-          .buttonStyle(.plain)
+        Button(action: {
+          onCopy()
+          showCopyAnimation()
+        }) {
+          Image(systemName: showCopied ? "checkmark" : "doc.on.doc")
+            .font(TickFont.captionFunc(12))
+            .foregroundColor(showCopied ? .green : .secondary)
         }
+        .buttonStyle(.plain)
+        
+        Button(action: {}) {
+          Image(systemName: "flag")
+            .font(TickFont.captionFunc(12))
+            .foregroundStyle(TickColor.textSecondary)
+        }
+        .buttonStyle(.plain)
+        
+        Menu {
+          Button(isPlaying ? "Stop Audio" : "Play Audio", action: onPlay)
+          Button("Delete", role: .destructive, action: onDelete)
+        } label: {
+          Image(systemName: "ellipsis")
+            .font(TickFont.captionFunc(12))
+            .foregroundStyle(TickColor.textSecondary)
+        }
+        .menuStyle(.button)
+        .buttonStyle(.plain)
       }
       .frame(width: 80, alignment: .trailing)
+      .opacity(isHovered ? 1.0 : 0.0)
+      .disabled(!isHovered)
+      .animation(.easeOut(duration: 0.15), value: isHovered)
     }
     .padding(.horizontal, 24)
     .padding(.vertical, 12)
@@ -2019,6 +2049,7 @@ struct StyleTabView: View {
               action: { $hexSettings.withLock { $0.selectedStyleIndex = 2; $0.hasSelectedStyle = true } }
             )
           }
+          .padding(.top, 10)
         }
       }
     }

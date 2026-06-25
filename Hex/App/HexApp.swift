@@ -47,7 +47,6 @@ struct HexApp: App {
 }
 
 // MARK: - Animated Menu Bar Recording Icon
-//
 // When idle, shows the static Tick icon.
 // When recording, animates 4 thin white bars (a tiny waveform) that pulse
 // to signal active recording. The menu bar item itself acts as the visual

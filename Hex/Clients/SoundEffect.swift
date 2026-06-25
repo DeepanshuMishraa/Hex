@@ -19,13 +19,24 @@ public enum SoundEffect: String, CaseIterable {
   case startRecording
   case stopRecording
   case cancel
+  case error
 
   public var fileName: String {
-    self.rawValue
+    switch self {
+    case .cancel, .error:
+      return "end"
+    default:
+      return self.rawValue
+    }
   }
 
   var fileExtension: String {
-    "mp3"
+    switch self {
+    case .startRecording:
+      return "aac"
+    default:
+      return "mp3"
+    }
   }
 }
 
