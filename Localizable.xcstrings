@@ -41,6 +41,9 @@
         }
       }
     },
+    "ABOUT TICK" : {
+
+    },
     "Accessibility" : {
       "comment" : "Settings -> Accessibility Section headline",
       "extractionState" : "stale",
@@ -831,6 +834,9 @@
 
     },
     "Tick adapts to how you write in different apps. Personalize your style for messages, work chats, emails, and other apps so every word sounds like you." : {
+
+    },
+    "Tick is a fork of [hex](https://hex.kitlangton.com) and in case of any issues contact [Deepanshu](mailto:dipxsy@duck.com)." : {
 
     },
     "Tick is a voice-to-text app that " : {
