@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const scenarios = [
     {
       app: 'Terminal',
-      pillText: 'Active App: Terminal',
+      pillText: 'active_app: terminal',
       spoken: 'git commit this is a good landing page',
       transformed: '<span class="typed-command">git commit -m "this is a good landing page"</span>',
       isHTML: true,
@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     },
     {
       app: 'Slack',
-      pillText: 'Active App: Slack',
+      pillText: 'active_app: slack',
       spoken: 'hey team just wanted to follow up on the design review the new direction looks great let\'s',
       transformed: '"hey team, just wanted to follow up on the design review. the new direction looks great—let\'s |"',
       isHTML: false,
@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
     },
     {
       app: 'Gmail',
-      pillText: 'Active App: Gmail',
+      pillText: 'active_app: gmail',
       spoken: 'email John about the launch tomorrow tell him we are ready',
       transformed: 'Hi John,\n\nI wanted to follow up about the launch tomorrow. Just letting you know we are ready.\n\nBest regards,\n[Your Name]',
       isHTML: false,
@@ -72,12 +72,12 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       // Simple pre-tag styling for linebreaks in emails
       if (scenario.app === 'Gmail') {
-        typingTextEl.style.fontSize = '18px';
+        typingTextEl.style.fontSize = '16px';
         typingTextEl.style.textAlign = 'left';
-        typingTextEl.style.fontFamily = 'var(--font-body)';
+        typingTextEl.style.fontFamily = 'var(--font-sans)';
         typingTextEl.innerHTML = scenario.transformed.replace(/\n/g, '<br>');
       } else {
-        typingTextEl.style.fontSize = '26px';
+        typingTextEl.style.fontSize = '22px';
         typingTextEl.style.textAlign = 'center';
         typingTextEl.innerHTML = scenario.transformed;
       }
@@ -114,5 +114,26 @@ document.addEventListener('DOMContentLoaded', () => {
         });
       }
     });
+  });
+
+  // Scroll reveal animation with IntersectionObserver
+  const observerOptions = {
+    root: null,
+    rootMargin: '0px',
+    threshold: 0.12
+  };
+
+  const revealObserver = new IntersectionObserver((entries, observer) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('active');
+        // Once visible, stop tracking to keep state
+        observer.unobserve(entry.target);
+      }
+    });
+  }, observerOptions);
+
+  document.querySelectorAll('.scroll-reveal').forEach(el => {
+    revealObserver.observe(el);
   });
 });

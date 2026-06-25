@@ -16,30 +16,40 @@
 </head>
 <body>
   
-  <!-- Header / Navigation -->
-  <nav class="navbar">
-    <div class="nav-container">
-      <div class="nav-logo">
-        <svg class="logo-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <span class="logo-text">tick.</span>
+  <!-- Floating Fluid Island Navbar -->
+  <div class="nav-shell scroll-reveal">
+    <nav class="navbar">
+      <div class="nav-container">
+        <div class="nav-logo">
+          <svg class="logo-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span class="logo-text">tick.</span>
+        </div>
+        <div class="nav-links">
+          <a href="#features" class="nav-link">/features</a>
+          <a href="#shortcuts" class="nav-link">/shortcuts</a>
+          <a href="#privacy" class="nav-link">/privacy</a>
+          <a href="https://hex-updates.s3.amazonaws.com/hex-latest.dmg" class="nav-btn-pill">
+            <span>Download</span>
+            <span class="btn-arrow-wrapper">
+              <svg class="arrow-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="7" y1="17" x2="17" y2="7"/>
+                <polyline points="7 7 17 7 17 17"/>
+              </svg>
+            </span>
+          </a>
+        </div>
       </div>
-      <div class="nav-links">
-        <a href="#features" class="nav-link">/features</a>
-        <a href="#shortcuts" class="nav-link">/shortcuts</a>
-        <a href="#privacy" class="nav-link">/privacy</a>
-        <a href="https://hex-updates.s3.amazonaws.com/hex-latest.dmg" class="nav-btn">Download</a>
-      </div>
-    </div>
-  </nav>
+    </nav>
+  </div>
 
   <!-- Hero Section -->
   <header class="hero">
     <div class="hero-container">
-      <div class="hero-content">
-        <div class="meta-label">
-          <span class="meta-index">[ 01 // SYSTEM ]</span>
+      <div class="hero-content scroll-reveal">
+        <div class="eyebrow-pill">
+          <span class="eyebrow-text">dictation // refined</span>
         </div>
         
         <h1 class="hero-title">
@@ -48,64 +58,74 @@
         </h1>
         
         <p class="hero-desc">
-          Press-and-hold a hotkey to transcribe your voice and paste the result directly into your active window. Offline, secure, and instant.
+          A minimalist utility that transcribes voice input and writes it directly into your active window. Zero lag, zero telemetry, full offline security.
         </p>
         
         <div class="hero-actions">
-          <a href="https://hex-updates.s3.amazonaws.com/hex-latest.dmg" class="btn-primary">
-            Download for macOS
+          <a href="https://hex-updates.s3.amazonaws.com/hex-latest.dmg" class="btn-primary-pill">
+            <span>Download for macOS</span>
+            <span class="btn-arrow-wrapper">
+              <svg class="arrow-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="7" y1="17" x2="17" y2="7"/>
+                <polyline points="7 7 17 7 17 17"/>
+              </svg>
+            </span>
           </a>
-          <button class="btn-secondary" id="watch-btn">
-            Watch interactive demo
+          <button class="btn-secondary-pill" id="watch-btn">
+            <span>Interactive Demo</span>
           </button>
         </div>
         
         <div class="hero-badge">
           <span class="badge-dot"></span>
-          <span class="badge-text">100% On-Device Processing</span>
+          <span class="badge-text">100% on-device core ml models</span>
         </div>
       </div>
       
-      <div class="hero-visual">
-        <div class="visual-wrapper">
-          <div class="hex-outline"></div>
-          <img src="assets/hero.jpg" alt="Tick Key Model" class="hero-3d-image">
+      <div class="hero-visual scroll-reveal">
+        <div class="visual-shell">
+          <div class="visual-core">
+            <div class="hex-wireframe"></div>
+            <img src="assets/hero.jpg" alt="Tick Key Model" class="hero-3d-image">
+          </div>
         </div>
       </div>
     </div>
   </header>
 
-  <!-- Interactive Terminal Showcase -->
-  <section class="demo-section">
+  <!-- Interactive Terminal Showcase (Double-Bezel nested) -->
+  <section class="demo-section scroll-reveal">
     <div class="demo-container">
-      <div class="mac-window">
-        <div class="window-header">
-          <div class="window-controls">
-            <span class="control close"></span>
-            <span class="control minimize"></span>
-            <span class="control expand"></span>
-          </div>
-          <div class="window-title-pill">
-            <span class="pill-text">Active App: Terminal</span>
-          </div>
-          <div class="window-right-meta">[ press option + space ]</div>
-        </div>
-        
-        <div class="window-body">
-          <div class="demo-display">
-            <div class="demo-input-text" id="demo-typing-text">
-              "Hey team, just wanted to follow up on the design review. The new direction looks great—let's |"
+      <div class="window-shell">
+        <div class="window-core">
+          <div class="window-header">
+            <div class="window-controls">
+              <span class="control close"></span>
+              <span class="control minimize"></span>
+              <span class="control expand"></span>
             </div>
-            
-            <div class="visualizer-container">
-              <div class="wave-bar"></div>
-              <div class="wave-bar animate-1"></div>
-              <div class="wave-bar animate-2"></div>
-              <div class="wave-bar animate-3"></div>
-              <div class="wave-bar animate-4"></div>
-              <div class="wave-bar animate-2"></div>
-              <div class="wave-bar animate-1"></div>
-              <div class="wave-bar"></div>
+            <div class="window-title-pill">
+              <span class="pill-text">active_app: terminal</span>
+            </div>
+            <div class="window-right-meta">[ option + space ]</div>
+          </div>
+          
+          <div class="window-body">
+            <div class="demo-display">
+              <div class="demo-input-text" id="demo-typing-text">
+                "Hey team, just wanted to follow up on the design review. The new direction looks great—let's |"
+              </div>
+              
+              <div class="visualizer-container">
+                <div class="wave-bar"></div>
+                <div class="wave-bar animate-1"></div>
+                <div class="wave-bar animate-2"></div>
+                <div class="wave-bar animate-3"></div>
+                <div class="wave-bar animate-4"></div>
+                <div class="wave-bar animate-2"></div>
+                <div class="wave-bar animate-1"></div>
+                <div class="wave-bar"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -113,111 +133,127 @@
     </div>
   </section>
 
-  <!-- Features Grid -->
-  <section id="features" class="features-section">
+  <!-- Features Bento Section (Double-Bezel cards) -->
+  <section id="features" class="features-section scroll-reveal">
     <div class="features-container">
       <div class="features-grid">
         <!-- Feature 1 -->
-        <div class="feature-card">
-          <span class="feature-meta">// 01_SPEED</span>
-          <h3 class="feature-title">Blazing fast</h3>
-          <p class="feature-desc">Transcribe in real-time with near-zero latency. Driven by native Apple Silicon acceleration.</p>
+        <div class="feature-shell">
+          <div class="feature-core">
+            <span class="feature-meta">// 01_SPEED</span>
+            <h3 class="feature-title">Native Performance</h3>
+            <p class="feature-desc">Transcribe instantly. Custom Whisper execution optimized for Apple Silicon guarantees sub-100ms response times.</p>
+          </div>
         </div>
         
         <!-- Feature 2 -->
-        <div class="feature-card">
-          <span class="feature-meta">// 02_CONTEXT</span>
-          <h3 class="feature-title">Works everywhere</h3>
-          <p class="feature-desc">App-aware formatting converts spoken audio contextually for terminal, code, email, or chat.</p>
+        <div class="feature-shell">
+          <div class="feature-core">
+            <span class="feature-meta">// 02_CONTEXT</span>
+            <h3 class="feature-title">App-Aware Syntax</h3>
+            <p class="feature-desc">Automatically parses dictation style based on destination. Emits shell command logic, markdown notes, or conversational text.</p>
+          </div>
         </div>
         
         <!-- Feature 3 -->
-        <div class="feature-card">
-          <span class="feature-meta">// 03_SECURITY</span>
-          <h3 class="feature-title">Private by design</h3>
-          <p class="feature-desc">Local Core ML engine guarantees your voice records never leave your machine. No telemetry.</p>
+        <div class="feature-shell">
+          <div class="feature-core">
+            <span class="feature-meta">// 03_SECURITY</span>
+            <h3 class="feature-title">Absolute Isolation</h3>
+            <p class="feature-desc">Transcriptions are processed entirely in memory on your Mac. No network logs, no telemetry, and complete system privacy.</p>
+          </div>
         </div>
         
         <!-- Feature 4 -->
-        <div class="feature-card">
-          <span class="feature-meta">// 04_FLOW</span>
-          <h3 class="feature-title">Zero Friction</h3>
-          <p class="feature-desc">Press shortcut, speak, release to paste. Seamless workflow that sits cleanly in the menu bar.</p>
+        <div class="feature-shell">
+          <div class="feature-core">
+            <span class="feature-meta">// 04_FLOW</span>
+            <h3 class="feature-title">Tactile Workflows</h3>
+            <p class="feature-desc">Designed as a background daemon. A single global key combination captures, formats, and types your thoughts with zero clicks.</p>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Shortcuts Section -->
-  <section id="shortcuts" class="shortcuts-section">
+  <!-- Shortcuts Section (Double-Bezel list) -->
+  <section id="shortcuts" class="shortcuts-section scroll-reveal">
     <div class="shortcuts-container">
       <div class="section-header">
-        <span class="section-meta">// KEYBOARD_SHORTCUTS</span>
+        <span class="section-meta">// CONTROL_BINDINGS</span>
         <h2 class="section-title">Speed at your fingertips.</h2>
       </div>
       
-      <div class="shortcuts-list">
-        <div class="shortcut-row">
-          <div class="shortcut-desc">
-            <h4 class="shortcut-name">Record / Dictate</h4>
-            <p class="shortcut-detail">Press and hold to start recording speech. Release to instantly transcribe and paste into the active window.</p>
-          </div>
-          <div class="shortcut-keys">
-            <kbd class="kbd-key">⌥</kbd>
-            <span class="plus">+</span>
-            <kbd class="kbd-key">Space</kbd>
-          </div>
-        </div>
-        
-        <div class="shortcut-row">
-          <div class="shortcut-desc">
-            <h4 class="shortcut-name">Paste Last Transcript</h4>
-            <p class="shortcut-detail">Paste your last voice dictation into the focused input field again.</p>
-          </div>
-          <div class="shortcut-keys">
-            <kbd class="kbd-key">⌥</kbd>
-            <span class="plus">+</span>
-            <kbd class="kbd-key">⇧</kbd>
-            <span class="plus">+</span>
-            <kbd class="kbd-key">V</kbd>
-          </div>
-        </div>
+      <div class="shortcuts-shell">
+        <div class="shortcuts-core">
+          <div class="shortcuts-list">
+            <div class="shortcut-row">
+              <div class="shortcut-desc">
+                <h4 class="shortcut-name">Record / Dictate</h4>
+                <p class="shortcut-detail">Press and hold to start recording speech. Release to instantly transcribe and paste into the active window.</p>
+              </div>
+              <div class="shortcut-keys">
+                <kbd class="kbd-key">⌥</kbd>
+                <span class="plus">+</span>
+                <kbd class="kbd-key">Space</kbd>
+              </div>
+            </div>
+            
+            <div class="shortcut-row">
+              <div class="shortcut-desc">
+                <h4 class="shortcut-name">Paste Last Transcript</h4>
+                <p class="shortcut-detail">Paste your last voice dictation into the focused input field again.</p>
+              </div>
+              <div class="shortcut-keys">
+                <kbd class="kbd-key">⌥</kbd>
+                <span class="plus">+</span>
+                <kbd class="kbd-key">⇧</kbd>
+                <span class="plus">+</span>
+                <kbd class="kbd-key">V</kbd>
+              </div>
+            </div>
 
-        <div class="shortcut-row">
-          <div class="shortcut-desc">
-            <h4 class="shortcut-name">Cancel Recording</h4>
-            <p class="shortcut-detail">Instantly cancel the current transcription process while recording.</p>
-          </div>
-          <div class="shortcut-keys">
-            <kbd class="kbd-key">Esc</kbd>
+            <div class="shortcut-row">
+              <div class="shortcut-desc">
+                <h4 class="shortcut-name">Cancel Recording</h4>
+                <p class="shortcut-detail">Instantly cancel the current transcription process while recording.</p>
+              </div>
+              <div class="shortcut-keys">
+                <kbd class="kbd-key">Esc</kbd>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Privacy Section -->
-  <section id="privacy" class="privacy-section">
+  <!-- Privacy Section (Double-Bezel split) -->
+  <section id="privacy" class="privacy-section scroll-reveal">
     <div class="privacy-container">
       <div class="section-header">
-        <span class="section-meta">// PRIVATE_BY_DESIGN</span>
+        <span class="section-meta">// DATA_ISOLATION</span>
         <h2 class="section-title">Your data stays yours.</h2>
       </div>
       
       <div class="privacy-body">
         <p class="privacy-lead">
-          Tick is built to be a pure utility, not a SaaS product. We believe developer tools should protect user privacy by default.
+          Tick is built to be a pure tool. We believe developer utilities should respect system isolation and secure input by default.
         </p>
         
         <div class="privacy-grid">
-          <div class="privacy-card">
-            <h4 class="privacy-card-title">100% On-Device Engine</h4>
-            <p class="privacy-card-text">All audio recording, Whisper Core ML model loading, and speech processing happen locally on your Apple Silicon hardware. No data is ever uploaded to a server.</p>
+          <div class="privacy-shell">
+            <div class="privacy-core">
+              <h4 class="privacy-card-title">100% On-Device Engine</h4>
+              <p class="privacy-card-text">All audio recording, Whisper Core ML model loading, and speech processing happen locally on your Apple Silicon hardware. No data is ever uploaded to a server.</p>
+            </div>
           </div>
           
-          <div class="privacy-card">
-            <h4 class="privacy-card-title">No Tracking or Telemetry</h4>
-            <p class="privacy-card-text">We do not log transcripts, track usage stats, or record analytics. There are no tracking scripts or third-party cookies anywhere in the app or on this site.</p>
+          <div class="privacy-shell">
+            <div class="privacy-core">
+              <h4 class="privacy-card-title">No Tracking or Telemetry</h4>
+              <p class="privacy-card-text">We do not log transcripts, track usage stats, or record analytics. There are no tracking scripts or third-party cookies anywhere in the app or on this site.</p>
+            </div>
           </div>
         </div>
       </div>
@@ -225,7 +261,7 @@
   </section>
 
   <!-- Footer -->
-  <footer class="footer">
+  <footer class="footer scroll-reveal">
     <div class="footer-container">
       <div class="footer-left">
         <span class="footer-logo">tick.</span>
