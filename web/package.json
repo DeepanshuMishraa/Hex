@@ -2,7 +2,7 @@
   "name": "tick-web",
   "version": "1.0.0",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --cors",
     "build": "vite build",
     "preview": "vite preview"
   },

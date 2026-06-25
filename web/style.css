@@ -89,17 +89,20 @@ button {
 }
 
 /* --- Entry reveals (GPU Compositor Thread Only) --- */
-.scroll-reveal {
+.js-enabled .scroll-reveal {
   opacity: 0;
   transform: translateY(16px);
   filter: blur(2px);
+}
+
+.scroll-reveal {
   transition: opacity 1000ms cubic-bezier(0.16, 1, 0.3, 1), 
               transform 1000ms cubic-bezier(0.16, 1, 0.3, 1),
               filter 1000ms cubic-bezier(0.16, 1, 0.3, 1);
   will-change: transform, opacity, filter;
 }
 
-.scroll-reveal.active {
+.js-enabled .scroll-reveal.active {
   opacity: 1;
   transform: translateY(0);
   filter: blur(0);
