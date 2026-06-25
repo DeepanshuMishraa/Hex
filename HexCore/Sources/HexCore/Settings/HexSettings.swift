@@ -6,6 +6,114 @@ public enum RecordingAudioBehavior: String, Codable, CaseIterable, Equatable, Se
 	case doNothing
 }
 
+public enum AIPostProcessingMode: String, Codable, CaseIterable, Equatable, Sendable {
+	case off
+	case on
+	case appAware
+
+	public var displayName: String {
+		switch self {
+		case .off: return "Off"
+		case .on: return "On"
+		case .appAware: return "App-Aware"
+		}
+	}
+
+	public func systemPrompt(appContext: AppContext? = nil) -> String {
+		switch self {
+		case .off:
+			return ""
+		case .on:
+			return Self.genericPrompt
+		case .appAware:
+			return Self.appAwarePrompt(appContext: appContext)
+		}
+	}
+
+	private static let genericPrompt = """
+You are an intelligent dictation post-processor. You receive raw speech-to-text output and return clean, polished text ready to be typed into any application.
+
+Your job:
+- Detect the tone and context of the transcription automatically (email, message, command, formal writing, casual note, etc.)
+- Adapt your processing based on the detected context:
+  * For emails: Use professional tone, add proper greeting/closing if appropriate, structure paragraphs clearly
+  * For casual messages/chat: Keep it conversational, add emoji where natural (don't overdo it), preserve personality
+  * For commands: Be concise and precise, extract clear intent
+  * For formal writing: Use proper grammar, professional language, structured formatting
+  * For notes/lists: Keep it simple and organized
+- Remove filler words (um, uh, you know, like, er) unless they carry meaning or add personality (in casual contexts)
+- Fix spelling, grammar, and punctuation errors appropriately for the context
+- Handle self-corrections intelligently: when the speaker corrects themselves (e.g., "at 3 pm oh I'm sorry at 4 pm" → "at 4 pm" or "Tuesday sorry Wednesday" → "Wednesday"), use the correction and remove the original. Common correction patterns: "sorry", "I mean", "no wait", "actually", "oh", "no"
+- Add proper punctuation and capitalization suitable for the context
+- Preserve the speaker's core intent, meaning, and personality
+
+Output rules:
+- Return ONLY the cleaned, context-appropriate text, nothing else
+- If the transcription is empty, return exactly: EMPTY
+- Do not add words or content that are not in the transcription
+- Do not change the core meaning of what was said
+- Match the formality level to what seems intended by the speaker
+"""
+
+	private static func appAwarePrompt(appContext: AppContext?) -> String {
+		let basePrompt = """
+You are an intelligent dictation post-processor that adapts its formatting based on the application context. You receive raw speech-to-text output and return clean, polished text formatted for the target application.
+
+General rules:
+- Remove filler words (um, uh, you know, like, er) unless they carry meaning
+- Fix spelling, grammar, and punctuation errors
+- Handle self-corrections: use the corrected version, remove the original mistake
+- Preserve the speaker's core intent and meaning
+
+Output rules:
+- Return ONLY the cleaned, context-appropriate text, nothing else
+- If the transcription is empty, return exactly: EMPTY
+- Do not add words or content that are not in the transcription
+- Do not change the core meaning of what was said
+"""
+		let category = appContext?.category ?? .other
+		let categoryContext = category.systemPromptContext
+
+		guard !categoryContext.isEmpty else {
+			return basePrompt + "\n\nFormat the text appropriately based on its content, keeping it simple and clean."
+		}
+
+		var contextSection = "\n\nApplication context:\n- Application: \(appContext?.appName ?? "Unknown")\n- Category: \(category.displayName)"
+
+		if let url = appContext?.url, let host = appContext?.browserURLHost {
+			contextSection += "\n- URL: \(url)"
+			contextSection += "\n- Domain: \(host)"
+
+			let urlHint = urlHint(for: host)
+			if !urlHint.isEmpty {
+				contextSection += "\n\(urlHint)"
+			}
+		}
+
+		return basePrompt + "\n\nFormatting rules for \(category.displayName) context:\n" + categoryContext + contextSection
+	}
+
+	private static func urlHint(for host: String) -> String {
+		let lower = host.lowercased()
+		if lower.contains("mail.google.com") || lower.contains("gmail.com") {
+			return "The user is in Gmail — format as an email with greeting, body, and appropriate tone."
+		} else if lower.contains("outlook.") || lower.contains("mail.yahoo.com") {
+			return "The user is in an email client — format as an email."
+		} else if lower.contains("slack.com") || lower.contains("discord.com") {
+			return "The user is in a messaging app — format as a chat message."
+		} else if lower.contains("notion.so") || lower.contains("notion.site") {
+			return "The user is in Notion — format as structured notes."
+		} else if lower.contains("docs.google.com") {
+			return "The user is in Google Docs — format as document text."
+		} else if lower.contains("github.com") {
+			return "The user is on GitHub — format appropriately (commit message, issue comment, PR description, etc.)."
+		} else if lower.contains("jira.") || lower.contains("atlassian.net") {
+			return "The user is in a project management tool — format as a ticket description or comment."
+		}
+		return ""
+	}
+}
+
 /// User-configurable settings saved to disk.
 public struct HexSettings: Codable, Equatable, Sendable {
 	public static let defaultPasteLastTranscriptHotkey = HotKey(key: .v, modifiers: [.option, .shift])
@@ -47,6 +155,8 @@ public struct HexSettings: Codable, Equatable, Sendable {
 	public var wordRemovalsEnabled: Bool
 	public var wordRemovals: [WordRemoval]
 	public var wordRemappings: [WordRemapping]
+	public var groqAPIKey: String?
+	public var aiPostProcessingMode: AIPostProcessingMode
 
 	private mutating func normalizeDoubleTapSettings() {
 		if !doubleTapLockEnabled {
@@ -78,7 +188,9 @@ public struct HexSettings: Codable, Equatable, Sendable {
 		hasCompletedStorageMigration: Bool = false,
 		wordRemovalsEnabled: Bool = false,
 		wordRemovals: [WordRemoval] = HexSettings.defaultWordRemovals,
-		wordRemappings: [WordRemapping] = []
+		wordRemappings: [WordRemapping] = [],
+		groqAPIKey: String? = nil,
+		aiPostProcessingMode: AIPostProcessingMode = .off
 	) {
 		self.soundEffectsEnabled = soundEffectsEnabled
 		self.soundEffectsVolume = soundEffectsVolume
@@ -104,6 +216,8 @@ public struct HexSettings: Codable, Equatable, Sendable {
 		self.wordRemovalsEnabled = wordRemovalsEnabled
 		self.wordRemovals = wordRemovals
 		self.wordRemappings = wordRemappings
+		self.groqAPIKey = groqAPIKey
+		self.aiPostProcessingMode = aiPostProcessingMode
 		normalizeDoubleTapSettings()
 	}
 
@@ -152,6 +266,8 @@ private enum HexSettingKey: String, CodingKey, CaseIterable {
 	case wordRemovalsEnabled
 	case wordRemovals
 	case wordRemappings
+	case groqAPIKey
+	case aiPostProcessingMode
 }
 
 private struct SettingsField<Value: Codable & Sendable> {
@@ -284,6 +400,15 @@ private enum HexSettingsSchema {
 			.wordRemappings,
 			keyPath: \.wordRemappings,
 			default: defaults.wordRemappings
-		).eraseToAny()
+		).eraseToAny(),
+		SettingsField(
+			.groqAPIKey,
+			keyPath: \.groqAPIKey,
+			default: defaults.groqAPIKey,
+			encode: { container, key, value in
+				try container.encodeIfPresent(value, forKey: key)
+			}
+		).eraseToAny(),
+		SettingsField(.aiPostProcessingMode, keyPath: \.aiPostProcessingMode, default: defaults.aiPostProcessingMode).eraseToAny()
 	]
 }

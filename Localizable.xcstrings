@@ -4,7 +4,13 @@
     "" : {
       "shouldTranslate" : false
     },
+    " to record" : {
+
+    },
     "(%@)" : {
+
+    },
+    "%.1fs" : {
 
     },
     "%@ %@" : {
@@ -17,26 +23,12 @@
         }
       }
     },
-    "•" : {
-      "shouldTranslate" : false
-    },
-    "50" : {
-
-    },
-    "100" : {
-
-    },
-    "200" : {
-
-    },
-    "500" : {
-
-    },
-    "1000" : {
+    "✨" : {
 
     },
     "About" : {
       "comment" : "Settings -> About Section headline",
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -61,10 +53,22 @@
     "Accuracy" : {
 
     },
-    "Add Remapping" : {
+    "Add new" : {
 
     },
-    "Add Removal" : {
+    "Add new dictionary term" : {
+
+    },
+    "Add new snippet" : {
+
+    },
+    "Add new snippet shortcut" : {
+
+    },
+    "Add new word" : {
+
+    },
+    "App-Aware detects the active application and adapts formatting" : {
 
     },
     "Are you sure you want to delete all transcripts? This action cannot be undone." : {
@@ -78,13 +82,13 @@
         }
       }
     },
-    "Assign a shortcut (modifier + key) to instantly paste your last transcription." : {
+    "Audio feedback for recording actions" : {
 
     },
-    "Audio Behavior while Recording" : {
+    "Available on desktop in English. iOS and more languages coming soon" : {
 
     },
-    "Become a Sponsor" : {
+    "Back" : {
 
     },
     "Cancel" : {
@@ -123,6 +127,7 @@
     },
     "Check for Updates" : {
       "comment" : "Check for updates button in About section of Settings",
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -143,10 +148,14 @@
         }
       }
     },
+    "Clean and format transcriptions " : {
+
+    },
     "Clear shortcut" : {
 
     },
     "Close" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -158,6 +167,7 @@
     },
     "Copied" : {
       "comment" : "Transcription from history copied.",
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -177,9 +187,6 @@
           }
         }
       }
-    },
-    "Copy transcription text to clipboard in addition to pasting it" : {
-
     },
     "Delete" : {
 
@@ -229,10 +236,13 @@
         }
       }
     },
-    "Do Nothing" : {
+    "Dictionary" : {
 
     },
-    "Download" : {
+    "dipxsy/Tick" : {
+
+    },
+    "double-tap" : {
 
     },
     "Download Error: %@" : {
@@ -258,9 +268,6 @@
         }
       }
     },
-    "Downloaded" : {
-
-    },
     "Downloading %@..." : {
       "comment" : "In Transcription Model section in settings.",
       "extractionState" : "stale",
@@ -272,18 +279,6 @@
           }
         }
       }
-    },
-    "Downloading… %lld%%" : {
-
-    },
-    "Enable double-tap lock" : {
-
-    },
-    "Enable in Settings" : {
-
-    },
-    "Enable Word Removals" : {
-
     },
     "Ensure Hex can access your microphone and system accessibility features." : {
       "comment" : "Footer for permissions section in settings",
@@ -308,8 +303,15 @@
         }
       }
     },
+    "Everything you need to know about setting up and using Tick." : {
+
+    },
+    "Expanded content..." : {
+
+    },
     "General" : {
       "comment" : "General section in Settings Header.",
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -319,12 +321,14 @@
         }
       }
     },
-    "Grant" : {
+    "github.com/sponsors/dipxsy" : {
+
+    },
+    "Grant these to start transcribing." : {
 
     },
     "Granted" : {
       "comment" : "Label title for granted permissions.",
-      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -334,8 +338,18 @@
         }
       }
     },
+    "GROQ API KEY" : {
+
+    },
+    "Help & Support" : {
+
+    },
+    "Here's a personal snapshot of your productivity with Tick." : {
+
+    },
     "Hex is open source" : {
       "comment" : "In about section in settings.",
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -345,8 +359,12 @@
         }
       }
     },
+    "Hide Sidebar" : {
+
+    },
     "History" : {
       "comment" : "History View Title",
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -356,11 +374,12 @@
         }
       }
     },
-    "History Disabled" : {
+    "Hold time before recording starts" : {
 
     },
     "Hot Key" : {
       "comment" : "hotkey section in settings.",
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -370,7 +389,11 @@
         }
       }
     },
+    "How do you write in " : {
+
+    },
     "Ignore below %.1fs" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -380,19 +403,19 @@
         }
       }
     },
-    "Input Device" : {
+    "J" : {
 
     },
-    "Input Monitoring is required so Hex can listen for your hotkey." : {
+    "Keep transcriptions and audio recordings for later access" : {
 
     },
-    "Keep the microphone warm and prepend a short in-memory buffer for near-instant capture. macOS will keep showing the microphone indicator while this mode is armed." : {
+    "Limit how many transcripts to keep" : {
 
     },
-    "Match" : {
+    "Make Tick sound like " : {
 
     },
-    "Maximum History Entries" : {
+    "Matches whole words, case-insensitive, in order" : {
 
     },
     "Microphone" : {
@@ -407,19 +430,13 @@
         }
       }
     },
-    "Microphone Selection" : {
+    "N" : {
 
     },
-    "Model prewarming..." : {
+    "New Note" : {
 
     },
-    "Modification Type" : {
-
-    },
-    "Modifier side" : {
-
-    },
-    "Mute Volume" : {
+    "Next" : {
 
     },
     "No models found." : {
@@ -434,8 +451,12 @@
         }
       }
     },
+    "No Note Selected" : {
+
+    },
     "No Transcriptions" : {
       "comment" : "Empty history headline.",
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -448,17 +469,21 @@
     "Not set" : {
 
     },
-    "Oldest entries will be automatically deleted when limit is reached" : {
+    "Notes" : {
 
     },
-    "On" : {
+    "Off / On / App-Aware" : {
 
     },
-    "Open Input Monitoring Settings" : {
+    "Oldest entries are deleted automatically when limit is reached" : {
+
+    },
+    "On-device, private, and free. No audio leaves your Mac." : {
 
     },
     "Open on Login" : {
       "comment" : "Label for general setting to open app on login.",
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -468,8 +493,15 @@
         }
       }
     },
+    "Original text (e.g. Whispr)" : {
+
+    },
+    "other apps?" : {
+
+    },
     "Output Language" : {
       "comment" : "transcription model setting for which language to use for text output.",
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -479,16 +511,10 @@
         }
       }
     },
-    "Override the system default microphone with a specific input device. This setting will persist across sessions." : {
+    "Override the system default microphone" : {
 
     },
     "Paste Last Transcript" : {
-
-    },
-    "Pattern" : {
-
-    },
-    "Pause Media" : {
 
     },
     "Pause Media while Recording" : {
@@ -503,8 +529,12 @@
         }
       }
     },
+    "permissions" : {
+
+    },
     "Permissions" : {
       "comment" : "Header for permission section in settings.",
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -513,6 +543,9 @@
           }
         }
       }
+    },
+    "Pick how audio is handled when you start a recording" : {
+
     },
     "Play audio" : {
       "comment" : "Help text for play button in history view.",
@@ -525,8 +558,18 @@
         }
       }
     },
+    "Play Audio" : {
+
+    },
+    "POPULAR FAQS" : {
+
+    },
+    "Press-and-hold or " : {
+
+    },
     "Prevent System Sleep while Recording" : {
       "comment" : "Label for general setting whether to prevent system sleep while recording.",
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -536,28 +579,19 @@
         }
       }
     },
-    "Preview" : {
+    "Pro" : {
 
     },
     "Quit" : {
 
     },
-    "Refresh available input devices" : {
+    "Remove filler words using case-insensitive regex patterns" : {
 
     },
-    "Regex Pattern" : {
+    "Replace specific words in every transcript" : {
 
     },
-    "Remove filler words using case-insensitive regex patterns." : {
-
-    },
-    "Remove or replace words in every transcript. Removals use regex patterns and match whole words." : {
-
-    },
-    "Replace" : {
-
-    },
-    "Replace specific words in every transcript. Matches whole words, case-insensitive, in order." : {
+    "Replacement (e.g. Wisper)" : {
 
     },
     "Request Permission" : {
@@ -572,16 +606,13 @@
         }
       }
     },
+    "Save" : {
+
+    },
+    "Save shortcuts to speak the things you type all the time - emails, links, addresses, bios - anything. **Just speak and Tick expands them instantly,** without retyping or hunting through old messages." : {
+
+    },
     "Save Transcription History" : {
-
-    },
-    "Save transcriptions and audio recordings for later access" : {
-
-    },
-    "Say something…" : {
-
-    },
-    "Scratchpad" : {
 
     },
     "Selected device not connected. System default will be used." : {
@@ -601,6 +632,7 @@
     },
     "Settings" : {
       "comment" : "title for settings view.",
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -621,7 +653,14 @@
         }
       }
     },
+    "Shortcut keyword (e.g. LinkedIn)" : {
+
+    },
+    "Shortcut to instantly paste your last transcription" : {
+
+    },
     "Show Changelog" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -633,6 +672,7 @@
     },
     "Show Dock Icon" : {
       "comment" : "label for general setting whether to show the dock icon or not.",
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -645,14 +685,21 @@
     "Show in Finder" : {
 
     },
-    "Show less" : {
+    "Show Less" : {
 
     },
-    "Show more" : {
+    "Show More Models" : {
+
+    },
+    "Show Sidebar" : {
+
+    },
+    "Snippets" : {
 
     },
     "Sound" : {
       "comment" : "sound section in general settings.",
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -673,7 +720,16 @@
         }
       }
     },
+    "sounds like you" : {
+
+    },
     "Speed" : {
+
+    },
+    "Start now" : {
+
+    },
+    "Stop Audio" : {
 
     },
     "Stop playback" : {
@@ -687,20 +743,69 @@
         }
       }
     },
-    "Super Fast Mode" : {
+    "Strip filler words from your transcriptions" : {
 
     },
-    "Support the developer" : {
+    "Strips filler words, fixes self-corrections, and adapts tone to the app you're typing in." : {
 
     },
-    "Transcript Modifications" : {
+    "Styles" : {
 
     },
-    "Transcription history is currently disabled." : {
+    "System Default" : {
+
+    },
+    "System Default (%@)" : {
+
+    },
+    "Tap to set a new hotkey. Use any modifier combo, or pick a single key." : {
+
+    },
+    "The language to transcribe into" : {
+
+    },
+    "The stuff you shouldn't have to re-type." : {
+
+    },
+    "This style applies in the personal messengers" : {
+
+    },
+    "Tick" : {
+
+    },
+    "Tick adapts to how you write in different apps. Personalise your style for **messages, work chats, emails, and other apps** so every word sounds like you." : {
+
+    },
+    "Tick adapts to how you write in different apps. Personalize your style for messages, work chats, emails, and other apps so every word sounds like you." : {
+
+    },
+    "Tick is a voice-to-text app that " : {
+
+    },
+    "Tick learns your unique words and names - automatically or manually. **Add personal terms, company jargon, client names, or industry-specific lingo.** Share them with your team so everyone stays on the same page." : {
+
+    },
+    "Tick needs a few " : {
+
+    },
+    "Tick speaks the way you speak." : {
+
+    },
+    "Ticking. Hard." : {
+
+    },
+    "Title" : {
+
+    },
+    "Today" : {
+
+    },
+    "TODAY" : {
 
     },
     "Transcription Model" : {
       "comment" : "Label for Transcription Model Section",
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -710,17 +815,12 @@
         }
       }
     },
-    "Transforms" : {
-
-    },
-    "Unlimited" : {
-
-    },
     "Use at least one modifier (⌘, ⌥, ⇧, ⌃) plus a key." : {
 
     },
     "Use clipboard to insert" : {
       "comment" : "Label for toggle in general section.",
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -732,6 +832,7 @@
     },
     "Use clipboard to insert text. Fast but may not restore all clipboard content.\nTurn off to use simulated keypresses. Slower, but doesn't need to restore clipboard" : {
       "comment" : "More info on \"use clipboard to insert\" toggle in general section.",
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -741,11 +842,12 @@
         }
       }
     },
-    "Use double-tap only" : {
+    "Uses meta-llama/llama-4-scout-17b-16e-instruct via Groq." : {
 
     },
     "Version" : {
       "comment" : "Label for version in About section.",
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -757,6 +859,7 @@
     },
     "Visit our GitHub" : {
       "comment" : "button text to link to github",
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -766,20 +869,33 @@
         }
       }
     },
-    "Volume" : {
+    "VOLUME" : {
 
     },
-    "When disabled, transcriptions will not be saved and audio files will be deleted immediately after transcription." : {
+    "Welcome back, %@" : {
 
     },
-    "Word Remappings" : {
+    "While recording" : {
 
     },
-    "Word Removals" : {
+    "with AI" : {
+
+    },
+    "WORD REMAPPINGS" : {
+
+    },
+    "WORD REMOVALS" : {
+
+    },
+    "you" : {
+
+    },
+    "You've been " : {
 
     },
     "Your transcription history will appear here." : {
       "comment" : "Empty history subtitle.",
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {

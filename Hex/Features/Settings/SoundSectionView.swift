@@ -8,32 +8,64 @@ struct SoundSectionView: View {
 	@Bindable var store: StoreOf<SettingsFeature>
 
 	var body: some View {
-		let sliderBinding = Binding<Double>(
-			get: { volumePercentage(for: store.hexSettings.soundEffectsVolume) },
-			set: { store.hexSettings.soundEffectsVolume = actualVolume(fromPercentage: $0) }
-		)
+		VStack(alignment: .leading, spacing: TickSpacing.m) {
+			TickEyebrow(text: "Audio")
+				.padding(.leading, TickSpacing.xs)
 
-		return Section {
-			Label {
-				Toggle("Sound Effects", isOn: $store.hexSettings.soundEffectsEnabled)
-			} icon: {
-				Image(systemName: "speaker.wave.2.fill")
-			}
-
-			VStack(alignment: .leading, spacing: 8) {
-				HStack {
-					Text("Volume")
+			VStack(spacing: TickSpacing.l) {
+				HStack(alignment: .center, spacing: TickSpacing.l) {
+					VStack(alignment: .leading, spacing: 4) {
+						Text("EFFECTS".uppercased())
+							.font(TickFont.eyebrow)
+							.tracking(0.8)
+							.foregroundStyle(TickColor.textTertiary)
+						Text("Sound Effects")
+							.font(TickFont.body)
+							.foregroundStyle(TickColor.textPrimary)
+						Text("Audio feedback for recording actions")
+							.font(TickFont.caption)
+							.foregroundStyle(TickColor.textSecondary)
+					}
 					Spacer()
-					Text(formattedVolume(for: store.hexSettings.soundEffectsVolume))
-						.foregroundStyle(.secondary)
-						.monospacedDigit()
+					TickToggle(isOn: Binding(
+						get: { store.hexSettings.soundEffectsEnabled },
+						set: { store.send(.toggleSoundEffectsEnabled($0)) }
+					))
 				}
-				Slider(value: sliderBinding, in: 0...1)
-					.disabled(!store.hexSettings.soundEffectsEnabled)
+
+				if store.hexSettings.soundEffectsEnabled {
+					VStack(alignment: .leading, spacing: TickSpacing.s) {
+						HStack {
+							Text("VOLUME")
+								.font(TickFont.eyebrow)
+								.tracking(0.8)
+								.foregroundStyle(TickColor.textTertiary)
+							Spacer()
+							Text(formattedVolume(for: store.hexSettings.soundEffectsVolume))
+								.font(TickFont.mono())
+								.foregroundStyle(TickColor.textPrimary)
+						}
+						TickSlider(
+							value: Binding(
+								get: { volumePercentage(for: store.hexSettings.soundEffectsVolume) },
+								set: { store.send(.setSoundEffectsVolume(actualVolume(fromPercentage: $0))) }
+							),
+							range: 0...1
+						)
+					}
+				}
 			}
-		} header: {
-			Text("Sound")
+			.padding(TickSpacing.l)
+			.background(
+				RoundedRectangle(cornerRadius: TickRadius.card)
+					.fill(TickColor.surface)
+					.overlay(
+						RoundedRectangle(cornerRadius: TickRadius.card)
+							.stroke(TickColor.cardBorder, lineWidth: 1)
+					)
+			)
 		}
+		.animation(TickAnimation.ease, value: store.hexSettings.soundEffectsEnabled)
 		.enableInjection()
 	}
 }

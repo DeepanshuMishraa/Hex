@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		47512ABF2E14D8C9000E25BA /* WhisperKit in Frameworks */ = {isa = PBXBuildFile; productRef = 47512ABE2E14D8C9000E25BA /* WhisperKit */; };
 		476316272E5FB31400913CDE /* HexCore in Frameworks */ = {isa = PBXBuildFile; productRef = 476316262E5FB31400913CDE /* HexCore */; };
-		4765045E2D45900200C7EA60 /* Pow in Frameworks */ = {isa = PBXBuildFile; productRef = 4765045D2D45900200C7EA60 /* Pow */; };
 		476BAD3E2D47E7880088C61F /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 476BAD3D2D47E7880088C61F /* Sparkle */; };
 		47C08AB62DE9F61B00564AE6 /* Inject in Frameworks */ = {isa = PBXBuildFile; productRef = 47C08AB52DE9F61B00564AE6 /* Inject */; };
 		47E05E022D444EE900D26DA6 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 47E05E012D444EE900D26DA6 /* ComposableArchitecture */; };
@@ -19,6 +18,7 @@
 		47E16A622EC6C9D300885CF7 /* FluidAudio in Frameworks */ = {isa = PBXBuildFile; productRef = 47E16A612EC6C9D300885CF7 /* FluidAudio */; };
 		B5045C972D78DED500D0A119 /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = B5045C962D78DED500D0A119 /* MarkdownUI */; };
 		B53356002D7B8D4900E5F542 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B53355FF2D7B8D4900E5F542 /* Localizable.xcstrings */; };
+		C1A5H00100000000000000A1 /* ClashGrotesk-Variable.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C1A5H00100000000000000B1 /* ClashGrotesk-Variable.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -35,18 +35,19 @@
 		473544502D445936001FBCB5 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/MacOSX.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		473544542D445959001FBCB5 /* Testing.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Testing.framework; path = Platforms/MacOSX.platform/Developer/Library/Frameworks/Testing.framework; sourceTree = DEVELOPER_DIR; };
 		478637A52D48725900319BFA /* HexTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HexTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		47E05DEE2D444EC600D26DA6 /* Hex Debug.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Hex Debug.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		47E05DEE2D444EC600D26DA6 /* tick Debug.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "tick Debug.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B53355FF2D7B8D4900E5F542 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		B5A1C7E22E6A1C5B00AB1234 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.icon; name = AppIcon.icon; path = Hex/AppIcon.icon; sourceTree = "<group>"; };
+		C1A5H00100000000000000B1 /* ClashGrotesk-Variable.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "ClashGrotesk-Variable.ttf"; path = "fonts/ClashGrotesk-Variable.ttf"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		476BAD402D47E8500088C61F /* Exceptions for "Hex" folder in "Hex" target */ = {
+		476BAD402D47E8500088C61F /* Exceptions for "Hex" folder in "tick" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
-			target = 47E05DED2D444EC600D26DA6 /* Hex */;
+			target = 47E05DED2D444EC600D26DA6 /* tick */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -54,7 +55,7 @@
 		47E05DF02D444EC600D26DA6 /* Hex */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				476BAD402D47E8500088C61F /* Exceptions for "Hex" folder in "Hex" target */,
+				476BAD402D47E8500088C61F /* Exceptions for "Hex" folder in "tick" target */,
 			);
 			path = Hex;
 			sourceTree = "<group>";
@@ -81,7 +82,6 @@
 				47E05E052D444EF800D26DA6 /* Sauce in Frameworks */,
 				47E16A622EC6C9D300885CF7 /* FluidAudio in Frameworks */,
 				47C08AB62DE9F61B00564AE6 /* Inject in Frameworks */,
-				4765045E2D45900200C7EA60 /* Pow in Frameworks */,
 				47E05E0C2D44525B00D26DA6 /* DependenciesMacros in Frameworks */,
 				47E05E022D444EE900D26DA6 /* ComposableArchitecture in Frameworks */,
 			);
@@ -104,6 +104,7 @@
 			children = (
 				B53355FF2D7B8D4900E5F542 /* Localizable.xcstrings */,
 				B5A1C7E22E6A1C5B00AB1234 /* AppIcon.icon */,
+				C1A5H00100000000000000B1 /* ClashGrotesk-Variable.ttf */,
 				47E05DF02D444EC600D26DA6 /* Hex */,
 				4735444F2D445936001FBCB5 /* Frameworks */,
 				47E05DEF2D444EC600D26DA6 /* Products */,
@@ -113,7 +114,7 @@
 		47E05DEF2D444EC600D26DA6 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				47E05DEE2D444EC600D26DA6 /* Hex Debug.app */,
+				47E05DEE2D444EC600D26DA6 /* tick Debug.app */,
 				478637A52D48725900319BFA /* HexTests.xctest */,
 			);
 			name = Products;
@@ -142,9 +143,9 @@
 			productReference = 478637A52D48725900319BFA /* HexTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		47E05DED2D444EC600D26DA6 /* Hex */ = {
+		47E05DED2D444EC600D26DA6 /* tick */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 47E05DFD2D444EC700D26DA6 /* Build configuration list for PBXNativeTarget "Hex" */;
+			buildConfigurationList = 47E05DFD2D444EC700D26DA6 /* Build configuration list for PBXNativeTarget "tick" */;
 			buildPhases = (
 				47E05DEA2D444EC600D26DA6 /* Sources */,
 				47E05DEB2D444EC600D26DA6 /* Frameworks */,
@@ -157,13 +158,12 @@
 			fileSystemSynchronizedGroups = (
 				47E05DF02D444EC600D26DA6 /* Hex */,
 			);
-			name = Hex;
+			name = tick;
 			packageProductDependencies = (
 				47E05E012D444EE900D26DA6 /* ComposableArchitecture */,
 				47E05E042D444EF800D26DA6 /* Sauce */,
 				47E05E092D44525B00D26DA6 /* Dependencies */,
 				47E05E0B2D44525B00D26DA6 /* DependenciesMacros */,
-				4765045D2D45900200C7EA60 /* Pow */,
 				476BAD3D2D47E7880088C61F /* Sparkle */,
 				B5045C962D78DED500D0A119 /* MarkdownUI */,
 				47C08AB52DE9F61B00564AE6 /* Inject */,
@@ -171,8 +171,8 @@
 				476316262E5FB31400913CDE /* HexCore */,
 				47E16A612EC6C9D300885CF7 /* FluidAudio */,
 			);
-			productName = Hex;
-			productReference = 47E05DEE2D444EC600D26DA6 /* Hex Debug.app */;
+			productName = tick;
+			productReference = 47E05DEE2D444EC600D26DA6 /* tick Debug.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -207,7 +207,6 @@
 				47E05E002D444EE900D26DA6 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
 				47E05E032D444EF800D26DA6 /* XCRemoteSwiftPackageReference "Sauce" */,
 				47E05E082D44525B00D26DA6 /* XCRemoteSwiftPackageReference "swift-dependencies" */,
-				4765045C2D45900200C7EA60 /* XCRemoteSwiftPackageReference "Pow" */,
 				476BAD3C2D47E7880088C61F /* XCRemoteSwiftPackageReference "Sparkle" */,
 				B5045C952D78DED500D0A119 /* XCRemoteSwiftPackageReference "swift-markdown-ui" */,
 				47C08AB42DE9F61B00564AE6 /* XCRemoteSwiftPackageReference "Inject" */,
@@ -220,7 +219,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				47E05DED2D444EC600D26DA6 /* Hex */,
+				47E05DED2D444EC600D26DA6 /* tick */,
 				478637A42D48725900319BFA /* HexTests */,
 			);
 		};
@@ -239,6 +238,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B53356002D7B8D4900E5F542 /* Localizable.xcstrings in Resources */,
+				C1A5H00100000000000000A1 /* ClashGrotesk-Variable.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -264,7 +264,7 @@
 /* Begin PBXTargetDependency section */
 		478637AA2D48725900319BFA /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 47E05DED2D444EC600D26DA6 /* Hex */;
+			target = 47E05DED2D444EC600D26DA6 /* tick */;
 			targetProxy = 478637A92D48725900319BFA /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -279,7 +279,7 @@
 				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 0.7.1;
-				PRODUCT_BUNDLE_IDENTIFIER = com.kitlangton.HexTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dipxsy.TickTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
@@ -296,7 +296,7 @@
 				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 0.7.1;
-				PRODUCT_BUNDLE_IDENTIFIER = com.kitlangton.HexTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dipxsy.TickTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
@@ -431,19 +431,20 @@
 		47E05DFE2D444EC700D26DA6 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				AUTOMATION_APPLE_EVENTS = YES;
-				CODE_SIGN_ENTITLEMENTS = Hex/Hex.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Hex/Tick.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 81;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Hex/Preview Content\"";
-				DEVELOPMENT_TEAM = QC99C9JE59;
+				DEVELOPMENT_TEAM = TD57DQ83Z6;
+				"DEVELOPMENT_TEAM[sdk=macosx*]" = YY5H9WM46P;
 				EMIT_FRONTEND_COMMAND_LINES = YES;
-				ENABLE_APP_SANDBOX = YES;
+				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
 				ENABLE_PREVIEWS = YES;
@@ -460,6 +461,7 @@
 				INFOPLIST_KEY_NSAppleEventsUsageDescription = "Hex needs to control keyboard events to simulate paste operations.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Hex needs microphone access in order to transcribe your voice.";
+				INFOPLIST_KEY_UIAppFonts = "ClashGrotesk-Variable.ttf";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -470,8 +472,9 @@
 					"-Xlinker",
 					"-interposable",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.kitlangton.Hex.debug;
-				PRODUCT_NAME = "Hex Debug";
+				PRODUCT_BUNDLE_IDENTIFIER = com.dipxsy.tick.debug;
+				PRODUCT_NAME = "tick Debug";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				RUNTIME_EXCEPTION_ALLOW_DYLD_ENVIRONMENT_VARIABLES = NO;
 				RUNTIME_EXCEPTION_ALLOW_JIT = NO;
 				RUNTIME_EXCEPTION_ALLOW_UNSIGNED_EXECUTABLE_MEMORY = NO;
@@ -486,19 +489,20 @@
 		47E05DFF2D444EC700D26DA6 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				AUTOMATION_APPLE_EVENTS = YES;
-				CODE_SIGN_ENTITLEMENTS = Hex/Hex.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Hex/Tick.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 81;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Hex/Preview Content\"";
-				DEVELOPMENT_TEAM = QC99C9JE59;
+				DEVELOPMENT_TEAM = TD57DQ83Z6;
+				"DEVELOPMENT_TEAM[sdk=macosx*]" = YY5H9WM46P;
 				EMIT_FRONTEND_COMMAND_LINES = NO;
-				ENABLE_APP_SANDBOX = YES;
+				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
 				ENABLE_PREVIEWS = YES;
@@ -514,14 +518,15 @@
 				INFOPLIST_KEY_NSAppleEventsUsageDescription = "Hex needs to control keyboard events to simulate paste operations.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Hex needs microphone access in order to transcribe your voice.";
+				INFOPLIST_KEY_UIAppFonts = "ClashGrotesk-Variable.ttf";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 0.7.1;
-				PRODUCT_BUNDLE_IDENTIFIER = com.kitlangton.Hex;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.dipxsy.tick;
+				PRODUCT_NAME = tick;
 				RUNTIME_EXCEPTION_ALLOW_DYLD_ENVIRONMENT_VARIABLES = NO;
 				RUNTIME_EXCEPTION_ALLOW_JIT = NO;
 				RUNTIME_EXCEPTION_ALLOW_UNSIGNED_EXECUTABLE_MEMORY = NO;
@@ -554,7 +559,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		47E05DFD2D444EC700D26DA6 /* Build configuration list for PBXNativeTarget "Hex" */ = {
+		47E05DFD2D444EC700D26DA6 /* Build configuration list for PBXNativeTarget "tick" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				47E05DFE2D444EC700D26DA6 /* Debug */,
@@ -579,14 +584,6 @@
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 0.15.0;
-			};
-		};
-		4765045C2D45900200C7EA60 /* XCRemoteSwiftPackageReference "Pow" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/EmergeTools/Pow";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.5;
 			};
 		};
 		476BAD3C2D47E7880088C61F /* XCRemoteSwiftPackageReference "Sparkle" */ = {
@@ -656,11 +653,6 @@
 		476316262E5FB31400913CDE /* HexCore */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = HexCore;
-		};
-		4765045D2D45900200C7EA60 /* Pow */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 4765045C2D45900200C7EA60 /* XCRemoteSwiftPackageReference "Pow" */;
-			productName = Pow;
 		};
 		476BAD3D2D47E7880088C61F /* Sparkle */ = {
 			isa = XCSwiftPackageProductDependency;

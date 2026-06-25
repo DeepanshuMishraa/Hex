@@ -8,7 +8,7 @@ Press-and-hold a hotkey to transcribe your voice and paste the result wherever y
 
 Or download via homebrew:
 ```bash
-brew install --cask kitlangton-hex
+brew install --cask dipxsy-tick
 ```
 
 I've opened-sourced the project in the hopes that others will find it useful! Hex supports both [Parakeet TDT v3](https://github.com/FluidInference/FluidAudio) via the awesome [FluidAudio](https://github.com/FluidInference/FluidAudio) (the default—it's frickin' unbelievable: fast, multilingual, and cloud-optimized) and the awesome [WhisperKit](https://github.com/argmaxinc/WhisperKit) for on-device transcription. We use the incredible [Swift Composable Architecture](https://github.com/pointfreeco/swift-composable-architecture) for structuring the app. Please open issues with any questions or feedback! ❤️
@@ -24,7 +24,7 @@ Once you've configured a global hotkey, there are **two recording modes**:
 
 ## Contributing
 
-**Issue reports are welcome!** If you encounter bugs or have feature requests, please [open an issue](https://github.com/kitlangton/Hex/issues).
+**Issue reports are welcome!** If you encounter bugs or have feature requests, please [open an issue](https://github.com/dipxsy/Tick/issues).
 
 **Note on Pull Requests:** At this stage, I'm not actively reviewing code contributions for significant features or core logic changes. The project is evolving rapidly and it's easier for me to work directly from issue reports. Bug fixes and documentation improvements are still appreciated, but please open an issue first to discuss before investing time in a large PR. Thanks for understanding!
 

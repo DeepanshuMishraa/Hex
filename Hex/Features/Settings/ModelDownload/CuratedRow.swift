@@ -1,5 +1,4 @@
 import ComposableArchitecture
-import Darwin
 import Inject
 import SwiftUI
 
@@ -13,7 +12,6 @@ struct CuratedRow: View {
 		if model.internalName.contains("*") || model.internalName.contains("?") {
 			return fnmatch(model.internalName, selected, 0) == 0
 		}
-		// Also consider the inverse: selected may be a concrete name while the curated item is a prefix-like value
 		if selected.contains("*") || selected.contains("?") {
 			return fnmatch(selected, model.internalName, 0) == 0
 		}
@@ -22,89 +20,97 @@ struct CuratedRow: View {
 
 	var body: some View {
 		Button(action: { store.send(.selectModel(model.internalName)) }) {
-			HStack(alignment: .center, spacing: 12) {
-				// Radio selector
-				Image(systemName: isSelected ? "largecircle.fill.circle" : "circle")
-					.foregroundStyle(isSelected ? .blue : .secondary)
+			HStack(alignment: .center, spacing: TickSpacing.m) {
+				// Selection dot
+				ZStack {
+					Circle()
+						.stroke(isSelected ? TickColor.brand : TickColor.lineStrong, lineWidth: 1.5)
+						.frame(width: 18, height: 18)
+					if isSelected {
+						Circle()
+							.fill(TickColor.brand)
+							.frame(width: 10, height: 10)
+					}
+				}
 
-				// Title and ratings
-				VStack(alignment: .leading, spacing: 6) {
-					HStack(spacing: 6) {
+				VStack(alignment: .leading, spacing: 4) {
+					HStack(spacing: 8) {
 						Text(model.displayName)
-							.font(.headline)
+							.font(TickFont.body)
+							.foregroundStyle(TickColor.textPrimary)
 						if let badge = model.badge {
-							Text(badge)
-								.font(.caption2)
-								.fontWeight(.semibold)
+							Text(badge.uppercased())
+								.font(TickFont.headingFunc(9, weight: .bold))
 								.foregroundStyle(.white)
-								.padding(.horizontal, 6)
-								.padding(.vertical, 2)
-								.background(Color.accentColor)
-								.clipShape(RoundedRectangle(cornerRadius: 4))
+								.padding(.horizontal, 5)
+								.padding(.vertical, 1)
+								.background(
+									RoundedRectangle(cornerRadius: 3)
+										.fill(TickColor.brand)
+								)
 						}
 					}
-					HStack(spacing: 16) {
-						HStack(spacing: 6) {
+					HStack(spacing: TickSpacing.m) {
+						HStack(spacing: 4) {
 							StarRatingView(model.accuracyStars)
-							Text("Accuracy").font(.caption2).foregroundStyle(.secondary)
+							Text("Accuracy")
+								.font(TickFont.caption)
+								.foregroundStyle(TickColor.textTertiary)
 						}
-						HStack(spacing: 6) {
+						HStack(spacing: 4) {
 							StarRatingView(model.speedStars)
-							Text("Speed").font(.caption2).foregroundStyle(.secondary)
+							Text("Speed")
+								.font(TickFont.caption)
+								.foregroundStyle(TickColor.textTertiary)
 						}
 					}
 				}
 
 				Spacer(minLength: 12)
 
-				// Trailing size and action/progress icons, aligned to the right
-				HStack(spacing: 12) {
+				HStack(spacing: TickSpacing.m) {
 					Text(model.storageSize)
-						.foregroundStyle(.secondary)
-						.font(.subheadline)
-						.frame(width: 72, alignment: .trailing)
+						.foregroundStyle(TickColor.textTertiary)
+						.font(TickFont.mono())
 
-					// Download/Progress/Downloaded at far right
 					ZStack {
 						if store.isDownloading, store.downloadingModelName == model.internalName {
 							ProgressView(value: store.downloadProgress)
 								.progressViewStyle(.circular)
 								.controlSize(.small)
-								.tint(.blue)
+								.tint(TickColor.brand)
 								.frame(width: 24, height: 24)
-								.help("Downloading… \(Int(store.downloadProgress * 100))%")
 						} else if model.isDownloaded {
 							Image(systemName: "checkmark.circle.fill")
-								.foregroundStyle(.green)
-								.frame(width: 24, height: 24)
-								.help("Downloaded")
+								.foregroundStyle(TickColor.success)
+								.frame(width: 22, height: 22)
 						} else {
 							Button {
 								store.send(.selectModel(model.internalName))
 								store.send(.downloadSelectedModel)
 							} label: {
 								Image(systemName: "arrow.down.circle")
+									.font(TickFont.labelFunc(18, weight: .medium))
+									.foregroundStyle(TickColor.brand)
 							}
-							.buttonStyle(.borderless)
-							.help("Download")
+							.buttonStyle(.plain)
 							.frame(width: 24, height: 24)
 						}
 					}
 				}
 			}
-			.padding(10)
+			.padding(TickSpacing.m)
 			.background(
-				RoundedRectangle(cornerRadius: 10)
-					.fill(isSelected ? Color.blue.opacity(0.08) : Color(NSColor.controlBackgroundColor))
-			)
-			.overlay(
-				RoundedRectangle(cornerRadius: 10)
-					.stroke(isSelected ? Color.blue.opacity(0.35) : Color.gray.opacity(0.18))
+				RoundedRectangle(cornerRadius: 12)
+					.fill(isSelected ? TickColor.brandSoft : TickColor.surface)
+					.overlay(
+						RoundedRectangle(cornerRadius: 12)
+							.stroke(isSelected ? TickColor.brand : TickColor.cardBorder, lineWidth: 1)
+					)
 			)
 			.contentShape(.rect)
 		}
 		.buttonStyle(.plain)
-		// Keep context menu as an alternative path
 		.contextMenu {
 			if store.isDownloading, store.downloadingModelName == model.internalName {
 				Button("Cancel Download", role: .destructive) { store.send(.cancelDownload) }

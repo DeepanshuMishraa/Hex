@@ -7,50 +7,62 @@ struct MicrophoneSelectionSectionView: View {
 	@Bindable var store: StoreOf<SettingsFeature>
 
 	var body: some View {
-		Section {
-			// Input device picker
-			HStack {
-				Label {
-					let systemLabel: String = {
-						if let name = store.defaultInputDeviceName, !name.isEmpty {
-							return "System Default (\(name))"
-						}
-						return "System Default"
-					}()
-					Picker("Input Device", selection: $store.hexSettings.selectedMicrophoneID) {
-						Text(systemLabel).tag(nil as String?)
-						ForEach(store.availableInputDevices) { device in
-							Text(device.name).tag(device.id as String?)
-						}
+		VStack(alignment: .leading, spacing: TickSpacing.m) {
+			TickEyebrow(text: "Microphone")
+				.padding(.leading, TickSpacing.xs)
+
+			VStack(spacing: TickSpacing.m) {
+				HStack(alignment: .center, spacing: TickSpacing.l) {
+					VStack(alignment: .leading, spacing: 4) {
+						Text("INPUT DEVICE".uppercased())
+							.font(TickFont.eyebrow)
+							.tracking(0.8)
+							.foregroundStyle(TickColor.textTertiary)
+						Text(store.defaultInputDeviceName.map { "System Default (\($0))" } ?? "System Default")
+							.font(TickFont.body)
+							.foregroundStyle(TickColor.textPrimary)
+						Text("Override the system default microphone")
+							.font(TickFont.caption)
+							.foregroundStyle(TickColor.textSecondary)
 					}
-					.pickerStyle(.menu)
-					.id(store.availableInputDevices.map(\.id).joined(separator: "|"))
-				} icon: {
-					Image(systemName: "mic.circle")
+					Spacer()
+					CustomMenuPicker(
+						selection: Binding(
+							get: { store.hexSettings.selectedMicrophoneID },
+							set: { store.send(.setSelectedMicrophoneID($0)) }
+						),
+						options: [
+							(nil as String?, "System Default", "mic")
+						] + store.availableInputDevices.map { (Optional($0.id), $0.name, "mic.fill") }
+					)
 				}
 
-				Button(action: {
-					store.send(.loadAvailableInputDevices)
-				}) {
-					Image(systemName: "arrow.clockwise")
+				if let selectedID = store.hexSettings.selectedMicrophoneID,
+				   !store.availableInputDevices.contains(where: { $0.id == selectedID }) {
+					HStack(spacing: TickSpacing.s) {
+						Image(systemName: "exclamationmark.triangle.fill")
+							.foregroundStyle(TickColor.warning)
+							.font(TickFont.captionFunc(12))
+						Text("Selected device not connected. System default will be used.")
+							.font(TickFont.caption)
+							.foregroundStyle(TickColor.warning)
+					}
+					.padding(TickSpacing.m)
+					.background(
+						RoundedRectangle(cornerRadius: 8)
+							.fill(TickColor.warning.opacity(0.08))
+					)
 				}
-				.buttonStyle(.borderless)
-				.help("Refresh available input devices")
 			}
-
-			// Show fallback note for selected device not connected
-			if let selectedID = store.hexSettings.selectedMicrophoneID,
-			   !store.availableInputDevices.contains(where: { $0.id == selectedID })
-			{
-				Text("Selected device not connected. System default will be used.")
-					.settingsCaption()
-			}
-		} header: {
-			Text("Microphone Selection")
-		} footer: {
-			Text("Override the system default microphone with a specific input device. This setting will persist across sessions.")
-				.font(.footnote)
-				.foregroundColor(.secondary)
+			.padding(TickSpacing.l)
+			.background(
+				RoundedRectangle(cornerRadius: TickRadius.card)
+					.fill(TickColor.surface)
+					.overlay(
+						RoundedRectangle(cornerRadius: TickRadius.card)
+							.stroke(TickColor.cardBorder, lineWidth: 1)
+					)
+			)
 		}
 		.enableInjection()
 	}

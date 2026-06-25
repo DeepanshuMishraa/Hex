@@ -1,67 +1,91 @@
 import ComposableArchitecture
+import HexCore
 import Inject
 import SwiftUI
-import HexCore
 
 struct HistorySectionView: View {
 	@ObserveInjection var inject
 	@Bindable var store: StoreOf<SettingsFeature>
 
 	var body: some View {
-		Section {
-			Label {
-				Toggle("Save Transcription History", isOn: Binding(
-					get: { store.hexSettings.saveTranscriptionHistory },
-					set: { store.send(.toggleSaveTranscriptionHistory($0)) }
-				))
-				Text("Save transcriptions and audio recordings for later access")
-					.settingsCaption()
-			} icon: {
-				Image(systemName: "clock.arrow.circlepath")
-			}
+		VStack(alignment: .leading, spacing: TickSpacing.m) {
+			TickEyebrow(text: "History")
+				.padding(.leading, TickSpacing.xs)
 
-			if store.hexSettings.saveTranscriptionHistory {
-				Label {
-					HStack {
-						Text("Maximum History Entries")
-						Spacer()
-						Picker("", selection: Binding(
-							get: { store.hexSettings.maxHistoryEntries ?? 0 },
-							set: { newValue in
-								store.hexSettings.maxHistoryEntries = newValue == 0 ? nil : newValue
-							}
-						)) {
-							Text("Unlimited").tag(0)
-							Text("50").tag(50)
-							Text("100").tag(100)
-							Text("200").tag(200)
-							Text("500").tag(500)
-							Text("1000").tag(1000)
-						}
-						.pickerStyle(.menu)
-						.frame(width: 120)
+			VStack(spacing: 0) {
+				HStack(alignment: .center, spacing: TickSpacing.l) {
+					VStack(alignment: .leading, spacing: 4) {
+						Text("STORAGE".uppercased())
+							.font(TickFont.eyebrow)
+							.tracking(0.8)
+							.foregroundStyle(TickColor.textTertiary)
+						Text("Save Transcription History")
+							.font(TickFont.body)
+							.foregroundStyle(TickColor.textPrimary)
+						Text("Keep transcriptions and audio recordings for later access")
+							.font(TickFont.caption)
+							.foregroundStyle(TickColor.textSecondary)
 					}
-				} icon: {
-					Image(systemName: "number.square")
+					Spacer()
+					TickToggle(isOn: Binding(
+						get: { store.hexSettings.saveTranscriptionHistory },
+						set: { store.send(.toggleSaveTranscriptionHistory($0)) }
+					))
 				}
+				.padding(.vertical, TickSpacing.s)
 
-				if store.hexSettings.maxHistoryEntries != nil {
-					Text("Oldest entries will be automatically deleted when limit is reached")
-						.settingsCaption()
-						.padding(.leading, 28)
+				if store.hexSettings.saveTranscriptionHistory {
+					Rectangle().fill(TickColor.line).frame(height: 1)
+
+					HStack(alignment: .center, spacing: TickSpacing.l) {
+						VStack(alignment: .leading, spacing: 4) {
+							Text("MAX ENTRIES".uppercased())
+								.font(TickFont.eyebrow)
+								.tracking(0.8)
+								.foregroundStyle(TickColor.textTertiary)
+							Text("Limit how many transcripts to keep")
+								.font(TickFont.body)
+								.foregroundStyle(TickColor.textPrimary)
+							Text("Oldest entries are deleted automatically when limit is reached")
+								.font(TickFont.caption)
+								.foregroundStyle(TickColor.textSecondary)
+						}
+						Spacer()
+						CustomMenuPicker(
+							selection: Binding(
+								get: { store.hexSettings.maxHistoryEntries ?? 0 },
+								set: { store.send(.setMaxHistoryEntries($0 == 0 ? nil : $0)) }
+							),
+							options: [
+								(0, "Unlimited", "infinity"),
+								(50, "50", "50.square"),
+								(100, "100", "100.square"),
+								(200, "200", "200.square"),
+								(500, "500", "500.square"),
+								(1000, "1000", "1000.square")
+							]
+						)
+					}
+					.padding(.vertical, TickSpacing.s)
+
+					Rectangle().fill(TickColor.line).frame(height: 1)
+
+					PasteLastTranscriptHotkeyRow(store: store)
+						.padding(.vertical, TickSpacing.s)
 				}
-
-				PasteLastTranscriptHotkeyRow(store: store)
 			}
-		} header: {
-			Text("History")
-		} footer: {
-			if !store.hexSettings.saveTranscriptionHistory {
-				Text("When disabled, transcriptions will not be saved and audio files will be deleted immediately after transcription.")
-					.font(.footnote)
-					.foregroundColor(.secondary)
-			}
+			.padding(.horizontal, TickSpacing.l)
+			.padding(.vertical, TickSpacing.m)
+			.background(
+				RoundedRectangle(cornerRadius: TickRadius.card)
+					.fill(TickColor.surface)
+					.overlay(
+						RoundedRectangle(cornerRadius: TickRadius.card)
+							.stroke(TickColor.cardBorder, lineWidth: 1)
+					)
+			)
 		}
+		.animation(TickAnimation.ease, value: store.hexSettings.saveTranscriptionHistory)
 		.enableInjection()
 	}
 }
@@ -73,20 +97,21 @@ private struct PasteLastTranscriptHotkeyRow: View {
 	var body: some View {
 		let pasteHotkey = store.hexSettings.pasteLastTranscriptHotkey
 
-		VStack(alignment: .leading, spacing: 12) {
-			Label {
-				VStack(alignment: .leading, spacing: 2) {
-					Text("Paste Last Transcript")
-						.font(.subheadline.weight(.semibold))
-					Text("Assign a shortcut (modifier + key) to instantly paste your last transcription.")
-						.settingsCaption()
-				}
-			} icon: {
-				Image(systemName: "doc.on.clipboard")
+		VStack(alignment: .leading, spacing: TickSpacing.m) {
+			VStack(alignment: .leading, spacing: 4) {
+				Text("PASTE LAST TRANSCRIPT".uppercased())
+					.font(TickFont.eyebrow)
+					.tracking(0.8)
+					.foregroundStyle(TickColor.textTertiary)
+				Text("Shortcut to instantly paste your last transcription")
+					.font(TickFont.body)
+					.foregroundStyle(TickColor.textPrimary)
 			}
 
 			let key = store.isSettingPasteLastTranscriptHotkey ? nil : pasteHotkey?.key
-			let modifiers = store.isSettingPasteLastTranscriptHotkey ? store.currentPasteLastModifiers : (pasteHotkey?.modifiers ?? .init(modifiers: []))
+			let modifiers = store.isSettingPasteLastTranscriptHotkey
+				? store.currentPasteLastModifiers
+				: (pasteHotkey?.modifiers ?? .init(modifiers: []))
 
 			HStack {
 				Spacer()
@@ -95,7 +120,8 @@ private struct PasteLastTranscriptHotkeyRow: View {
 
 					if !store.isSettingPasteLastTranscriptHotkey, pasteHotkey == nil {
 						Text("Not set")
-							.settingsCaption()
+							.font(TickFont.caption)
+							.foregroundStyle(TickColor.textTertiary)
 					}
 				}
 				.contentShape(Rectangle())
@@ -107,18 +133,20 @@ private struct PasteLastTranscriptHotkeyRow: View {
 
 			if store.isSettingPasteLastTranscriptHotkey {
 				Text("Use at least one modifier (⌘, ⌥, ⇧, ⌃) plus a key.")
-					.settingsCaption()
+					.font(TickFont.caption)
+					.foregroundStyle(TickColor.textTertiary)
+					.frame(maxWidth: .infinity, alignment: .center)
 			} else if pasteHotkey != nil {
 				Button {
 					store.send(.clearPasteLastTranscriptHotkey)
 				} label: {
 					Label("Clear shortcut", systemImage: "xmark.circle")
+						.font(TickFont.caption)
 				}
-				.buttonStyle(.borderless)
-				.font(.caption)
-				.foregroundStyle(.secondary)
+				.buttonStyle(.plain)
+				.foregroundStyle(TickColor.textTertiary)
+				.frame(maxWidth: .infinity, alignment: .center)
 			}
 		}
-		.enableInjection()
 	}
 }

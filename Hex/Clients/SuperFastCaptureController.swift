@@ -70,7 +70,7 @@ final class SuperFastCaptureController {
   }
 
   private let logger = HexLog.recording
-  private let processingQueue = DispatchQueue(label: "com.kitlangton.Hex.SuperFastCapture")
+  private let processingQueue = DispatchQueue(label: "com.dipxsy.Tick.SuperFastCapture")
   private let meterContinuation: AsyncStream<Meter>.Continuation
   private let ringBuffer = FloatRingBuffer(
     capacity: Int(SuperFastCaptureConstants.sampleRate * SuperFastCaptureConstants.ringBufferDuration)

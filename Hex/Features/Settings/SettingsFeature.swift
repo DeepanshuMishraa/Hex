@@ -56,7 +56,15 @@ struct SettingsFeature {
     // Model Management
     var modelDownload = ModelDownloadFeature.State()
     var shouldFlashModelSection = false
-
+    
+    // API Key Validation
+    var isValidatingAPIKey = false
+    var apiKeyValidationStatus: APIKeyValidationStatus?
+  }
+  
+  enum APIKeyValidationStatus: Equatable {
+    case success
+    case failure(String)
   }
 
   enum Action: BindableAction {
@@ -98,6 +106,34 @@ struct SettingsFeature {
     case addWordRemapping
     case removeWordRemapping(UUID)
     case setRemappingScratchpadFocused(Bool)
+
+    // AI Post-Processing
+    case setAIPostProcessingMode(AIPostProcessingMode)
+    case setGroqAPIKey(String)
+    case validateGroqAPIKey
+    case groqAPIKeyValidationResult(Result<Bool, Error>)
+
+    // Direct settings mutations
+    case toggleUseClipboardPaste(Bool)
+    case toggleCopyToClipboard(Bool)
+    case toggleDoubleTapLockEnabled(Bool)
+    case toggleUseDoubleTapOnly(Bool)
+    case setMinimumKeyTime(Double)
+    case setMaxHistoryEntries(Int?)
+    case setOutputLanguage(String?)
+    case setSelectedMicrophoneID(String?)
+    case setSoundEffectsVolume(Double)
+    case toggleSoundEffectsEnabled(Bool)
+    case toggleWordRemovalsEnabled(Bool)
+    case setWordRemovals([WordRemoval])
+    case setWordRemappings([WordRemapping])
+
+    // Delegate — sent to the parent AppFeature to update shared permission state
+    case delegate(Delegate)
+
+    enum Delegate: Equatable {
+      case permissionChanged(mic: PermissionStatus)
+    }
   }
 
   @Dependency(\.keyEventMonitor) var keyEventMonitor
@@ -106,6 +142,7 @@ struct SettingsFeature {
   @Dependency(\.recording) var recording
   @Dependency(\.permissions) var permissions
   @Dependency(\.transcriptPersistence) var transcriptPersistence
+  @Dependency(\.aiPostProcessing) var aiPostProcessing
 
   private func deleteAudioEffect(for transcripts: [Transcript]) -> Effect<Action> {
     .run { [transcriptPersistence] _ in
@@ -368,16 +405,26 @@ struct SettingsFeature {
         }
 
       // Permission requests
+      // After the system dialog completes, re-query the status and send a
+      // delegate action to the parent AppFeature so the UI updates immediately
+      // (instead of waiting for the next app activation).
+
       case .requestMicrophone:
         settingsLogger.info("User requested microphone permission from settings")
-        return .run { _ in
+        return .run { send in
           _ = await permissions.requestMicrophone()
+          let status = await permissions.microphoneStatus()
+          await send(.delegate(.permissionChanged(mic: status)))
         }
 
       case .requestAccessibility:
         settingsLogger.info("User requested accessibility permission from settings")
         return .run { _ in
           await permissions.requestAccessibility()
+          // The parent AppFeature will re-check all permissions on next
+          // app activation (didBecomeActiveNotification). We don't need to
+          // fire a delegate here because the state is in AppFeature, not
+          // SettingsFeature.
         }
 
       case .requestInputMonitoring:
@@ -433,6 +480,105 @@ struct SettingsFeature {
         state.$hexSettings.withLock {
           $0.hotkey.modifiers = $0.hotkey.modifiers.setting(kind: kind, to: side)
         }
+        return .none
+
+      case let .setAIPostProcessingMode(mode):
+        state.$hexSettings.withLock { $0.aiPostProcessingMode = mode }
+        return .none
+
+      case let .setGroqAPIKey(key):
+        state.$hexSettings.withLock { $0.groqAPIKey = key.isEmpty ? nil : key }
+        state.apiKeyValidationStatus = nil // Reset validation status when key changes
+        return .none
+      
+      case .validateGroqAPIKey:
+        guard let apiKey = state.hexSettings.groqAPIKey, !apiKey.isEmpty else {
+          state.apiKeyValidationStatus = .failure("API key is empty")
+          return .none
+        }
+        
+        state.isValidatingAPIKey = true
+        state.apiKeyValidationStatus = nil
+        
+        return .run { send in
+          await send(.groqAPIKeyValidationResult(
+            Result { try await aiPostProcessing.validateAPIKey(apiKey) }
+          ))
+        }
+      
+      case let .groqAPIKeyValidationResult(.success(isValid)):
+        state.isValidatingAPIKey = false
+        if isValid {
+          state.apiKeyValidationStatus = .success
+          settingsLogger.info("Groq API key validated successfully")
+        } else {
+          state.apiKeyValidationStatus = .failure("Invalid API key")
+          settingsLogger.warning("Groq API key validation failed")
+        }
+        return .none
+      
+      case let .groqAPIKeyValidationResult(.failure(error)):
+        state.isValidatingAPIKey = false
+        state.apiKeyValidationStatus = .failure(error.localizedDescription)
+        settingsLogger.error("Groq API key validation error: \(error.localizedDescription)")
+        return .none
+
+      // Direct settings mutations
+      case let .toggleUseClipboardPaste(enabled):
+        state.$hexSettings.withLock { $0.useClipboardPaste = enabled }
+        return .none
+
+      case let .toggleCopyToClipboard(enabled):
+        state.$hexSettings.withLock { $0.copyToClipboard = enabled }
+        return .none
+
+      case let .toggleDoubleTapLockEnabled(enabled):
+        state.$hexSettings.withLock { $0.doubleTapLockEnabled = enabled }
+        return .none
+
+      case let .toggleUseDoubleTapOnly(enabled):
+        state.$hexSettings.withLock { $0.useDoubleTapOnly = enabled }
+        return .none
+
+      case let .setMinimumKeyTime(time):
+        state.$hexSettings.withLock { $0.minimumKeyTime = time }
+        return .none
+
+      case let .setMaxHistoryEntries(entries):
+        state.$hexSettings.withLock { $0.maxHistoryEntries = entries }
+        return .none
+
+      case let .setOutputLanguage(language):
+        state.$hexSettings.withLock { $0.outputLanguage = language }
+        return .none
+
+      case let .setSelectedMicrophoneID(id):
+        state.$hexSettings.withLock { $0.selectedMicrophoneID = id }
+        return .none
+
+      case let .setSoundEffectsVolume(volume):
+        state.$hexSettings.withLock { $0.soundEffectsVolume = volume }
+        return .none
+
+      case let .toggleSoundEffectsEnabled(enabled):
+        state.$hexSettings.withLock { $0.soundEffectsEnabled = enabled }
+        return .none
+
+      case let .toggleWordRemovalsEnabled(enabled):
+        state.$hexSettings.withLock { $0.wordRemovalsEnabled = enabled }
+        return .none
+
+      case let .setWordRemovals(removals):
+        state.$hexSettings.withLock { $0.wordRemovals = removals }
+        return .none
+
+      case let .setWordRemappings(remappings):
+        state.$hexSettings.withLock { $0.wordRemappings = remappings }
+        return .none
+
+      case .delegate:
+        // Delegate actions are intercepted by the parent AppFeature.
+        // This child doesn't process them.
         return .none
 
       }

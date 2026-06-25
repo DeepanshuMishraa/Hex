@@ -354,8 +354,16 @@ actor RecordingClientLive {
   /// Tracks which specific media players were paused
   private var pausedPlayers: [String] = []
 
-  /// Tracks previous system volume when muted for recording
-  private var previousVolume: Float?
+  /// Tracks output device mute states for restoration after recording
+  private var mutedDeviceStates: [MutedDeviceState] = []
+
+  private struct MutedDeviceState {
+    let deviceID: AudioDeviceID
+    let deviceName: String
+    let wasPreviouslyMuted: Bool
+    let usedHardwareMute: Bool
+    let previousVolume: Float32
+  }
 
   // Cache to store already-processed device information
   private var deviceCache: [AudioDeviceID: (hasInput: Bool, name: String?)] = [:]
@@ -921,14 +929,124 @@ actor RecordingClientLive {
     }
   }
 
-  // MARK: - Volume Control
+// MARK: - Hardware Mute Control
 
-  /// Mutes system volume and returns the previous volume level
-  private func muteSystemVolume() async -> Float {
-    let currentVolume = getSystemVolume()
-    setSystemVolume(0)
-    recordingLogger.notice("Muted system volume (was \(String(format: "%.2f", currentVolume)))")
-    return currentVolume
+  private func deviceHasOutput(deviceID: AudioDeviceID) -> Bool {
+    var address = audioPropertyAddress(kAudioDevicePropertyStreamConfiguration, scope: kAudioDevicePropertyScopeOutput)
+    var propertySize: UInt32 = 0
+    let status = AudioObjectGetPropertyDataSize(deviceID, &address, 0, nil, &propertySize)
+    guard status == noErr else { return false }
+
+    let bufferList = UnsafeMutablePointer<AudioBufferList>.allocate(capacity: Int(propertySize))
+    defer { bufferList.deallocate() }
+
+    let getStatus = AudioObjectGetPropertyData(deviceID, &address, 0, nil, &propertySize, bufferList)
+    guard getStatus == noErr else { return false }
+
+    let buffersPointer = UnsafeMutableAudioBufferListPointer(bufferList)
+    return buffersPointer.reduce(0) { $0 + Int($1.mNumberChannels) } > 0
+  }
+
+  private func getDeviceMuteState(deviceID: AudioDeviceID) -> Bool {
+    var address = audioPropertyAddress(kAudioDevicePropertyMute, scope: kAudioDevicePropertyScopeOutput)
+    var muted: UInt32 = 0
+    var size = UInt32(MemoryLayout<UInt32>.size)
+    let status = AudioObjectGetPropertyData(deviceID, &address, 0, nil, &size, &muted)
+    return status == noErr && muted == 1
+  }
+
+  private func setDeviceMuteState(deviceID: AudioDeviceID, muted: Bool) -> Bool {
+    var address = audioPropertyAddress(kAudioDevicePropertyMute, scope: kAudioDevicePropertyScopeOutput)
+    var canSet: DarwinBoolean = false
+    let canSetStatus = AudioObjectIsPropertySettable(deviceID, &address, &canSet)
+    guard canSetStatus == noErr, canSet.boolValue else {
+      return false
+    }
+
+    var muteValue: UInt32 = muted ? 1 : 0
+    let size = UInt32(MemoryLayout<UInt32>.size)
+    let status = AudioObjectSetPropertyData(deviceID, &address, 0, nil, size, &muteValue)
+    return status == noErr
+  }
+
+  private func getDeviceOutputVolume(deviceID: AudioDeviceID) -> Float32 {
+    var volume: Float32 = 0.0
+    var size = UInt32(MemoryLayout<Float32>.size)
+    var address = audioPropertyAddress(kAudioHardwareServiceDeviceProperty_VirtualMainVolume, scope: kAudioDevicePropertyScopeOutput)
+    let status = AudioObjectGetPropertyData(deviceID, &address, 0, nil, &size, &volume)
+    return status == noErr ? volume : 0.0
+  }
+
+  private func setDeviceOutputVolume(deviceID: AudioDeviceID, volume: Float32) {
+    var newVolume = volume
+    let size = UInt32(MemoryLayout<Float32>.size)
+    var address = audioPropertyAddress(kAudioHardwareServiceDeviceProperty_VirtualMainVolume, scope: kAudioDevicePropertyScopeOutput)
+    let status = AudioObjectSetPropertyData(deviceID, &address, 0, nil, size, &newVolume)
+    if status != noErr {
+      recordingLogger.error("Failed to set volume on device \(deviceID): \(status)")
+    }
+  }
+
+  private func muteAllOutputDevices() {
+    let devices = getAllAudioDevices()
+    var states: [MutedDeviceState] = []
+
+    for device in devices {
+      guard deviceHasOutput(deviceID: device) else { continue }
+
+      let wasMuted = getDeviceMuteState(deviceID: device)
+      let deviceName = getDeviceName(deviceID: device) ?? "Device \(device)"
+
+      if setDeviceMuteState(deviceID: device, muted: true) {
+        states.append(MutedDeviceState(
+          deviceID: device,
+          deviceName: deviceName,
+          wasPreviouslyMuted: wasMuted,
+          usedHardwareMute: true,
+          previousVolume: 0
+        ))
+        mediaLogger.notice("Muted output device \(deviceName) via hardware mute")
+      } else {
+        let volume = getDeviceOutputVolume(deviceID: device)
+        if volume > 0.01 {
+          let originalVolume = volume
+          setDeviceOutputVolume(deviceID: device, volume: 0)
+          states.append(MutedDeviceState(
+            deviceID: device,
+            deviceName: deviceName,
+            wasPreviouslyMuted: wasMuted,
+            usedHardwareMute: false,
+            previousVolume: originalVolume
+          ))
+          mediaLogger.notice("Muted output device \(deviceName) via volume reduction (was \(String(format: "%.2f", originalVolume)))")
+        }
+      }
+    }
+
+    mediaLogger.notice("Muted \(states.count) output device(s)")
+    mutedDeviceStates = states
+  }
+
+  private func unmuteMutedOutputDevices() {
+    let states = mutedDeviceStates
+    guard !states.isEmpty else { return }
+
+    for state in states {
+      if state.usedHardwareMute {
+        if !state.wasPreviouslyMuted {
+          setDeviceMuteState(deviceID: state.deviceID, muted: false)
+          mediaLogger.notice("Unmuted output device \(state.deviceName) via hardware mute")
+        } else {
+          mediaLogger.debug("Skipping unmute for device \(state.deviceName) - was already muted before recording")
+        }
+      } else {
+        setDeviceOutputVolume(deviceID: state.deviceID, volume: state.previousVolume)
+        mediaLogger.notice("Restored volume on output device \(state.deviceName) to \(String(format: "%.2f", state.previousVolume))")
+      }
+    }
+
+    mediaLogger.notice("Restored \(states.count) output device(s)")
+    mutedDeviceStates = []
   }
 
   /// Restores system volume to the specified level
@@ -1051,12 +1169,8 @@ actor RecordingClientLive {
       }
 
     case .mute:
-      // Mute system volume in background
-      mediaControlTask = Task { [sessionID] in
-        guard await self.isCurrentSession(sessionID) else { return }
-        let volume = await self.muteSystemVolume()
-        await self.setPreviousVolume(volume, sessionID: sessionID)
-      }
+      // Mute all output devices synchronously for zero-latency muting
+      muteAllOutputDevices()
 
     case .doNothing:
       // No audio handling
@@ -1168,19 +1282,16 @@ actor RecordingClientLive {
   }
 
   private func resumeMediaIfNeeded() async {
-    // Resume audio in background - don't block stop from completing
     let playersToResume = pausedPlayers
     let shouldResumeMedia = didPauseMedia
     let shouldResumeViaMediaRemote = didPauseViaMediaRemote
-    let volumeToRestore = previousVolume
+    let hasMutedDevicesToRestore = !mutedDeviceStates.isEmpty
 
-    if !playersToResume.isEmpty || shouldResumeMedia || shouldResumeViaMediaRemote || volumeToRestore != nil {
+    if !playersToResume.isEmpty || shouldResumeMedia || shouldResumeViaMediaRemote || hasMutedDevicesToRestore {
       Task {
-        // Restore volume if it was muted
-        if let volume = volumeToRestore {
-          await self.restoreSystemVolume(volume)
+        if hasMutedDevicesToRestore {
+          unmuteMutedOutputDevices()
         }
-        // Resume media if we previously paused specific players
         else if !playersToResume.isEmpty {
           mediaLogger.notice("Resuming players: \(playersToResume.joined(separator: ", "))")
           await resumeMediaApplications(playersToResume)
@@ -1195,7 +1306,6 @@ actor RecordingClientLive {
             }
           }
         }
-        // Resume generic media if we paused it with the media key
         else if shouldResumeMedia {
           await MainActor.run {
             sendMediaKey()
@@ -1203,7 +1313,6 @@ actor RecordingClientLive {
           mediaLogger.notice("Resuming media via media key")
         }
 
-        // Clear the flags
         self.clearMediaState()
       }
     }
@@ -1240,16 +1349,11 @@ actor RecordingClientLive {
     didPauseViaMediaRemote = value
   }
 
-  private func setPreviousVolume(_ volume: Float, sessionID: UUID) {
-    guard recordingSessionID == sessionID else { return }
-    previousVolume = volume
-  }
-
   private func clearMediaState() {
     pausedPlayers = []
     didPauseMedia = false
     didPauseViaMediaRemote = false
-    previousVolume = nil
+    mutedDeviceStates = []
   }
 
   @discardableResult

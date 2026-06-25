@@ -27,6 +27,7 @@ struct TranscriptionFeature {
     var meter: Meter = .init(averagePower: 0, peakPower: 0)
     var sourceAppBundleID: String?
     var sourceAppName: String?
+    var appContext: AppContext?
     @Shared(.hexSettings) var hexSettings: HexSettings
     @Shared(.isRemappingScratchpadFocused) var isRemappingScratchpadFocused: Bool = false
     @Shared(.modelBootstrapState) var modelBootstrapState: ModelBootstrapState
@@ -70,6 +71,7 @@ struct TranscriptionFeature {
   @Dependency(\.sleepManagement) var sleepManagement
   @Dependency(\.date.now) var now
   @Dependency(\.transcriptPersistence) var transcriptPersistence
+  @Dependency(\.aiPostProcessing) var aiPostProcessing
 
   var body: some ReducerOf<Self> {
     Reduce { state, action in
@@ -288,11 +290,15 @@ private extension TranscriptionFeature {
     let startTime = Date()
     state.recordingStartTime = startTime
     
-    // Capture the active application
+    // Capture the active application and app context
     if let activeApp = NSWorkspace.shared.frontmostApplication {
       state.sourceAppBundleID = activeApp.bundleIdentifier
       state.sourceAppName = activeApp.localizedName
     }
+    state.appContext = AppContext.detect(
+      bundleID: state.sourceAppBundleID,
+      appName: state.sourceAppName
+    )
     transcriptionFeatureLogger.notice("Recording started at \(startTime.ISO8601Format())")
 
     // Prevent system sleep during recording
@@ -413,10 +419,12 @@ private extension TranscriptionFeature {
     let remappings = state.hexSettings.wordRemappings
     let removalsEnabled = state.hexSettings.wordRemovalsEnabled
     let removals = state.hexSettings.wordRemovals
+    let aiMode = state.hexSettings.aiPostProcessingMode
     let modifiedResult: String
+
     if state.isRemappingScratchpadFocused {
       modifiedResult = result
-      transcriptionFeatureLogger.info("Scratchpad focused; skipping word modifications")
+      transcriptionFeatureLogger.info("Scratchpad focused; skipping word modifications and AI processing")
     } else {
       var output = result
       if removalsEnabled {
@@ -440,12 +448,31 @@ private extension TranscriptionFeature {
 
     let sourceAppBundleID = state.sourceAppBundleID
     let sourceAppName = state.sourceAppName
+    let appContext = state.appContext
     let transcriptionHistory = state.$transcriptionHistory
+    let isRemappingScratchpadFocused = state.isRemappingScratchpadFocused
+    let useAI = aiMode != .off && !isRemappingScratchpadFocused
 
     return .run { send in
+      var resultToUse = modifiedResult
+
+      if useAI {
+        do {
+          resultToUse = try await aiPostProcessing.postProcess(modifiedResult, aiMode, appContext)
+          transcriptionFeatureLogger.info("AI post-processing completed with mode: \(aiMode.displayName), app: \(appContext?.appName ?? "unknown")")
+        } catch {
+          transcriptionFeatureLogger.error("AI post-processing failed: \(error.localizedDescription), using raw result")
+          resultToUse = modifiedResult
+        }
+      }
+
+      guard !resultToUse.isEmpty else {
+        return
+      }
+
       do {
         try await finalizeRecordingAndStoreTranscript(
-          result: modifiedResult,
+          result: resultToUse,
           duration: duration,
           sourceAppBundleID: sourceAppBundleID,
           sourceAppName: sourceAppName,

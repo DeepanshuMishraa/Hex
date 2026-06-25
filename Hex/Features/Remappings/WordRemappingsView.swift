@@ -10,68 +10,90 @@ struct WordRemappingsView: View {
 	@State private var activeSection: ModificationSection = .removals
 
 	var body: some View {
-		ScrollView {
-			VStack(alignment: .leading, spacing: 16) {
-				VStack(alignment: .leading, spacing: 6) {
-					Text("Transcript Modifications")
-						.font(.title2.bold())
-					Text("Remove or replace words in every transcript. Removals use regex patterns and match whole words.")
-						.font(.callout)
-						.foregroundStyle(.secondary)
-				}
+		VStack(alignment: .leading, spacing: TickSpacing.xl) {
+			// Hero card (Whisperflow style)
+			TickHero {
+				VStack(alignment: .leading, spacing: TickSpacing.m) {
+					(
+						Text("Make Tick sound like ")
+							.font(TickFont.display(28, weight: .regular))
+							.foregroundStyle(TickColor.textPrimary)
+						+ Text("you")
+							.font(TickFont.displayItalic(28))
+							.foregroundStyle(TickColor.brand)
+					)
+					.fixedSize(horizontal: false, vertical: true)
+					Text("Tick adapts to how you write in different apps. Personalise your style for **messages, work chats, emails, and other apps** so every word sounds like you.")
+						.font(TickFont.body)
+						.foregroundStyle(TickColor.textPrimary)
+						.opacity(0.75)
+						.fixedSize(horizontal: false, vertical: true)
 
-				GroupBox {
-					VStack(alignment: .leading, spacing: 10) {
-						HStack(spacing: 12) {
-							VStack(alignment: .leading, spacing: 4) {
-								Text("Scratchpad")
-									.font(.caption.weight(.semibold))
-									.foregroundStyle(.secondary)
-								TextField("Say something…", text: $store.remappingScratchpadText)
-									.textFieldStyle(.roundedBorder)
-									.focused($isScratchpadFocused)
-									.onChange(of: isScratchpadFocused) { _, newValue in
-										store.send(.setRemappingScratchpadFocused(newValue))
-									}
-							}
-
-							VStack(alignment: .leading, spacing: 4) {
-								Text("Preview")
-									.font(.caption.weight(.semibold))
-									.foregroundStyle(.secondary)
-								Text(previewText.isEmpty ? "—" : previewText)
-									.font(.body)
-									.frame(maxWidth: .infinity, alignment: .leading)
-									.padding(.horizontal, 8)
-									.padding(.vertical, 6)
-									.background(
-										RoundedRectangle(cornerRadius: 6)
-											.fill(Color(nsColor: .controlBackgroundColor))
-									)
+					// Scratchpad
+					HStack(alignment: .top, spacing: TickSpacing.m) {
+						VStack(alignment: .leading, spacing: 4) {
+							Text("INPUT".uppercased())
+								.font(TickFont.eyebrow)
+								.tracking(0.8)
+								.foregroundStyle(TickColor.textPrimary)
+								.opacity(0.6)
+							CustomTextField(
+								placeholder: "Say something…",
+								text: $store.remappingScratchpadText
+							)
+							.focused($isScratchpadFocused)
+							.onChange(of: isScratchpadFocused) { _, newValue in
+								store.send(.setRemappingScratchpadFocused(newValue))
 							}
 						}
-					}
-					.padding(.vertical, 6)
-				}
 
-				Picker("Modification Type", selection: $activeSection) {
-					ForEach(ModificationSection.allCases) { section in
-						Text(section.title).tag(section)
+						VStack(alignment: .leading, spacing: 4) {
+							Text("PREVIEW".uppercased())
+								.font(TickFont.eyebrow)
+								.tracking(0.8)
+								.foregroundStyle(TickColor.textPrimary)
+								.opacity(0.6)
+							Text(previewText.isEmpty ? "—" : previewText)
+								.font(TickFont.body)
+								.foregroundStyle(TickColor.textPrimary)
+								.opacity(0.75)
+								.frame(maxWidth: .infinity, alignment: .leading)
+								.padding(.horizontal, TickSpacing.m)
+								.padding(.vertical, TickSpacing.s + 2)
+								.frame(minHeight: 38)
+								.background(
+									RoundedRectangle(cornerRadius: 10)
+										.fill(TickColor.surface)
+								)
+						}
 					}
-				}
-				.pickerStyle(.segmented)
-				.labelsHidden()
-
-				switch activeSection {
-				case .removals:
-					removalsSection
-				case .remappings:
-					remappingsSection
 				}
 			}
-			.frame(maxWidth: .infinity, alignment: .leading)
-			.padding()
+
+			// Section tabs (underlined)
+			HStack(spacing: TickSpacing.l) {
+				ForEach(ModificationSection.allCases) { section in
+					ModificationTab(
+						title: section.title,
+						isActive: activeSection == section,
+						action: {
+							withAnimation(TickAnimation.ease) {
+								activeSection = section
+							}
+						}
+					)
+				}
+				Spacer()
+			}
+
+			switch activeSection {
+			case .removals:
+				removalsSection
+			case .remappings:
+				remappingsSection
+			}
 		}
+		.frame(maxWidth: .infinity, alignment: .leading)
 		.onDisappear {
 			store.send(.setRemappingScratchpadFocused(false))
 		}
@@ -79,122 +101,114 @@ struct WordRemappingsView: View {
 	}
 
 	private var removalsSection: some View {
-		GroupBox {
-			VStack(alignment: .leading, spacing: 10) {
-				Toggle("Enable Word Removals", isOn: $store.hexSettings.wordRemovalsEnabled)
-					.toggleStyle(.checkbox)
+		VStack(alignment: .leading, spacing: TickSpacing.m) {
+			HStack {
+				VStack(alignment: .leading, spacing: 4) {
+					Text("WORD REMOVALS")
+						.font(TickFont.eyebrow)
+						.tracking(0.8)
+						.foregroundStyle(TickColor.textTertiary)
+					Text("Strip filler words from your transcriptions")
+						.font(TickFont.body)
+						.foregroundStyle(TickColor.textPrimary)
+					Text("Remove filler words using case-insensitive regex patterns")
+						.font(TickFont.caption)
+						.foregroundStyle(TickColor.textSecondary)
+				}
+				Spacer()
+				TickToggle(isOn: Binding(
+					get: { store.hexSettings.wordRemovalsEnabled },
+					set: { store.send(.toggleWordRemovalsEnabled($0)) }
+				))
+			}
 
-				removalsColumnHeaders
-
-				LazyVStack(alignment: .leading, spacing: 6) {
-					ForEach(store.hexSettings.wordRemovals) { removal in
-						if let removalBinding = removalBinding(for: removal.id) {
-							RemovalRow(removal: removalBinding) {
-								store.send(.removeWordRemoval(removal.id))
-							}
+			VStack(spacing: TickSpacing.s) {
+				ForEach(store.hexSettings.wordRemovals) { removal in
+					if let removalBinding = removalBinding(for: removal.id) {
+						RemovalRow(removal: removalBinding) {
+							store.send(.removeWordRemoval(removal.id))
 						}
 					}
 				}
 
-				HStack {
-					Button {
-						store.send(.addWordRemoval)
-					} label: {
-						Label("Add Removal", systemImage: "plus")
-					}
-					Spacer()
+				TickSecondaryButton(title: "Add Removal", icon: "plus") {
+					store.send(.addWordRemoval)
 				}
 			}
-			.padding(.vertical, 4)
-		} label: {
-			VStack(alignment: .leading, spacing: 4) {
-				Text("Word Removals")
-					.font(.headline)
-				Text("Remove filler words using case-insensitive regex patterns.")
-					.settingsCaption()
-			}
 		}
+		.padding(TickSpacing.l)
+		.background(
+			RoundedRectangle(cornerRadius: TickRadius.card)
+				.fill(TickColor.surface)
+				.overlay(
+					RoundedRectangle(cornerRadius: TickRadius.card)
+						.stroke(TickColor.cardBorder, lineWidth: 1)
+				)
+		)
 	}
 
 	private var remappingsSection: some View {
-		GroupBox {
-			VStack(alignment: .leading, spacing: 10) {
-				remappingsColumnHeaders
+		VStack(alignment: .leading, spacing: TickSpacing.m) {
+			VStack(alignment: .leading, spacing: 4) {
+				Text("WORD REMAPPINGS")
+					.font(TickFont.eyebrow)
+					.tracking(0.8)
+					.foregroundStyle(TickColor.textTertiary)
+				Text("Replace specific words in every transcript")
+					.font(TickFont.body)
+					.foregroundStyle(TickColor.textPrimary)
+				Text("Matches whole words, case-insensitive, in order")
+					.font(TickFont.caption)
+					.foregroundStyle(TickColor.textSecondary)
+			}
 
-				LazyVStack(alignment: .leading, spacing: 6) {
-					ForEach(store.hexSettings.wordRemappings) { remapping in
-						if let remappingBinding = remappingBinding(for: remapping.id) {
-							RemappingRow(remapping: remappingBinding) {
-								store.send(.removeWordRemapping(remapping.id))
-							}
+			VStack(spacing: TickSpacing.s) {
+				ForEach(store.hexSettings.wordRemappings) { remapping in
+					if let remappingBinding = remappingBinding(for: remapping.id) {
+						RemappingRow(remapping: remappingBinding) {
+							store.send(.removeWordRemapping(remapping.id))
 						}
 					}
 				}
 
-				HStack {
-					Button {
-						store.send(.addWordRemapping)
-					} label: {
-						Label("Add Remapping", systemImage: "plus")
-					}
-					Spacer()
+				TickSecondaryButton(title: "Add Remapping", icon: "plus") {
+					store.send(.addWordRemapping)
 				}
 			}
-			.padding(.vertical, 4)
-		} label: {
-			VStack(alignment: .leading, spacing: 4) {
-				Text("Word Remappings")
-					.font(.headline)
-				Text("Replace specific words in every transcript. Matches whole words, case-insensitive, in order.")
-					.settingsCaption()
-			}
 		}
-	}
-
-	private var removalsColumnHeaders: some View {
-		HStack(spacing: 8) {
-			Text("On")
-				.frame(width: Layout.toggleColumnWidth, alignment: .leading)
-			Text("Pattern")
-				.frame(maxWidth: .infinity, alignment: .leading)
-			Spacer().frame(width: Layout.deleteColumnWidth)
-		}
-		.font(.caption)
-		.foregroundStyle(.secondary)
-		.padding(.horizontal, Layout.rowHorizontalPadding)
-	}
-
-	private var remappingsColumnHeaders: some View {
-		HStack(spacing: 8) {
-			Text("On")
-				.frame(width: Layout.toggleColumnWidth, alignment: .leading)
-			Text("Match")
-				.frame(maxWidth: .infinity, alignment: .leading)
-			Image(systemName: "arrow.right")
-				.font(.caption)
-				.foregroundStyle(.secondary)
-				.frame(width: Layout.arrowColumnWidth)
-			Text("Replace")
-				.frame(maxWidth: .infinity, alignment: .leading)
-			Spacer().frame(width: Layout.deleteColumnWidth)
-		}
-		.font(.caption)
-		.foregroundStyle(.secondary)
-		.padding(.horizontal, Layout.rowHorizontalPadding)
+		.padding(TickSpacing.l)
+		.background(
+			RoundedRectangle(cornerRadius: TickRadius.card)
+				.fill(TickColor.surface)
+				.overlay(
+					RoundedRectangle(cornerRadius: TickRadius.card)
+						.stroke(TickColor.cardBorder, lineWidth: 1)
+				)
+		)
 	}
 
 	private func removalBinding(for id: UUID) -> Binding<WordRemoval>? {
-		guard let index = store.hexSettings.wordRemovals.firstIndex(where: { $0.id == id }) else {
-			return nil
-		}
-		return $store.hexSettings.wordRemovals[index]
+		guard let index = store.hexSettings.wordRemovals.firstIndex(where: { $0.id == id }) else { return nil }
+		return Binding(
+			get: { store.hexSettings.wordRemovals[index] },
+			set: { newValue in
+				var updated = store.hexSettings.wordRemovals
+				updated[index] = newValue
+				store.send(.setWordRemovals(updated))
+			}
+		)
 	}
 
 	private func remappingBinding(for id: UUID) -> Binding<WordRemapping>? {
-		guard let index = store.hexSettings.wordRemappings.firstIndex(where: { $0.id == id }) else {
-			return nil
-		}
-		return $store.hexSettings.wordRemappings[index]
+		guard let index = store.hexSettings.wordRemappings.firstIndex(where: { $0.id == id }) else { return nil }
+		return Binding(
+			get: { store.hexSettings.wordRemappings[index] },
+			set: { newValue in
+				var updated = store.hexSettings.wordRemappings
+				updated[index] = newValue
+				store.send(.setWordRemappings(updated))
+			}
+		)
 	}
 
 	private var previewText: String {
@@ -212,28 +226,23 @@ private struct RemovalRow: View {
 	var onDelete: () -> Void
 
 	var body: some View {
-		HStack(spacing: 8) {
-			Toggle("", isOn: $removal.isEnabled)
-				.labelsHidden()
-				.toggleStyle(.checkbox)
-				.frame(width: Layout.toggleColumnWidth, alignment: .leading)
+		HStack(spacing: TickSpacing.s) {
+			TickToggle(isOn: $removal.isEnabled)
 
-			TextField("Regex Pattern", text: $removal.pattern)
-				.textFieldStyle(.roundedBorder)
+			CustomTextField(placeholder: "Regex Pattern", text: $removal.pattern)
 
-			Button(role: .destructive, action: onDelete) {
+			Button(action: onDelete) {
 				Image(systemName: "trash")
+					.font(TickFont.captionFunc(13))
+					.foregroundStyle(TickColor.textTertiary)
+					.frame(width: 32, height: 32)
+					.background(
+						Circle()
+							.fill(TickColor.canvas)
+					)
 			}
-			.buttonStyle(.borderless)
-			.frame(width: Layout.deleteColumnWidth)
+			.buttonStyle(.plain)
 		}
-		.padding(.horizontal, Layout.rowHorizontalPadding)
-		.padding(.vertical, Layout.rowVerticalPadding)
-		.frame(maxWidth: .infinity)
-		.background(
-			RoundedRectangle(cornerRadius: Layout.rowCornerRadius)
-				.fill(Color(nsColor: .controlBackgroundColor))
-		)
 	}
 }
 
@@ -242,37 +251,29 @@ private struct RemappingRow: View {
 	var onDelete: () -> Void
 
 	var body: some View {
-		HStack(spacing: 8) {
-			Toggle("", isOn: $remapping.isEnabled)
-				.labelsHidden()
-				.toggleStyle(.checkbox)
-				.frame(width: Layout.toggleColumnWidth, alignment: .leading)
+		HStack(spacing: TickSpacing.s) {
+			TickToggle(isOn: $remapping.isEnabled)
 
-			TextField("Match", text: $remapping.match)
-				.textFieldStyle(.roundedBorder)
-				.frame(maxWidth: .infinity, alignment: .leading)
+			CustomTextField(placeholder: "Match", text: $remapping.match)
 
 			Image(systemName: "arrow.right")
-				.foregroundStyle(.secondary)
-				.frame(width: Layout.arrowColumnWidth)
+				.foregroundStyle(TickColor.textTertiary)
+				.font(TickFont.labelFunc(11, weight: .medium))
 
-			TextField("Replace", text: $remapping.replacement)
-				.textFieldStyle(.roundedBorder)
-				.frame(maxWidth: .infinity, alignment: .leading)
+			CustomTextField(placeholder: "Replace", text: $remapping.replacement)
 
-			Button(role: .destructive, action: onDelete) {
+			Button(action: onDelete) {
 				Image(systemName: "trash")
+					.font(TickFont.captionFunc(13))
+					.foregroundStyle(TickColor.textTertiary)
+					.frame(width: 32, height: 32)
+					.background(
+						Circle()
+							.fill(TickColor.canvas)
+					)
 			}
-			.buttonStyle(.borderless)
-			.frame(width: Layout.deleteColumnWidth)
+			.buttonStyle(.plain)
 		}
-		.padding(.horizontal, Layout.rowHorizontalPadding)
-		.padding(.vertical, Layout.rowVerticalPadding)
-		.frame(maxWidth: .infinity)
-		.background(
-			RoundedRectangle(cornerRadius: Layout.rowCornerRadius)
-				.fill(Color(nsColor: .controlBackgroundColor))
-		)
 	}
 }
 
@@ -284,19 +285,29 @@ private enum ModificationSection: String, CaseIterable, Identifiable {
 
 	var title: String {
 		switch self {
-		case .removals:
-			return "Word Removals"
-		case .remappings:
-			return "Word Remappings"
+		case .removals: return "Word Removals"
+		case .remappings: return "Word Remappings"
 		}
 	}
 }
 
-private enum Layout {
-	static let toggleColumnWidth: CGFloat = 24
-	static let deleteColumnWidth: CGFloat = 24
-	static let arrowColumnWidth: CGFloat = 16
-	static let rowHorizontalPadding: CGFloat = 10
-	static let rowVerticalPadding: CGFloat = 6
-	static let rowCornerRadius: CGFloat = 8
+private struct ModificationTab: View {
+	let title: String
+	let isActive: Bool
+	let action: () -> Void
+
+	var body: some View {
+		Button(action: action) {
+			Text(title)
+				.font(TickFont.labelFunc(14, weight: isActive ? .semibold : .regular))
+				.foregroundStyle(isActive ? TickColor.textPrimary : TickColor.textTertiary)
+				.padding(.bottom, TickSpacing.s)
+				.overlay(alignment: .bottom) {
+					Rectangle()
+						.fill(isActive ? TickColor.textPrimary : Color.clear)
+						.frame(height: 1.5)
+				}
+		}
+		.buttonStyle(.plain)
+	}
 }

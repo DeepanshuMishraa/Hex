@@ -8,12 +8,10 @@ struct ModelSectionView: View {
 	let shouldFlash: Bool
 
 	var body: some View {
-		Section("Transcription Model") {
-			ModelDownloadView(
-				store: store.scope(state: \.modelDownload, action: \.modelDownload),
-				shouldFlash: shouldFlash
-			)
-		}
+		ModelDownloadView(
+			store: store.scope(state: \.modelDownload, action: \.modelDownload),
+			shouldFlash: shouldFlash
+		)
 		.enableInjection()
 	}
 }

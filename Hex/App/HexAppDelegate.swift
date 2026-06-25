@@ -17,7 +17,7 @@ class HexAppDelegate: NSObject, NSApplicationDelegate {
 
 	func applicationDidFinishLaunching(_: Notification) {
 		DiagnosticsLogging.bootstrapIfNeeded()
-		// Ensure Parakeet/FluidAudio caches live under Application Support, not ~/.cache
+		TickFonts.registerIfNeeded()
 		configureLocalCaches()
 		if isTesting {
 			appLogger.debug("Running in testing mode")
@@ -31,10 +31,8 @@ class HexAppDelegate: NSObject, NSApplicationDelegate {
 		appLogger.info("Application did finish launching")
 		appLogger.notice("launchedAtLogin = \(self.launchedAtLogin)")
 
-		// Set activation policy first
 		updateAppMode()
 
-		// Add notification observer
 		NotificationCenter.default.addObserver(
 			self,
 			selector: #selector(handleAppModeUpdate),
@@ -42,10 +40,7 @@ class HexAppDelegate: NSObject, NSApplicationDelegate {
 			object: nil
 		)
 
-		// Start long-running app effects (global hotkeys, permissions, etc.)
 		startLifecycleTasksIfNeeded()
-
-		// Then present main views
 		presentMainView()
 
 		guard shouldOpenForegroundUIOnLaunch else {
@@ -76,8 +71,6 @@ class HexAppDelegate: NSObject, NSApplicationDelegate {
 		}
 	}
 
-	/// Sets XDG_CACHE_HOME so FluidAudio stores models under our app's
-	/// Application Support folder, keeping everything in one place.
     private func configureLocalCaches() {
         do {
             let cache = try URL.hexApplicationSupport.appendingPathComponent("cache", isDirectory: true)
@@ -94,7 +87,7 @@ class HexAppDelegate: NSObject, NSApplicationDelegate {
 			return
 		}
 		let transcriptionStore = HexApp.appStore.scope(state: \.transcription, action: \.transcription)
-		let transcriptionView = TranscriptionView(store: transcriptionStore).padding().padding(.top).padding(.top)
+		let transcriptionView = TranscriptionView(store: transcriptionStore)
 			.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
 		invisibleWindow = InvisibleWindow.fromView(transcriptionView)
 		invisibleWindow?.makeKeyAndOrderFront(nil)
@@ -108,17 +101,23 @@ class HexAppDelegate: NSObject, NSApplicationDelegate {
 		}
 
 		let settingsView = AppView(store: HexApp.appStore)
+			.frame(minWidth: 920, minHeight: 620)
+			.background(TickColor.canvas)
+
 		let settingsWindow = NSWindow(
-			contentRect: .init(x: 0, y: 0, width: 700, height: 700),
-			styleMask: [.titled, .fullSizeContentView, .closable, .miniaturizable],
+			contentRect: .init(x: 0, y: 0, width: 1100, height: 720),
+			styleMask: [.titled, .fullSizeContentView, .closable, .miniaturizable, .resizable],
 			backing: .buffered,
 			defer: false
 		)
-		settingsWindow.titleVisibility = .visible
+		settingsWindow.title = "Tick"
+		settingsWindow.titleVisibility = .hidden
+		settingsWindow.titlebarAppearsTransparent = true
+		settingsWindow.appearance = NSAppearance(named: .aqua)
 		settingsWindow.contentView = NSHostingView(rootView: settingsView)
 		settingsWindow.isReleasedWhenClosed = false
 		settingsWindow.center()
-		settingsWindow.toolbarStyle = NSWindow.ToolbarStyle.unified
+		settingsWindow.toolbarStyle = .unified
 		settingsWindow.makeKeyAndOrderFront(nil)
 		NSApp.activate(ignoringOtherApps: true)
 		self.settingsWindow = settingsWindow

@@ -8,66 +8,162 @@ struct HotKeySectionView: View {
     @Bindable var store: StoreOf<SettingsFeature>
 
     var body: some View {
-        Section("Hot Key") {
-            let hotKey = store.hexSettings.hotkey
-            let key = store.isSettingHotKey ? nil : hotKey.key
-            let modifiers = store.isSettingHotKey ? store.currentModifiers : hotKey.modifiers
+        VStack(alignment: .leading, spacing: TickSpacing.m) {
+            TickEyebrow(text: "Hotkey")
+                .padding(.leading, TickSpacing.xs)
 
-            VStack(spacing: 12) {
-                // Hot key view
-                HStack {
-                    Spacer()
-                    HotKeyView(modifiers: modifiers, key: key, isActive: store.isSettingHotKey)
-                        .animation(.spring(), value: key)
-                        .animation(.spring(), value: modifiers)
-                    Spacer()
-                }
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    store.send(.startSettingHotKey)
-                }
-
-                if !store.isSettingHotKey,
-                   hotKey.key == nil,
-                   !hotKey.modifiers.isEmpty {
-                    ModifierSideControls(
-                        modifiers: hotKey.modifiers,
-                        onSelect: { kind, side in
-                            store.send(.setModifierSide(kind, side))
-                        }
-                    )
-                    .transition(.opacity)
-                }
-            }
-
-            Label {
-                Toggle("Enable double-tap lock", isOn: $store.hexSettings.doubleTapLockEnabled)
-            } icon: {
-                Image(systemName: "hand.tap")
-            }
-
-            // Double-tap only mode applies to key+modifier combinations.
-            if hotKey.key != nil {
-                Label {
-                    Toggle("Use double-tap only", isOn: $store.hexSettings.useDoubleTapOnly)
-                        .disabled(!store.hexSettings.doubleTapLockEnabled)
-                } icon: {
-                    Image(systemName: "hand.tap.fill")
-                }
-            }
-
-            // Minimum key time (for modifier-only shortcuts)
-            if store.hexSettings.hotkey.key == nil {
-                Label {
-                    Slider(value: $store.hexSettings.minimumKeyTime, in: 0.0 ... 2.0, step: 0.1) {
-                        Text("Ignore below \(store.hexSettings.minimumKeyTime, specifier: "%.1f")s")
+            // Hero cream card with hotkey
+            TickHero {
+                VStack(alignment: .leading, spacing: TickSpacing.m) {
+                    HStack(alignment: .firstTextBaseline) {
+                        Text("Press-and-hold or ")
+                            .font(TickFont.display(26, weight: .regular))
+                            .foregroundStyle(TickColor.textPrimary)
+                        + Text("double-tap")
+                            .font(TickFont.displayItalic(26))
+                            .foregroundStyle(TickColor.brand)
+                        + Text(" to record")
+                            .font(TickFont.display(26, weight: .regular))
+                            .foregroundStyle(TickColor.textPrimary)
                     }
-                } icon: {
-                    Image(systemName: "clock")
+                    Text("Tap to set a new hotkey. Use any modifier combo, or pick a single key.")
+                        .font(TickFont.body)
+                        .foregroundStyle(TickColor.textPrimary)
+                        .opacity(0.7)
+
+                    HStack {
+                        Spacer()
+                        let hotKey = store.hexSettings.hotkey
+                        let key = store.isSettingHotKey ? nil : hotKey.key
+                        let modifiers = store.isSettingHotKey ? store.currentModifiers : hotKey.modifiers
+
+                        HotKeyView(modifiers: modifiers, key: key, isActive: store.isSettingHotKey)
+                            .animation(TickAnimation.spring, value: key)
+                            .animation(TickAnimation.spring, value: modifiers)
+                        Spacer()
+                    }
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        store.send(.startSettingHotKey)
+                    }
                 }
             }
+
+            // Modifier side controls (for modifier-only hotkeys)
+            let hotKey = store.hexSettings.hotkey
+            if !store.isSettingHotKey,
+               hotKey.key == nil,
+               !hotKey.modifiers.isEmpty {
+                ModifierSideControls(
+                    modifiers: hotKey.modifiers,
+                    onSelect: { kind, side in
+                        store.send(.setModifierSide(kind, side))
+                    }
+                )
+                .transition(.opacity)
+            }
+
+            // Options card
+            VStack(spacing: 0) {
+                ToggleRow(
+                    eyebrow: "Behavior",
+                    title: "Enable Double-Tap Lock",
+                    subtitle: "Tap twice to lock recording mode",
+                    isOn: Binding(
+                        get: { store.hexSettings.doubleTapLockEnabled },
+                        set: { store.send(.toggleDoubleTapLockEnabled($0)) }
+                    )
+                )
+
+                if hotKey.key != nil {
+                    Rectangle().fill(TickColor.line).frame(height: 1)
+
+                    ToggleRow(
+                        eyebrow: "Tapping",
+                        title: "Use Double-Tap Only",
+                        subtitle: "Require double-tap even for key combinations",
+                        isOn: Binding(
+                            get: { store.hexSettings.useDoubleTapOnly },
+                            set: { store.send(.toggleUseDoubleTapOnly($0)) }
+                        ),
+                       	isEnabled: store.hexSettings.doubleTapLockEnabled
+                    )
+                }
+
+                if store.hexSettings.hotkey.key == nil {
+                    Rectangle().fill(TickColor.line).frame(height: 1)
+
+                    VStack(alignment: .leading, spacing: TickSpacing.s) {
+                        HStack {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("MINIMUM HOLD".uppercased())
+                                    .font(TickFont.eyebrow)
+                                    .tracking(0.8)
+                                    .foregroundStyle(TickColor.textTertiary)
+                                Text("Hold time before recording starts")
+                                    .font(TickFont.body)
+                                    .foregroundStyle(TickColor.textPrimary)
+                            }
+                            Spacer()
+                            Text("\(store.hexSettings.minimumKeyTime, specifier: "%.1f")s")
+                                .font(TickFont.mono())
+                                .foregroundStyle(TickColor.textPrimary)
+                        }
+                        TickSlider(
+                            value: Binding(
+                                get: { store.hexSettings.minimumKeyTime },
+                                set: { store.send(.setMinimumKeyTime($0)) }
+                            ),
+                            range: 0.0...2.0,
+                            step: 0.1
+                        )
+                    }
+                    .padding(.vertical, TickSpacing.s)
+                }
+            }
+            .padding(.horizontal, TickSpacing.l)
+            .padding(.vertical, TickSpacing.m)
+            .background(
+                RoundedRectangle(cornerRadius: TickRadius.card)
+                    .fill(TickColor.surface)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: TickRadius.card)
+                            .stroke(TickColor.cardBorder, lineWidth: 1)
+                    )
+            )
         }
         .enableInjection()
+    }
+}
+
+private struct ToggleRow: View {
+    let eyebrow: String
+    let title: String
+    let subtitle: String?
+    @Binding var isOn: Bool
+    var isEnabled: Bool = true
+
+    var body: some View {
+        HStack(alignment: .center, spacing: TickSpacing.l) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(eyebrow.uppercased())
+                    .font(TickFont.eyebrow)
+                    .tracking(0.8)
+                    .foregroundStyle(TickColor.textTertiary)
+                Text(title)
+                    .font(TickFont.body)
+                    .foregroundStyle(TickColor.textPrimary)
+                if let subtitle {
+                    Text(subtitle)
+                        .font(TickFont.caption)
+                        .foregroundStyle(TickColor.textSecondary)
+                }
+            }
+            Spacer()
+            TickToggle(isOn: $isOn)
+        }
+        .padding(.vertical, TickSpacing.s)
+        .opacity(isEnabled ? 1 : 0.5)
     }
 }
 
@@ -77,30 +173,68 @@ private struct ModifierSideControls: View {
     var onSelect: (Modifier.Kind, Modifier.Side) -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            ForEach(modifiers.kinds, id: \.self) { kind in
-                if kind.supportsSideSelection {
-                    let binding = Binding<Modifier.Side>(
-                        get: { modifiers.side(for: kind) ?? .either },
-                        set: { onSelect(kind, $0) }
-                    )
+        VStack(alignment: .leading, spacing: TickSpacing.m) {
+            TickEyebrow(text: "Modifier Sides")
+                .padding(.leading, TickSpacing.xs)
 
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("\(kind.symbol) \(kind.displayName)")
-                            .settingsCaption()
+            VStack(alignment: .leading, spacing: TickSpacing.m) {
+                ForEach(modifiers.kinds, id: \.self) { kind in
+                    if kind.supportsSideSelection {
+                        VStack(alignment: .leading, spacing: TickSpacing.s) {
+                            Text("\(kind.symbol) \(kind.displayName)")
+                                .font(TickFont.labelFunc(13, weight: .semibold))
+                                .foregroundStyle(TickColor.textPrimary)
 
-                        Picker("Modifier side", selection: binding) {
-                            ForEach(Modifier.Side.allCases, id: \.self) { side in
-                                Text(side.displayName)
-                                    .tag(side)
+                            HStack(spacing: TickSpacing.s) {
+                                ForEach(Modifier.Side.allCases, id: \.self) { side in
+                                    ModifierSideChip(
+                                        title: side.displayName,
+                                        isSelected: modifiers.side(for: kind) == side,
+                                        action: { onSelect(kind, side) }
+                                    )
                                     .disabled(!kind.supportsSideSelection && side != .either)
+                                }
                             }
                         }
-                        .pickerStyle(.segmented)
                     }
                 }
             }
+            .padding(TickSpacing.l)
+            .background(
+                RoundedRectangle(cornerRadius: TickRadius.card)
+                    .fill(TickColor.surface)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: TickRadius.card)
+                            .stroke(TickColor.cardBorder, lineWidth: 1)
+                    )
+            )
         }
-        .enableInjection()
+    }
+}
+
+private struct ModifierSideChip: View {
+    let title: String
+    let isSelected: Bool
+    let action: () -> Void
+    @State private var isHovered = false
+
+    var body: some View {
+        Button(action: action) {
+            Text(title)
+                .font(TickFont.labelFunc(12, weight: .medium))
+                .foregroundStyle(isSelected ? TickColor.brand : TickColor.textPrimary)
+                .padding(.horizontal, TickSpacing.m)
+                .padding(.vertical, TickSpacing.xs)
+                .background(
+                    RoundedRectangle(cornerRadius: 8)
+                       	.fill(isSelected ? TickColor.brandSoft : (isHovered ? TickColor.canvas : Color.clear))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(isSelected ? TickColor.brand : TickColor.line, lineWidth: 1)
+                        )
+                )
+        }
+        .buttonStyle(.plain)
+        .onHover { isHovered = $0 }
     }
 }

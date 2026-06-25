@@ -11,97 +11,107 @@ struct PermissionsSectionView: View {
 	let inputMonitoringPermission: PermissionStatus
 
 	var body: some View {
-		Section {
-			HStack(spacing: 12) {
-				// Microphone
-				permissionCard(
-					title: "Microphone",
-					icon: "mic.fill",
-					status: microphonePermission,
-					action: { store.send(.requestMicrophone) }
-				)
-				
-			// Accessibility + Keyboard
-			permissionCard(
-				title: "Accessibility",
-				icon: "accessibility",
-				status: combinedAccessibilityStatus,
-				action: {
-					store.send(.requestAccessibility)
-					store.send(.requestInputMonitoring)
-				}
-			)
-		}
-
-		if store.hotkeyPermissionState.inputMonitoring != .granted {
-			VStack(alignment: .leading, spacing: 6) {
-				Label {
-					Text("Input Monitoring is required so Hex can listen for your hotkey.")
-						.font(.callout)
-						.foregroundStyle(.primary)
-				} icon: {
-					Image(systemName: "exclamationmark.triangle.fill")
-						.foregroundStyle(.yellow)
+		TickHero {
+			VStack(alignment: .leading, spacing: TickSpacing.l) {
+				VStack(alignment: .leading, spacing: TickSpacing.s) {
+					HStack(alignment: .firstTextBaseline) {
+						Text("Tick needs a few ")
+							.font(TickFont.display(26, weight: .regular))
+							.foregroundStyle(TickColor.textPrimary)
+						+ Text("permissions")
+							.font(TickFont.displayItalic(26))
+							.foregroundStyle(TickColor.brand)
+					}
+					Text("Grant these to start transcribing.")
+						.font(TickFont.body)
+						.foregroundStyle(TickColor.textPrimary)
+						.opacity(0.7)
 				}
 
-				Button {
-					store.send(.requestInputMonitoring)
-				} label: {
-					Text("Open Input Monitoring Settings")
+				VStack(spacing: TickSpacing.s) {
+					permissionRow(
+						eyebrow: "Audio",
+						title: "Microphone",
+						subtitle: "For voice capture",
+						icon: "mic.fill",
+						status: microphonePermission,
+						action: { store.send(.requestMicrophone) }
+					)
+
+					permissionRow(
+						eyebrow: "Input",
+						title: "Accessibility & Input Monitoring",
+						subtitle: "For hotkey detection",
+						icon: "accessibility",
+						status: combinedAccessibilityStatus,
+						action: {
+							store.send(.requestAccessibility)
+							store.send(.requestInputMonitoring)
+						}
+					)
 				}
-				.buttonStyle(.borderedProminent)
-				.controlSize(.small)
 			}
-			.padding(12)
-			.background(Color(nsColor: .controlBackgroundColor))
-			.clipShape(RoundedRectangle(cornerRadius: 10))
-		}
-
-		} header: {
-			Text("Permissions")
 		}
 		.enableInjection()
 	}
-	
-	@ViewBuilder
-	private func permissionCard(
+
+	private func permissionRow(
+		eyebrow: String,
 		title: String,
+		subtitle: String,
 		icon: String,
 		status: PermissionStatus,
 		action: @escaping () -> Void
 	) -> some View {
-		HStack(spacing: 8) {
-			Image(systemName: icon)
-				.font(.body)
-				.foregroundStyle(.secondary)
-				.frame(width: 16)
-			
-			Text(title)
-				.font(.body.weight(.medium))
-				.lineLimit(1)
-				.truncationMode(.tail)
-				.layoutPriority(1)
-			
+		HStack(alignment: .center, spacing: TickSpacing.m) {
+			ZStack {
+				RoundedRectangle(cornerRadius: 10)
+					.fill(status == .granted ? TickColor.brand.opacity(0.12) : TickColor.canvas)
+					.frame(width: 36, height: 36)
+				Image(systemName: icon)
+					.font(TickFont.labelFunc(14, weight: .medium))
+					.foregroundStyle(status == .granted ? TickColor.brand : TickColor.textSecondary)
+			}
+
+			VStack(alignment: .leading, spacing: 2) {
+				Text(eyebrow.uppercased())
+					.font(TickFont.eyebrow)
+					.tracking(0.8)
+					.foregroundStyle(TickColor.textTertiary)
+				Text(title)
+					.font(TickFont.body)
+					.foregroundStyle(TickColor.textPrimary)
+				Text(subtitle)
+					.font(TickFont.caption)
+					.foregroundStyle(TickColor.textSecondary)
+			}
+
 			Spacer()
-			
+
 			switch status {
 			case .granted:
-				Image(systemName: "checkmark.circle.fill")
-					.foregroundStyle(.green)
-					.font(.body)
+				Label("Granted", systemImage: "checkmark")
+					.font(TickFont.labelFunc(12, weight: .medium))
+					.foregroundStyle(TickColor.success)
+					.padding(.horizontal, TickSpacing.m)
+					.padding(.vertical, TickSpacing.xs)
+					.background(
+						Capsule()
+							.fill(TickColor.success.opacity(0.12))
+					)
 			case .denied, .notDetermined:
-				Button("Grant") {
-					action()
-				}
-				.buttonStyle(.bordered)
-				.controlSize(.small)
+				TickPrimaryButton(title: "Grant", icon: nil, action: action)
 			}
 		}
-		.padding(.horizontal, 12)
-		.padding(.vertical, 8)
-		.frame(maxWidth: .infinity)
-		.background(Color(nsColor: .controlBackgroundColor))
-		.clipShape(RoundedRectangle(cornerRadius: 8))
+		.padding(TickSpacing.m)
+		.background(
+			RoundedRectangle(cornerRadius: 12)
+				.fill(TickColor.surface)
+				.overlay(
+					RoundedRectangle(cornerRadius: 12)
+						.stroke(TickColor.cardBorder, lineWidth: 1)
+				)
+		)
 	}
 
 	private var combinedAccessibilityStatus: PermissionStatus {

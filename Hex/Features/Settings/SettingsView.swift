@@ -9,9 +9,10 @@ struct SettingsView: View {
 	let microphonePermission: PermissionStatus
 	let accessibilityPermission: PermissionStatus
 	let inputMonitoringPermission: PermissionStatus
-  
+
 	var body: some View {
-		Form {
+		VStack(alignment: .leading, spacing: TickSpacing.xl) {
+			// Permissions banner (if needed)
 			if microphonePermission != .granted
 				|| accessibilityPermission != .granted
 				|| inputMonitoringPermission != .granted {
@@ -23,35 +24,43 @@ struct SettingsView: View {
 				)
 			}
 
-			ModelSectionView(store: store, shouldFlash: store.shouldFlashModelSection)
-			// Only show language picker for WhisperKit models (not Parakeet)
+			// Model selection
+			TickHero {
+				VStack(alignment: .leading, spacing: TickSpacing.m) {
+					TickEyebrow(text: "Model")
+					ModelSectionView(store: store, shouldFlash: store.shouldFlashModelSection)
+				}
+			}
+
+			// Language (only for WhisperKit)
 			if ParakeetModel(rawValue: store.hexSettings.selectedModel) == nil {
 				LanguageSectionView(store: store)
 			}
 
+			// Hotkey
 			HotKeySectionView(store: store)
-          
+
+			// Microphone
 			if microphonePermission == .granted && !store.availableInputDevices.isEmpty {
 				MicrophoneSelectionSectionView(store: store)
 			}
 
+			// Audio
 			SoundSectionView(store: store)
+
+			// AI Post-Processing
+			AIPostProcessingSectionView(store: store)
+
+			// General
 			GeneralSectionView(store: store)
+
+			// History
 			HistorySectionView(store: store)
 		}
-		.formStyle(.grouped)
+		.frame(maxWidth: .infinity, alignment: .leading)
 		.task {
 			await store.send(.task).finish()
 		}
 		.enableInjection()
-	}
-}
-
-// MARK: - Shared Styles
-
-extension Text {
-	/// Applies caption font with secondary color, commonly used for helper/description text in settings.
-	func settingsCaption() -> some View {
-		self.font(.caption).foregroundStyle(.secondary)
 	}
 }

@@ -1,24 +1,57 @@
-import SwiftUI
+import ComposableArchitecture
 import Inject
-#if canImport(ComposableArchitecture)
-	import ComposableArchitecture
-#endif
+import SwiftUI
 
 struct LanguageSectionView: View {
 	@ObserveInjection var inject
 	@Bindable var store: StoreOf<SettingsFeature>
 
 	var body: some View {
-		Label {
-			Picker("Output Language", selection: $store.hexSettings.outputLanguage) {
-				ForEach(store.languages, id: \.id) { language in
-					Text(language.name).tag(language.code)
-				}
-			}
-			.pickerStyle(.menu)
-		} icon: {
-			Image(systemName: "globe")
+		VStack(alignment: .leading, spacing: TickSpacing.m) {
+			TickEyebrow(text: "Language")
+				.padding(.leading, TickSpacing.xs)
+
+			rowBody
+				.padding(TickSpacing.l)
+				.background(
+					RoundedRectangle(cornerRadius: TickRadius.card)
+						.fill(TickColor.surface)
+						.overlay(
+							RoundedRectangle(cornerRadius: TickRadius.card)
+								.stroke(TickColor.cardBorder, lineWidth: 1)
+						)
+				)
 		}
 		.enableInjection()
+	}
+
+	private var rowBody: some View {
+		HStack(alignment: .center, spacing: TickSpacing.l) {
+			VStack(alignment: .leading, spacing: 4) {
+				Text("OUTPUT LANGUAGE".uppercased())
+					.font(TickFont.eyebrow)
+					.tracking(0.8)
+					.foregroundStyle(TickColor.textTertiary)
+				Text("The language to transcribe into")
+					.font(TickFont.body)
+					.foregroundStyle(TickColor.textPrimary)
+			}
+			Spacer()
+			languagePicker
+		}
+	}
+
+	private var languagePicker: some View {
+		let autoOption: (String, String, String) = ("", "Auto-Detect", "globe")
+		let languageOptions: [(String, String, String)] = store.languages.map { lang in
+			(lang.code ?? "", lang.name, "globe")
+		}
+		return CustomMenuPicker(
+			selection: Binding(
+				get: { store.hexSettings.outputLanguage ?? "" },
+				set: { store.send(.setOutputLanguage($0.isEmpty ? nil : $0)) }
+			),
+			options: [autoOption] + languageOptions
+		)
 	}
 }
