@@ -1,10 +1,10 @@
-/* --- Handcrafted Warm Editorial Design System (Tick macOS App theme) --- */
+/* --- Handcrafted Warm Monospace Design System (Tick macOS App theme) --- */
 :root {
-  --font-sans: 'Geist', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-display: 'Geist', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-sans: 'Geist Mono', SFMono-Regular, Consolas, monospace;
+  --font-display: 'Geist Mono', SFMono-Regular, Consolas, monospace;
   --font-mono: 'Geist Mono', SFMono-Regular, Consolas, monospace;
   
-  /* Color Tokens matching HexDesignSystem.swift */
+  /* Color Tokens matching HexDesignSystem.swift - Monochromatic Slate */
   --bg-canvas: #f7f4ec;        /* off-white canvas */
   --bg-hero: #fdf8e2;          /* cream hero card */
   --bg-stat: #f3f3f5;          /* light grey stat */
@@ -12,9 +12,9 @@
   --text-primary: #0a0a0c;
   --text-secondary: #5c5c63;
   --text-muted: #94939b;
-  --brand: #7c3aed;            /* violet */
-  --brand-soft: #ede6fe;       /* soft brand tag */
-  --brand-mid: #b48ef7;
+  --brand: #0a0a0c;            /* black accent */
+  --brand-soft: rgba(0, 0, 0, 0.04);  /* soft tag */
+  --brand-mid: #5c5c63;
   
   --border-primary: rgba(0, 0, 0, 0.08);
   --border-secondary: rgba(0, 0, 0, 0.04);
@@ -63,9 +63,9 @@ body::before {
   width: 100vw;
   height: 100vh;
   background: 
-    radial-gradient(circle at 50% -20%, rgba(124, 58, 237, 0.05), transparent 50%),
-    radial-gradient(circle at 10% 80%, rgba(124, 58, 237, 0.02), transparent 35%),
-    radial-gradient(circle at 90% 80%, rgba(124, 58, 237, 0.02), transparent 35%);
+    radial-gradient(circle at 50% -20%, rgba(255, 255, 255, 0.4), transparent 50%),
+    radial-gradient(circle at 10% 80%, rgba(255, 255, 255, 0.2), transparent 35%),
+    radial-gradient(circle at 90% 80%, rgba(255, 255, 255, 0.2), transparent 35%);
   z-index: -1;
   pointer-events: none;
 }
@@ -332,13 +332,13 @@ button {
   display: inline-flex;
   padding: 4px 10px;
   background-color: var(--brand-soft);
-  border: 1px solid rgba(124, 58, 237, 0.15);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 9999px;
   font-family: var(--font-mono);
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.14em;
-  color: var(--brand);
+  color: var(--text-secondary);
   margin-bottom: 24px;
 }
 
@@ -476,7 +476,7 @@ button {
   position: absolute;
   width: 84%;
   height: 84%;
-  border: 1px solid rgba(124, 58, 237, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.03);
   clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
 }
 
