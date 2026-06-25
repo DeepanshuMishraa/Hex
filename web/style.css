@@ -1,7 +1,7 @@
 /* --- Handcrafted Warm Editorial Design System (Tick macOS App theme) --- */
 :root {
   --font-sans: 'Geist', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-display: 'Fraunces', Georgia, serif;
+  --font-display: 'Geist', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-mono: 'Geist Mono', SFMono-Regular, Consolas, monospace;
   
   /* Color Tokens matching HexDesignSystem.swift */
@@ -342,12 +342,12 @@ button {
   margin-bottom: 24px;
 }
 
-/* Editorial Serif Heading */
+/* Editorial Heading (Geist Sans Display) */
 .hero-title {
   font-family: var(--font-display);
   font-size: 68px;
-  font-weight: 500;
-  letter-spacing: -0.035em;
+  font-weight: 700;
+  letter-spacing: -0.04em;
   line-height: 1.05;
   color: var(--text-primary);
   margin-bottom: 24px;
@@ -355,7 +355,6 @@ button {
 
 .hero-title .text-gradient {
   color: var(--brand);
-  font-style: italic;
 }
 
 .hero-desc {
