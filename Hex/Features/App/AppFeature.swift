@@ -599,48 +599,50 @@ struct AppView: View {
   @ViewBuilder
   private var homeTabContent: some View {
     VStack(alignment: .leading, spacing: 0) {
-      VStack(alignment: .leading, spacing: 12) {
-        HStack(spacing: 0) {
-          Text("Make Tick sound like ")
-            .font(TickFont.display(28, weight: .regular))
+      if !store.hexSettings.hasSelectedStyle {
+        VStack(alignment: .leading, spacing: 12) {
+          HStack(spacing: 0) {
+            Text("Make Tick sound like ")
+              .font(TickFont.display(28, weight: .regular))
+              .foregroundStyle(TickColor.textPrimary)
+            Text("you")
+              .font(TickFont.displayItalic(28))
+              .foregroundStyle(TickColor.brand)
+          }
+
+          Text("Tick adapts to how you write in different apps. Personalize your style for messages, work chats, emails, and other apps so every word sounds like you.")
+            .font(TickFont.bodyFunc(14))
             .foregroundStyle(TickColor.textPrimary)
-          Text("you")
-            .font(TickFont.displayItalic(28))
-            .foregroundStyle(TickColor.brand)
-        }
+            .opacity(0.75)
+            .lineSpacing(4)
+            .padding(.trailing, 40)
 
-        Text("Tick adapts to how you write in different apps. Personalize your style for messages, work chats, emails, and other apps so every word sounds like you.")
-          .font(TickFont.bodyFunc(14))
-          .foregroundStyle(TickColor.textPrimary)
-          .opacity(0.75)
-          .lineSpacing(4)
-          .padding(.trailing, 40)
-
-        Button(action: {
-          store.send(.setActiveTab(.style))
-        }) {
-          Text("Start now")
-            .font(TickFont.labelFunc(13, weight: .medium))
-            .foregroundColor(.white)
-            .padding(.horizontal, 18)
-            .padding(.vertical, 9)
-            .background(TickColor.textPrimary)
-            .cornerRadius(8)
+          Button(action: {
+            store.send(.setActiveTab(.style))
+          }) {
+            Text("Start now")
+              .font(TickFont.labelFunc(13, weight: .medium))
+              .foregroundColor(.white)
+              .padding(.horizontal, 18)
+              .padding(.vertical, 9)
+              .background(TickColor.textPrimary)
+              .cornerRadius(8)
+          }
+          .buttonStyle(.plain)
+          .padding(.top, 4)
         }
-        .buttonStyle(.plain)
-        .padding(.top, 4)
+        .padding(28)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(AppTheme.bannerBackground)
+        .cornerRadius(16)
+        .overlay(
+          RoundedRectangle(cornerRadius: 16)
+            .stroke(Color.primary.opacity(0.04), lineWidth: 1)
+        )
+        .padding(.horizontal, 24)
+        .padding(.top, 24)
+        .padding(.bottom, 24)
       }
-      .padding(28)
-      .frame(maxWidth: .infinity, alignment: .leading)
-      .background(AppTheme.bannerBackground)
-      .cornerRadius(16)
-      .overlay(
-        RoundedRectangle(cornerRadius: 16)
-          .stroke(Color.primary.opacity(0.04), lineWidth: 1)
-      )
-      .padding(.horizontal, 24)
-      .padding(.top, 24)
-      .padding(.bottom, 24)
       
       HStack {
         Text("TODAY")
@@ -1057,7 +1059,7 @@ struct PersonalisationWizardModal: View {
               "I am excited for tomorrow's workout, especially after a full night of rest."
             ],
             isSelected: hexSettings.selectedStyleIndex == 0,
-            action: { $hexSettings.withLock { $0.selectedStyleIndex = 0 } }
+            action: { $hexSettings.withLock { $0.selectedStyleIndex = 0; $0.hasSelectedStyle = true } }
           )
 
           WizardStyleCard(
@@ -1068,7 +1070,7 @@ struct PersonalisationWizardModal: View {
               "I am excited for tomorrow's workout especially after a full night of rest."
             ],
             isSelected: hexSettings.selectedStyleIndex == 1,
-            action: { $hexSettings.withLock { $0.selectedStyleIndex = 1 } }
+            action: { $hexSettings.withLock { $0.selectedStyleIndex = 1; $0.hasSelectedStyle = true } }
           )
 
           WizardStyleCard(
@@ -1076,10 +1078,10 @@ struct PersonalisationWizardModal: View {
             label: "No caps + Less punctuation",
             lines: [
               "so far i am enjoying the new workout routine",
-              "i am excited for tomorrow's workout especially after a full night of rest"
+              "i am excited for tomorrow's workout especially after a call or full night of rest"
             ],
             isSelected: hexSettings.selectedStyleIndex == 2,
-            action: { $hexSettings.withLock { $0.selectedStyleIndex = 2 } }
+            action: { $hexSettings.withLock { $0.selectedStyleIndex = 2; $0.hasSelectedStyle = true } }
           )
         }
         .padding(.horizontal, 24)
@@ -1724,7 +1726,7 @@ struct StyleTabView: View {
               preview: "Hey, are you free for lunch tomorrow? Let's do 12 if that works for you.",
               avatarColor: Color(red: 220/255, green: 210/255, blue: 255/255),
               isSelected: hexSettings.selectedStyleIndex == 0,
-              action: { $hexSettings.withLock { $0.selectedStyleIndex = 0 } }
+              action: { $hexSettings.withLock { $0.selectedStyleIndex = 0; $0.hasSelectedStyle = true } }
             )
             
             StylePreviewCard(
@@ -1733,7 +1735,7 @@ struct StyleTabView: View {
               preview: "Hey, are you free for lunch tomorrow? Let's do 12 if that works for you",
               avatarColor: Color(red: 255/255, green: 200/255, blue: 240/255),
               isSelected: hexSettings.selectedStyleIndex == 1,
-              action: { $hexSettings.withLock { $0.selectedStyleIndex = 1 } }
+              action: { $hexSettings.withLock { $0.selectedStyleIndex = 1; $0.hasSelectedStyle = true } }
             )
             
             StylePreviewCard(
@@ -1742,7 +1744,7 @@ struct StyleTabView: View {
               preview: "hey, are you free for lunch tomorrow? let's do 12 if that works for you",
               avatarColor: Color(red: 100/255, green: 40/255, blue: 180/255),
               isSelected: hexSettings.selectedStyleIndex == 2,
-              action: { $hexSettings.withLock { $0.selectedStyleIndex = 2 } }
+              action: { $hexSettings.withLock { $0.selectedStyleIndex = 2; $0.hasSelectedStyle = true } }
             )
           }
         }

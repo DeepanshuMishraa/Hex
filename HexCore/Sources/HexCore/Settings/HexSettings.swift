@@ -207,6 +207,7 @@ public struct HexSettings: Codable, Equatable, Sendable {
 	public var aiPostProcessingMode: AIPostProcessingMode
 	public var aiPostProcessingModel: String
 	public var selectedStyleIndex: Int
+	public var hasSelectedStyle: Bool
 
 	private mutating func normalizeDoubleTapSettings() {
 		if !doubleTapLockEnabled {
@@ -242,7 +243,8 @@ public struct HexSettings: Codable, Equatable, Sendable {
 		groqAPIKey: String? = nil,
 		aiPostProcessingMode: AIPostProcessingMode = .off,
 		aiPostProcessingModel: String = "llama-3.3-70b-versatile",
-		selectedStyleIndex: Int = 2
+		selectedStyleIndex: Int = 2,
+		hasSelectedStyle: Bool = false
 	) {
 		self.soundEffectsEnabled = soundEffectsEnabled
 		self.soundEffectsVolume = soundEffectsVolume
@@ -272,6 +274,7 @@ public struct HexSettings: Codable, Equatable, Sendable {
 		self.aiPostProcessingMode = aiPostProcessingMode
 		self.aiPostProcessingModel = aiPostProcessingModel
 		self.selectedStyleIndex = selectedStyleIndex
+		self.hasSelectedStyle = hasSelectedStyle
 		normalizeDoubleTapSettings()
 	}
 
@@ -324,6 +327,7 @@ private enum HexSettingKey: String, CodingKey, CaseIterable {
 	case aiPostProcessingMode
 	case aiPostProcessingModel
 	case selectedStyleIndex
+	case hasSelectedStyle
 }
 
 private struct SettingsField<Value: Codable & Sendable> {
@@ -467,6 +471,7 @@ private enum HexSettingsSchema {
 		).eraseToAny(),
 		SettingsField(.aiPostProcessingMode, keyPath: \.aiPostProcessingMode, default: defaults.aiPostProcessingMode).eraseToAny(),
 		SettingsField(.aiPostProcessingModel, keyPath: \.aiPostProcessingModel, default: defaults.aiPostProcessingModel).eraseToAny(),
-		SettingsField(.selectedStyleIndex, keyPath: \.selectedStyleIndex, default: defaults.selectedStyleIndex).eraseToAny()
+		SettingsField(.selectedStyleIndex, keyPath: \.selectedStyleIndex, default: defaults.selectedStyleIndex).eraseToAny(),
+		SettingsField(.hasSelectedStyle, keyPath: \.hasSelectedStyle, default: defaults.hasSelectedStyle).eraseToAny()
 	]
 }
