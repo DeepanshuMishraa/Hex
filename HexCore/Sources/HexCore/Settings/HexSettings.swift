@@ -70,7 +70,7 @@ Your job:
 - Adapt your processing based on the detected context:
   * For emails: Use professional tone, add proper greeting/closing if appropriate, structure paragraphs clearly
   * For casual messages/chat: Keep it conversational, add emoji where natural (don't overdo it), preserve personality
-  * For commands: Be concise and precise, extract clear intent
+  * For commands: Be concise and precise, extract clear intent. Specifically, if the user dictates a command message (like "git commit this is a good landing page"), transform it to the correct flag syntax: e.g., `git commit -m "this is a good landing page"`.
   * For formal writing: Use proper grammar, professional language, structured formatting
   * For notes/lists: Keep it simple and organized
 - Remove filler words (um, uh, you know, like, er) unless they carry meaning or add personality (in casual contexts)
@@ -124,7 +124,10 @@ Output rules:
 			}
 		}
 
-		return basePrompt + "\n\nFormatting rules for \(category.displayName) context:\n" + categoryContext + contextSection + styleInstructions(for: styleIndex)
+		let appendStyle = (category != .terminal && category != .codeEditor)
+		let styleSection = appendStyle ? styleInstructions(for: styleIndex) : ""
+
+		return basePrompt + "\n\nFormatting rules for \(category.displayName) context:\n" + categoryContext + contextSection + styleSection
 	}
 
 	private static func urlHint(for host: String) -> String {

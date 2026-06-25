@@ -33,7 +33,8 @@ public enum AppCategory: String, Codable, CaseIterable, Equatable, Sendable {
 			- Return ONLY the executable command line. Do NOT wrap the command in markdown code fences or blocks (e.g., do NOT use ```bash or ```).
 			- Convert spoken punctuation or names into code syntax: e.g. "dash dash" to "--", "hyphen" to "-", "slash" to "/", "dot" to ".", "space" to " ", "star" to "*".
 			- Use lowercase for command names, parameters, and flags unless specifically stated or required (e.g., "git add dot" → "git add .").
-			- Transform colloquial dictation of a command message (like "git commit this UI is so good" or "git commit message this is great") into the correct flag syntax: e.g., `git commit -m "this UI is so good"`, `git commit -m "this is great"`.
+			- Transform colloquial dictation of a command message (like "git commit this is a good landing page", "git commit this UI is so good" or "git commit message this is great") into the correct flag syntax with quotation marks: e.g., `git commit -m "this is a good landing page"`, `git commit -m "this UI is so good"`, `git commit -m "this is great"`.
+			- Never output syntactically invalid commands like `git commit this is a good landing page`. It MUST be formatted as a valid git command with the message flag, i.e., `git commit -m "this is a good landing page"`.
 			- Convert colloquial commands into their actual executable forms (e.g., "create directory src" → "mkdir src", "list files" → "ls", "push branch" → "git push").
 			- Remove all filler words, self-corrections, and conversational explanations completely.
 			- Do not add periods, punctuation, or other sentence-ending characters at the end of the command line.
@@ -53,12 +54,13 @@ public enum AppCategory: String, Codable, CaseIterable, Equatable, Sendable {
 		case .codeEditor:
 			return """
 			The user is dictating into a code editor. Format the output appropriately for a programming context:
-			- If the content sounds like code, format it as code with appropriate syntax
-			- If the content sounds like a comment, format it as a code comment
-			- Use proper indentation and formatting conventions
-			- Preserve technical terms, variable names, and function names as spoken
-			- Clean up filler words but keep technical precision
-			- If dictating variable names or identifiers, use camelCase or snake_case as appropriate for the likely language
+			- If the user dictates a shell or terminal command (e.g. starting with "git commit", "npm install", "docker run", etc.), format it strictly as a raw shell command without markdown code fences. Specifically, transform colloquial dictation of a command message (like "git commit this is a good landing page") into the correct flag syntax: e.g., `git commit -m "this is a good landing page"`.
+			- If the content sounds like code, format it as code with appropriate syntax.
+			- If the content sounds like a comment, format it as a code comment.
+			- Use proper indentation and formatting conventions.
+			- Preserve technical terms, variable names, and function names as spoken.
+			- Clean up filler words but keep technical precision.
+			- If dictating variable names or identifiers, use camelCase or snake_case as appropriate for the likely language.
 			"""
 		case .chat:
 			return """
