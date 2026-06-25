@@ -412,6 +412,9 @@
     "Limit how many transcripts to keep" : {
 
     },
+    "Llama 3.3 70B" : {
+
+    },
     "Make Tick sound like " : {
 
     },
@@ -585,6 +588,12 @@
     "Quit" : {
 
     },
+    "Qwen 3 32B" : {
+
+    },
+    "Qwen 3.6 27B" : {
+
+    },
     "Remove filler words using case-insensitive regex patterns" : {
 
     },
@@ -613,6 +622,9 @@
 
     },
     "Save Transcription History" : {
+
+    },
+    "Select the LLM model to process your transcriptions" : {
 
     },
     "Selected device not connected. System default will be used." : {
@@ -842,7 +854,7 @@
         }
       }
     },
-    "Uses meta-llama/llama-4-scout-17b-16e-instruct via Groq." : {
+    "Uses %@ via Groq." : {
 
     },
     "Version" : {

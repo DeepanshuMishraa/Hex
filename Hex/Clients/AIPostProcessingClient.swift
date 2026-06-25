@@ -113,10 +113,17 @@ struct AIPostProcessingClientLive {
 		let decoder = JSONDecoder()
 		let groqResponse = try decoder.decode(GroqResponse.self, from: data)
 
-		guard let content = groqResponse.choices.first?.message.content else {
+		guard var content = groqResponse.choices.first?.message.content else {
 			aiLogger.warning("Groq response had no content")
 			return text
 		}
+
+		// Strip Qwen/DeepSeek thinking blocks: <think>...</think>
+		while let thinkRangeStart = content.range(of: "<think>"),
+		      let thinkRangeEnd = content.range(of: "</think>", range: thinkRangeStart.upperBound..<content.endIndex) {
+			content.removeSubrange(thinkRangeStart.lowerBound..<thinkRangeEnd.upperBound)
+		}
+		content = content.trimmingCharacters(in: .whitespacesAndNewlines)
 
 		aiLogger.info("AI post-processing completed successfully")
 		return content

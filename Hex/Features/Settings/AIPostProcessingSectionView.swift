@@ -88,8 +88,8 @@ struct AIPostProcessingSectionView: View {
 								),
 								options: [
 									("llama-3.3-70b-versatile", "Llama 3.3 70B", "brain"),
-									("qwen/qwen3-32b", "Qwen 3 32B", "brain.headsprout"),
-									("qwen/qwen3.6-27b", "Qwen 3.6 27B", "brain.headsprout")
+									("qwen/qwen3-32b", "Qwen 3 32B", "cpu"),
+									("qwen/qwen3.6-27b", "Qwen 3.6 27B", "network")
 								]
 							)
 						}
