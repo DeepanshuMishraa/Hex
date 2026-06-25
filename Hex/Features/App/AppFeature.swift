@@ -269,6 +269,60 @@ struct AppView: View {
     }
   }
 
+  private var dailyStreak: Int {
+    let history = store.state.history.transcriptionHistory.history
+    guard !history.isEmpty else { return 0 }
+    
+    let calendar = Calendar.current
+    let dates = Set(history.map { calendar.startOfDay(for: $0.timestamp) })
+    let today = calendar.startOfDay(for: Date())
+    
+    var currentCheckDate = today
+    var streak = 0
+    
+    if !dates.contains(today) {
+      guard let yesterday = calendar.date(byAdding: .day, value: -1, to: today) else { return 0 }
+      if !dates.contains(yesterday) {
+        return 0
+      }
+      currentCheckDate = yesterday
+    }
+    
+    while dates.contains(currentCheckDate) {
+      streak += 1
+      guard let prevDate = calendar.date(byAdding: .day, value: -1, to: currentCheckDate) else { break }
+      currentCheckDate = prevDate
+    }
+    
+    return streak
+  }
+
+  private var averageWPM: Int {
+    let history = store.state.history.transcriptionHistory.history
+    guard !history.isEmpty else { return 0 }
+    
+    var totalWords = 0
+    var totalSeconds: Double = 0.0
+    
+    for transcript in history {
+      let words = transcript.text.split(separator: " ").count
+      if transcript.duration > 0.5 && words > 0 {
+        totalWords += words
+        totalSeconds += transcript.duration
+      }
+    }
+    
+    guard totalSeconds > 1.0 else { return 0 }
+    let wpm = Double(totalWords) / (totalSeconds / 60.0)
+    return min(250, max(0, Int(round(wpm))))
+  }
+
+  private var uniqueAppsCount: Int {
+    let history = store.state.history.transcriptionHistory.history
+    let appNames = Set(history.compactMap { $0.sourceAppName })
+    return max(1, appNames.count)
+  }
+
   private var displayTranscripts: [Transcript] {
     if store.state.history.transcriptionHistory.history.isEmpty {
       let calendar = Calendar.current
@@ -342,7 +396,13 @@ struct AppView: View {
       .animation(.spring(response: 0.3, dampingFraction: 0.8), value: isSidebarVisible)
 
       if isStatsPresented {
-        StatisticsModal(wordCount: wordCount, onDismiss: { isStatsPresented = false })
+        StatisticsModal(
+          wordCount: wordCount,
+          dailyStreak: dailyStreak,
+          averageWPM: averageWPM,
+          uniqueAppsCount: uniqueAppsCount,
+          onDismiss: { isStatsPresented = false }
+        )
       }
 
       if isPersonalisationWizardPresented {
@@ -482,17 +542,17 @@ struct AppView: View {
       
       HStack(spacing: 8) {
         Button(action: { isStatsPresented = true }) {
-          StatPill(emoji: "🔥", text: "1 week")
+          StatPill(emoji: "🔥", text: "\(dailyStreak) \(dailyStreak == 1 ? "day" : "days")")
         }
         .buttonStyle(.plain)
         
         Button(action: { isStatsPresented = true }) {
-          StatPill(emoji: "🚀", text: "\(wordCount) words")
+          StatPill(emoji: "🚀", text: "\(wordCount) \(wordCount == 1 ? "word" : "words")")
         }
         .buttonStyle(.plain)
         
         Button(action: { isStatsPresented = true }) {
-          StatPill(emoji: "👋", text: "12 WPM")
+          StatPill(emoji: "👋", text: "\(averageWPM) WPM")
         }
         .buttonStyle(.plain)
       }
@@ -796,8 +856,49 @@ struct CustomSegmentedControl: View {
 
 struct StatisticsModal: View {
   let wordCount: Int
+  let dailyStreak: Int
+  let averageWPM: Int
+  let uniqueAppsCount: Int
   let onDismiss: () -> Void
   
+  private var dailyStreakDescription: String {
+    if dailyStreak == 0 {
+      return "Start recording to build your daily streak!"
+    } else if dailyStreak < 3 {
+      return "You are off to a great start!"
+    } else if dailyStreak < 7 {
+      return "Keep it up, you're on a roll!"
+    } else {
+      return "Incredible dedication, you're unstoppable!"
+    }
+  }
+
+  private var wpmDescription: String {
+    if averageWPM == 0 {
+      return "Speak to calculate your words per minute."
+    } else if averageWPM < 80 {
+      return "Use Tick more to see your WPM improve."
+    } else if averageWPM < 130 {
+      return "Nice job, you speak at a good, natural pace!"
+    } else {
+      return "Wow, you dictate fast! Professional level speed."
+    }
+  }
+
+  private var appsDescription: String {
+    if uniqueAppsCount <= 1 {
+      return "Flowing in your primary app. Try using Tick in other apps!"
+    } else if uniqueAppsCount < 5 {
+      return "You're starting to flow across different apps."
+    } else {
+      return "You've been flowing nearly everywhere!"
+    }
+  }
+
+  private var coverLettersCount: Int {
+    max(1, wordCount / 120)
+  }
+
   var body: some View {
     ZStack {
       Color.black.opacity(0.4)
@@ -837,10 +938,10 @@ struct StatisticsModal: View {
           .padding(.bottom, 24)
 
         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
-          StatCard(title: "WEEKLY STREAK", mainText: "1 week 🔥", description: "You are off to a great start!")
-          StatCard(title: "AVERAGE SPEED", mainText: "12 words per minute 👋", description: "Use Tick more to see your WPM improve.")
-          StatCard(title: "TOTAL WORDS DICTATED", mainText: "\(wordCount) 🚀", description: "You've written \(max(1, wordCount/120)) cover letters!")
-          StatCard(title: "TOTAL APPS USED", mainText: "19 apps 🏆", description: "You've been flowing nearly everywhere!")
+          StatCard(title: "DAILY STREAK", mainText: "\(dailyStreak) \(dailyStreak == 1 ? "day" : "days") 🔥", description: dailyStreakDescription)
+          StatCard(title: "AVERAGE SPEED", mainText: "\(averageWPM) WPM 👋", description: wpmDescription)
+          StatCard(title: "TOTAL WORDS DICTATED", mainText: "\(wordCount) 🚀", description: "You've written \(coverLettersCount) \(coverLettersCount == 1 ? "cover letter" : "cover letters")!")
+          StatCard(title: "TOTAL APPS USED", mainText: "\(uniqueAppsCount) \(uniqueAppsCount == 1 ? "app" : "apps") 🏆", description: appsDescription)
         }
         .padding(.horizontal, 24)
         .padding(.bottom, 32)
