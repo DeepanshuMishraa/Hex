@@ -105,7 +105,6 @@ struct TranscriptionIndicatorView: View {
       .frame(width: geometry.notchWidth + extensionWidth * 2, height: isActive ? targetHeight : 0)
       
       if isActive {
-        // Top row: content aligned to the left of the notch
         HStack(spacing: 0) {
           Group {
             switch status {
@@ -121,7 +120,28 @@ struct TranscriptionIndicatorView: View {
           }
           .frame(width: extensionWidth, alignment: .center)
           
-          Spacer() // Covers the notch width + right extension
+          Spacer() // Covers the notch width
+          
+          // Right side: Active application icon
+          Group {
+            if let icon = appIcon {
+              Image(nsImage: icon)
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 14, height: 14)
+                .cornerRadius(3)
+                .overlay(
+                  RoundedRectangle(cornerRadius: 3)
+                    .stroke(Color.white.opacity(0.12), lineWidth: 0.8)
+                )
+                .shadow(color: .black.opacity(0.2), radius: 1, x: 0, y: 0.5)
+            } else {
+              Circle()
+                .fill(TickColor.brandMid.opacity(0.5))
+                .frame(width: 4, height: 4)
+            }
+          }
+          .frame(width: extensionWidth, alignment: .center)
         }
         .frame(width: geometry.notchWidth + extensionWidth * 2, height: geometry.notchHeight)
         .padding(.top, 0)
