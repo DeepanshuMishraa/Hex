@@ -19,18 +19,50 @@ public enum AIPostProcessingMode: String, Codable, CaseIterable, Equatable, Send
 		}
 	}
 
-	public func systemPrompt(appContext: AppContext? = nil) -> String {
+	public func systemPrompt(appContext: AppContext? = nil, selectedStyleIndex: Int = 2) -> String {
 		switch self {
 		case .off:
 			return ""
 		case .on:
-			return Self.genericPrompt
+			return Self.genericPrompt(styleIndex: selectedStyleIndex)
 		case .appAware:
-			return Self.appAwarePrompt(appContext: appContext)
+			return Self.appAwarePrompt(appContext: appContext, styleIndex: selectedStyleIndex)
 		}
 	}
 
-	private static let genericPrompt = """
+	private static func styleInstructions(for styleIndex: Int) -> String {
+		switch styleIndex {
+		case 0: // Formal
+			return """
+
+CRITICAL WRITING STYLE REQUIREMENT (FORMAL STYLE):
+- Enforce strict capitalization (standard capitalization for sentence starts, proper nouns, and "I").
+- Use standard, grammatically correct punctuation (periods, commas, question marks).
+- Maintain a formal and professional tone appropriate for business or academic communication.
+"""
+		case 1: // Casual
+			return """
+
+CRITICAL WRITING STYLE REQUIREMENT (CASUAL STYLE):
+- Keep sentence-initial capitalization (start of sentences and proper nouns capitalized).
+- Use relaxed punctuation and a natural, conversational tone (e.g., fewer commas/periods where natural in chat, but still readable).
+- Maintain a conversational, friendly, and natural voice.
+"""
+		case 2: // Very Casual
+			fallthrough
+		default:
+			return """
+
+CRITICAL WRITING STYLE REQUIREMENT (VERY CASUAL STYLE):
+- Enforce strict lowercase formatting: DO NOT use any capital letters at all. All letters must be in lowercase.
+- Use relaxed punctuation and a natural/conversational tone.
+- Keep the tone very informal, as if typing a quick message to a close friend.
+"""
+		}
+	}
+
+	private static func genericPrompt(styleIndex: Int) -> String {
+		let basePrompt = """
 You are an intelligent dictation post-processor. You receive raw speech-to-text output and return clean, polished text ready to be typed into any application.
 
 Your job:
@@ -54,8 +86,10 @@ Output rules:
 - Do not change the core meaning of what was said
 - Match the formality level to what seems intended by the speaker
 """
+		return basePrompt + styleInstructions(for: styleIndex)
+	}
 
-	private static func appAwarePrompt(appContext: AppContext?) -> String {
+	private static func appAwarePrompt(appContext: AppContext?, styleIndex: Int) -> String {
 		let basePrompt = """
 You are an intelligent dictation post-processor that adapts its formatting based on the application context. You receive raw speech-to-text output and return clean, polished text formatted for the target application.
 
@@ -75,7 +109,7 @@ Output rules:
 		let categoryContext = category.systemPromptContext
 
 		guard !categoryContext.isEmpty else {
-			return basePrompt + "\n\nFormat the text appropriately based on its content, keeping it simple and clean."
+			return basePrompt + "\n\nFormat the text appropriately based on its content, keeping it simple and clean." + styleInstructions(for: styleIndex)
 		}
 
 		var contextSection = "\n\nApplication context:\n- Application: \(appContext?.appName ?? "Unknown")\n- Category: \(category.displayName)"
@@ -90,7 +124,7 @@ Output rules:
 			}
 		}
 
-		return basePrompt + "\n\nFormatting rules for \(category.displayName) context:\n" + categoryContext + contextSection
+		return basePrompt + "\n\nFormatting rules for \(category.displayName) context:\n" + categoryContext + contextSection + styleInstructions(for: styleIndex)
 	}
 
 	private static func urlHint(for host: String) -> String {
@@ -172,6 +206,7 @@ public struct HexSettings: Codable, Equatable, Sendable {
 	public var groqAPIKey: String?
 	public var aiPostProcessingMode: AIPostProcessingMode
 	public var aiPostProcessingModel: String
+	public var selectedStyleIndex: Int
 
 	private mutating func normalizeDoubleTapSettings() {
 		if !doubleTapLockEnabled {
@@ -206,7 +241,8 @@ public struct HexSettings: Codable, Equatable, Sendable {
 		wordRemappings: [WordRemapping] = [],
 		groqAPIKey: String? = nil,
 		aiPostProcessingMode: AIPostProcessingMode = .off,
-		aiPostProcessingModel: String = "llama-3.3-70b-versatile"
+		aiPostProcessingModel: String = "llama-3.3-70b-versatile",
+		selectedStyleIndex: Int = 2
 	) {
 		self.soundEffectsEnabled = soundEffectsEnabled
 		self.soundEffectsVolume = soundEffectsVolume
@@ -235,6 +271,7 @@ public struct HexSettings: Codable, Equatable, Sendable {
 		self.groqAPIKey = groqAPIKey
 		self.aiPostProcessingMode = aiPostProcessingMode
 		self.aiPostProcessingModel = aiPostProcessingModel
+		self.selectedStyleIndex = selectedStyleIndex
 		normalizeDoubleTapSettings()
 	}
 
@@ -286,6 +323,7 @@ private enum HexSettingKey: String, CodingKey, CaseIterable {
 	case groqAPIKey
 	case aiPostProcessingMode
 	case aiPostProcessingModel
+	case selectedStyleIndex
 }
 
 private struct SettingsField<Value: Codable & Sendable> {
@@ -428,6 +466,7 @@ private enum HexSettingsSchema {
 			}
 		).eraseToAny(),
 		SettingsField(.aiPostProcessingMode, keyPath: \.aiPostProcessingMode, default: defaults.aiPostProcessingMode).eraseToAny(),
-		SettingsField(.aiPostProcessingModel, keyPath: \.aiPostProcessingModel, default: defaults.aiPostProcessingModel).eraseToAny()
+		SettingsField(.aiPostProcessingModel, keyPath: \.aiPostProcessingModel, default: defaults.aiPostProcessingModel).eraseToAny(),
+		SettingsField(.selectedStyleIndex, keyPath: \.selectedStyleIndex, default: defaults.selectedStyleIndex).eraseToAny()
 	]
 }

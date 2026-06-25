@@ -56,7 +56,7 @@ struct AIPostProcessingClientLive {
 			return text
 		}
 
-		let systemPrompt = mode.systemPrompt(appContext: appContext)
+		let systemPrompt = mode.systemPrompt(appContext: appContext, selectedStyleIndex: hexSettings.selectedStyleIndex)
 
 		guard !systemPrompt.isEmpty else {
 			return text

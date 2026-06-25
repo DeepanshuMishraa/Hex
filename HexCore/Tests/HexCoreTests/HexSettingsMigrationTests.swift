@@ -25,6 +25,7 @@ final class HexSettingsMigrationTests: XCTestCase {
 		XCTAssertEqual(decoded.maxHistoryEntries, 10)
 		XCTAssertEqual(decoded.hasCompletedModelBootstrap, true)
 		XCTAssertEqual(decoded.hasCompletedStorageMigration, true)
+		XCTAssertEqual(decoded.selectedStyleIndex, 2)
 	}
 
 	func testEncodeDecodeRoundTripPreservesDefaults() throws {

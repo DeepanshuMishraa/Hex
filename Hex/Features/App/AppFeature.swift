@@ -989,7 +989,7 @@ struct StatCard: View {
 
 struct PersonalisationWizardModal: View {
   let onDismiss: () -> Void
-  @State private var selectedStyleIndex = 0
+  @Shared(.hexSettings) var hexSettings: HexSettings
   @State private var currentStep = 0
 
   var body: some View {
@@ -1056,8 +1056,8 @@ struct PersonalisationWizardModal: View {
               "So far, I am enjoying the new workout routine.",
               "I am excited for tomorrow's workout, especially after a full night of rest."
             ],
-            isSelected: selectedStyleIndex == 0,
-            action: { selectedStyleIndex = 0 }
+            isSelected: hexSettings.selectedStyleIndex == 0,
+            action: { $hexSettings.withLock { $0.selectedStyleIndex = 0 } }
           )
 
           WizardStyleCard(
@@ -1067,19 +1067,19 @@ struct PersonalisationWizardModal: View {
               "So far I am enjoying the new workout routine.",
               "I am excited for tomorrow's workout especially after a full night of rest."
             ],
-            isSelected: selectedStyleIndex == 1,
-            action: { selectedStyleIndex = 1 }
+            isSelected: hexSettings.selectedStyleIndex == 1,
+            action: { $hexSettings.withLock { $0.selectedStyleIndex = 1 } }
           )
 
           WizardStyleCard(
-            title: "Excited!",
-            label: "More exclamations",
+            title: "very casual",
+            label: "No caps + Less punctuation",
             lines: [
-              "So far, I am enjoying the new workout routine.",
-              "I am excited for tomorrow's workout, especially after a full night of rest!"
+              "so far i am enjoying the new workout routine",
+              "i am excited for tomorrow's workout especially after a full night of rest"
             ],
-            isSelected: selectedStyleIndex == 2,
-            action: { selectedStyleIndex = 2 }
+            isSelected: hexSettings.selectedStyleIndex == 2,
+            action: { $hexSettings.withLock { $0.selectedStyleIndex = 2 } }
           )
         }
         .padding(.horizontal, 24)
@@ -1656,8 +1656,8 @@ struct SnippetDiagramRow: View {
 // MARK: - Style Tab
 
 struct StyleTabView: View {
+  @Shared(.hexSettings) var hexSettings: HexSettings
   @State private var selectedTab = 0
-  @State private var selectedStyleIndex = 2
   @Binding var isWizardPresented: Bool
   @AppStorage("hasSeenPersonalisationWizard") private var hasSeenWizard: Bool = false
 
@@ -1723,8 +1723,8 @@ struct StyleTabView: View {
               label: "Caps + Punctuation",
               preview: "Hey, are you free for lunch tomorrow? Let's do 12 if that works for you.",
               avatarColor: Color(red: 220/255, green: 210/255, blue: 255/255),
-              isSelected: selectedStyleIndex == 0,
-              action: { selectedStyleIndex = 0 }
+              isSelected: hexSettings.selectedStyleIndex == 0,
+              action: { $hexSettings.withLock { $0.selectedStyleIndex = 0 } }
             )
             
             StylePreviewCard(
@@ -1732,8 +1732,8 @@ struct StyleTabView: View {
               label: "Caps + Less punctuation",
               preview: "Hey, are you free for lunch tomorrow? Let's do 12 if that works for you",
               avatarColor: Color(red: 255/255, green: 200/255, blue: 240/255),
-              isSelected: selectedStyleIndex == 1,
-              action: { selectedStyleIndex = 1 }
+              isSelected: hexSettings.selectedStyleIndex == 1,
+              action: { $hexSettings.withLock { $0.selectedStyleIndex = 1 } }
             )
             
             StylePreviewCard(
@@ -1741,8 +1741,8 @@ struct StyleTabView: View {
               label: "No caps + Less punctuation",
               preview: "hey, are you free for lunch tomorrow? let's do 12 if that works for you",
               avatarColor: Color(red: 100/255, green: 40/255, blue: 180/255),
-              isSelected: selectedStyleIndex == 2,
-              action: { selectedStyleIndex = 2 }
+              isSelected: hexSettings.selectedStyleIndex == 2,
+              action: { $hexSettings.withLock { $0.selectedStyleIndex = 2 } }
             )
           }
         }
