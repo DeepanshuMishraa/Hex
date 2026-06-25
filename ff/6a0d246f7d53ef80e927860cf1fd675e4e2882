@@ -1,0 +1,21 @@
+.changeset/97de85b0.md
+  s_fa1af6a3404057::t_d7667bef87fd0b 1-5
+web/main.js
+  s_fa1af6a3404057::t_4795d69e71d6f8 9,18,27,75,77,80,118-138
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "ff6a0d246f7d53ef80e927860cf1fd675e4e2882",
+  "prompts": {},
+  "sessions": {
+    "s_fa1af6a3404057": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "019f0009-9de5-7f44-8edc-96a54911b9c3",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Deepanshu Mishra <d4deepanshu723@gmail.com>"
+    }
+  }
+}
