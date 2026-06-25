@@ -23,9 +23,6 @@
         }
       }
     },
-    "✨" : {
-
-    },
     "About" : {
       "comment" : "Settings -> About Section headline",
       "extractionState" : "stale",
@@ -53,19 +50,19 @@
     "Accuracy" : {
 
     },
-    "Add new" : {
+    "Add Dictionary Term" : {
 
     },
-    "Add new dictionary term" : {
+    "Add new" : {
 
     },
     "Add new snippet" : {
 
     },
-    "Add new snippet shortcut" : {
+    "Add new word" : {
 
     },
-    "Add new word" : {
+    "Add Snippet Shortcut" : {
 
     },
     "App-Aware detects the active application and adapts formatting" : {
@@ -103,6 +100,9 @@
       }
     },
     "Cancel Download" : {
+
+    },
+    "Case-insensitive" : {
 
     },
     "Changelog" : {
@@ -280,6 +280,15 @@
         }
       }
     },
+    "e.g. My Calendly or Intro email" : {
+
+    },
+    "e.g. Whisper or Hex" : {
+
+    },
+    "e.g. Whispr or Flow" : {
+
+    },
     "Ensure Hex can access your microphone and system accessibility features." : {
       "comment" : "Footer for permissions section in settings",
       "extractionState" : "stale",
@@ -306,7 +315,10 @@
     "Everything you need to know about setting up and using Tick." : {
 
     },
-    "Expanded content..." : {
+    "Expansion" : {
+
+    },
+    "Expansion Content (Pasted)" : {
 
     },
     "General" : {
@@ -418,6 +430,9 @@
     "Make Tick sound like " : {
 
     },
+    "Match term" : {
+
+    },
     "Matches whole words, case-insensitive, in order" : {
 
     },
@@ -436,10 +451,10 @@
     "N" : {
 
     },
-    "New Note" : {
+    "Next" : {
 
     },
-    "Next" : {
+    "No dictionary terms found" : {
 
     },
     "No models found." : {
@@ -454,7 +469,7 @@
         }
       }
     },
-    "No Note Selected" : {
+    "No snippets found" : {
 
     },
     "No Transcriptions" : {
@@ -470,9 +485,6 @@
       }
     },
     "Not set" : {
-
-    },
-    "Notes" : {
 
     },
     "Off / App-Aware" : {
@@ -496,7 +508,7 @@
         }
       }
     },
-    "Original text (e.g. Whispr)" : {
+    "Original Word (Spoken)" : {
 
     },
     "other apps?" : {
@@ -600,7 +612,10 @@
     "Replace specific words in every transcript" : {
 
     },
-    "Replacement (e.g. Wisper)" : {
+    "Replacement" : {
+
+    },
+    "Replacement Word (Written)" : {
 
     },
     "Request Permission" : {
@@ -624,6 +639,12 @@
     "Save Transcription History" : {
 
     },
+    "Search snippets..." : {
+
+    },
+    "Search words..." : {
+
+    },
     "Select the LLM model to process your transcriptions" : {
 
     },
@@ -644,7 +665,6 @@
     },
     "Settings" : {
       "comment" : "title for settings view.",
-      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -656,6 +676,7 @@
     },
     "Settings..." : {
       "comment" : "button in top bar for opening settings",
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -665,7 +686,10 @@
         }
       }
     },
-    "Shortcut keyword (e.g. LinkedIn)" : {
+    "Shortcut" : {
+
+    },
+    "Shortcut Phrase (Spoken)" : {
 
     },
     "Shortcut to instantly paste your last transcription" : {
@@ -733,6 +757,9 @@
       }
     },
     "sounds like you" : {
+
+    },
+    "Speak the shortcut phrase, and Tick expands it into the full text." : {
 
     },
     "Speed" : {
@@ -803,10 +830,10 @@
     "Tick speaks the way you speak." : {
 
     },
-    "Ticking. Hard." : {
+    "Tick will auto-replace the spoken word in your transcription." : {
 
     },
-    "Title" : {
+    "Ticking. Hard." : {
 
     },
     "Today" : {

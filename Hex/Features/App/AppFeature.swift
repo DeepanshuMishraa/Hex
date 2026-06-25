@@ -471,7 +471,7 @@ struct AppView: View {
       Spacer()
       
       VStack(alignment: .leading, spacing: 4) {
-        SidebarItem(icon: "gearshape", title: "Setting", isActive: store.activeTab == .settings) {
+        SidebarItem(icon: "gearshape", title: "Settings", isActive: store.activeTab == .settings) {
           store.send(.setActiveTab(.settings))
         }
         SidebarItem(icon: "questionmark.circle", title: "Help", isActive: store.activeTab == .help) {
@@ -1936,7 +1936,6 @@ struct SnippetDiagramRow: View {
 
 struct StyleTabView: View {
   @Shared(.hexSettings) var hexSettings: HexSettings
-  @State private var selectedTab = 0
   @Binding var isWizardPresented: Bool
   @AppStorage("hasSeenPersonalisationWizard") private var hasSeenWizard: Bool = false
 
@@ -1948,78 +1947,34 @@ struct StyleTabView: View {
           .foregroundStyle(TickColor.textPrimary)
         Spacer()
       }
-      .padding(.bottom, 16)
+      .padding(.bottom, 12)
       
-      HStack {
-        CustomSegmentedControl(items: ["Personal messages", "Work messages", "Email", "Other"], selectedIndex: Binding(
-          get: { selectedTab },
-          set: {
-            selectedTab = $0
-            if $0 == 3 {
-              isWizardPresented = true
-              selectedTab = 0
-            }
-          }
-        ))
-        Spacer()
-      }
-      .padding(.bottom, 20)
+      Text("Configure how your transcriptions are formatted. Choose the style that best matches where you speak, and Tick will automatically format spelling, capitalization, and punctuation.")
+        .font(TickFont.bodyFunc(14))
+        .foregroundStyle(TickColor.textSecondary)
+        .lineSpacing(4)
+        .padding(.bottom, 24)
       
       Divider()
-        .padding(.bottom, 20)
+        .padding(.bottom, 24)
       
       ScrollView {
         VStack(alignment: .leading, spacing: 24) {
-          VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 12) {
-              SnapchatIcon()
-              MessengerIcon()
-              WhatsappIcon()
-              TelegramIcon()
-              
-              VStack(alignment: .leading, spacing: 2) {
-                Text("This style applies in the personal messengers")
-                  .font(TickFont.labelFunc(14))
-                  .foregroundStyle(TickColor.textPrimary)
-                Text("Available on desktop in English. iOS and more languages coming soon")
-                  .font(TickFont.caption)
-                  .foregroundStyle(TickColor.textSecondary)
-              }
-              Spacer()
-            }
-          }
-          .padding(20)
-          .background(AppTheme.bannerBackground)
-          .cornerRadius(16)
-          .overlay(
-            RoundedRectangle(cornerRadius: 16)
-              .stroke(Color.primary.opacity(0.04), lineWidth: 1)
-          )
-          
           HStack(spacing: 16) {
             StylePreviewCard(
-              title: "Formal.",
-              label: "Caps + Punctuation",
-              preview: "Hey, are you free for lunch tomorrow? Let's do 12 if that works for you.",
-              avatarColor: Color(red: 220/255, green: 210/255, blue: 255/255),
+              style: .formal,
               isSelected: hexSettings.selectedStyleIndex == 0,
               action: { $hexSettings.withLock { $0.selectedStyleIndex = 0; $0.hasSelectedStyle = true } }
             )
             
             StylePreviewCard(
-              title: "Casual",
-              label: "Caps + Less punctuation",
-              preview: "Hey, are you free for lunch tomorrow? Let's do 12 if that works for you",
-              avatarColor: Color(red: 255/255, green: 200/255, blue: 240/255),
+              style: .casual,
               isSelected: hexSettings.selectedStyleIndex == 1,
               action: { $hexSettings.withLock { $0.selectedStyleIndex = 1; $0.hasSelectedStyle = true } }
             )
             
             StylePreviewCard(
-              title: "very casual",
-              label: "No caps + Less punctuation",
-              preview: "hey, are you free for lunch tomorrow? let's do 12 if that works for you",
-              avatarColor: Color(red: 100/255, green: 40/255, blue: 180/255),
+              style: .veryCasual,
               isSelected: hexSettings.selectedStyleIndex == 2,
               action: { $hexSettings.withLock { $0.selectedStyleIndex = 2; $0.hasSelectedStyle = true } }
             )
@@ -2027,7 +1982,6 @@ struct StyleTabView: View {
         }
       }
     }
-    // Show wizard on first visit to Style tab
     .onAppear {
       if !hasSeenWizard {
         isWizardPresented = true
@@ -2037,11 +1991,14 @@ struct StyleTabView: View {
   }
 }
 
+enum StyleType {
+  case formal
+  case casual
+  case veryCasual
+}
+
 struct StylePreviewCard: View {
-  let title: String
-  let label: String
-  let preview: String
-  let avatarColor: Color
+  let style: StyleType
   let isSelected: Bool
   let action: () -> Void
   
@@ -2049,110 +2006,181 @@ struct StylePreviewCard: View {
   
   var body: some View {
     Button(action: action) {
-      VStack(alignment: .leading, spacing: 12) {
-        Text(title)
-          .font(TickFont.display(26, weight: .regular))
-          .foregroundStyle(TickColor.textPrimary)
-          .padding(.bottom, 2)
-
-        Text(label.uppercased())
-          .font(TickFont.eyebrow)
-          .tracking(0.6)
-          .foregroundStyle(TickColor.textSecondary)
-          .padding(.bottom, 12)
-
-        VStack(alignment: .leading, spacing: 8) {
-          Text(preview)
-            .font(TickFont.bodyFunc(12))
-            .foregroundStyle(TickColor.textPrimary)
-            .lineSpacing(3)
-            .padding(12)
-            .background(TickColor.canvas)
-            .cornerRadius(12)
-        }
-
-        Spacer()
-
+      VStack(alignment: .leading, spacing: 0) {
+        // Selection indicator and title
         HStack {
+          VStack(alignment: .leading, spacing: 4) {
+            Text(title)
+              .font(TickFont.headingFunc(20, weight: .bold))
+              .foregroundStyle(TickColor.textPrimary)
+            
+            Text(badgeText)
+              .font(TickFont.eyebrow)
+              .tracking(0.6)
+              .foregroundStyle(badgeColor)
+          }
+          
           Spacer()
-          Circle()
-            .fill(avatarColor)
-            .frame(width: 30, height: 30)
-            .overlay(
-              Text("J")
-                .font(TickFont.headingFunc(13, weight: .bold))
-                .foregroundColor(avatarColor == Color(red: 100/255, green: 40/255, blue: 180/255) ? .white : TickColor.brand)
-            )
+          
+          // Selection Indicator Ring
+          ZStack {
+            Circle()
+              .stroke(isSelected ? TickColor.brand : Color.primary.opacity(0.1), lineWidth: isSelected ? 2 : 1)
+              .frame(width: 20, height: 20)
+            if isSelected {
+              Circle()
+                .fill(TickColor.brand)
+                .frame(width: 12, height: 12)
+              Image(systemName: "checkmark")
+                .font(.system(size: 8, weight: .bold))
+                .foregroundColor(.white)
+            }
+          }
         }
+        .padding(.horizontal, 18)
+        .padding(.top, 18)
+        .padding(.bottom, 14)
+        
+        // Preview Container
+        VStack {
+          previewView
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, minHeight: 120, maxHeight: 120, alignment: .topLeading)
+        .background(TickColor.canvas)
+        .cornerRadius(12)
+        .padding(.horizontal, 12)
+        .padding(.bottom, 16)
       }
-      .padding(20)
-      .frame(width: 198, height: 260, alignment: .leading)
-      .background(Color.white)
+      .frame(width: 220, height: 210)
+      .background(isSelected ? TickColor.brand.opacity(0.03) : Color(nsColor: .controlBackgroundColor))
       .cornerRadius(16)
       .overlay(
         RoundedRectangle(cornerRadius: 16)
           .stroke(isSelected ? TickColor.brand : (isHovered ? TickColor.lineStrong : TickColor.line), lineWidth: isSelected ? 2 : 1)
       )
+      .shadow(color: Color.black.opacity(isSelected ? 0.05 : (isHovered ? 0.04 : 0)), radius: 8, x: 0, y: 4)
+      .offset(y: isHovered ? -4 : 0)
+      .animation(.spring(response: 0.25, dampingFraction: 0.7), value: isHovered)
+      .animation(.spring(response: 0.25, dampingFraction: 0.7), value: isSelected)
     }
     .buttonStyle(.plain)
     .onHover { isHovered = $0 }
   }
+  
+  private var title: String {
+    switch style {
+    case .formal: return "Formal"
+    case .casual: return "Casual"
+    case .veryCasual: return "very casual"
+    }
+  }
+  
+  private var badgeText: String {
+    switch style {
+    case .formal: return "CAPS + PUNCTUATION"
+    case .casual: return "CAPS + NO END PERIOD"
+    case .veryCasual: return "NO CAPS + CASUAL"
+    }
+  }
+  
+  private var badgeColor: Color {
+    switch style {
+    case .formal: return TickColor.brand
+    case .casual: return Color(red: 34/255, green: 112/255, blue: 63/255)
+    case .veryCasual: return Color(red: 200/255, green: 100/255, blue: 50/255)
+    }
+  }
+  
+  @ViewBuilder
+  private var previewView: some View {
+    switch style {
+    case .formal:
+      VStack(alignment: .leading, spacing: 4) {
+        HStack(spacing: 4) {
+          Image(systemName: "envelope.fill")
+            .font(.system(size: 8))
+            .foregroundStyle(TickColor.textSecondary)
+          Text("Email Draft")
+            .font(TickFont.captionFunc(8, weight: .bold))
+            .foregroundStyle(TickColor.textSecondary)
+        }
+        .padding(.horizontal, 6)
+        .padding(.vertical, 3)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.primary.opacity(0.04))
+        
+        Text("Hey, are you free for lunch tomorrow? Let's do 12 if that works for you.")
+          .font(TickFont.bodyFunc(10))
+          .foregroundStyle(TickColor.textPrimary)
+          .lineSpacing(1.5)
+          .padding(.horizontal, 6)
+          .padding(.bottom, 4)
+      }
+      .background(Color.white)
+      .cornerRadius(6)
+      .overlay(
+        RoundedRectangle(cornerRadius: 6)
+          .stroke(Color.primary.opacity(0.08), lineWidth: 1)
+      )
+      
+    case .casual:
+      HStack(alignment: .top, spacing: 6) {
+        Circle()
+          .fill(Color(red: 220/255, green: 240/255, blue: 225/255))
+          .frame(width: 16, height: 16)
+          .overlay(
+            Text("A")
+              .font(TickFont.captionFunc(9, weight: .bold))
+              .foregroundStyle(Color(red: 34/255, green: 112/255, blue: 63/255))
+          )
+        
+        VStack(alignment: .leading, spacing: 2) {
+          HStack(spacing: 3) {
+            Text("Alex")
+              .font(TickFont.captionFunc(9, weight: .bold))
+              .foregroundStyle(TickColor.textPrimary)
+            Text("12:04 PM")
+              .font(TickFont.captionFunc(7))
+              .foregroundStyle(TickColor.textTertiary)
+          }
+          
+          Text("Hey, are you free for lunch tomorrow? Let's do 12 if that works for you")
+            .font(TickFont.bodyFunc(10))
+            .foregroundStyle(TickColor.textPrimary)
+            .lineSpacing(1.5)
+        }
+      }
+      .padding(6)
+      .background(Color.white)
+      .cornerRadius(6)
+      .overlay(
+        RoundedRectangle(cornerRadius: 6)
+          .stroke(Color.primary.opacity(0.08), lineWidth: 1)
+      )
+      
+    case .veryCasual:
+      VStack(alignment: .leading) {
+        Spacer()
+        HStack {
+          Spacer()
+          Text("hey, are you free for lunch tomorrow? let's do 12 if that works for you")
+            .font(TickFont.bodyFunc(10))
+            .foregroundStyle(.white)
+            .lineSpacing(1.5)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 5)
+            .background(
+              RoundedRectangle(cornerRadius: 8)
+                .fill(Color.blue)
+            )
+        }
+      }
+    }
+  }
 }
 
 // MARK: - App Icon Drawings
-
-struct SnapchatIcon: View {
-  var body: some View {
-    ZStack {
-      Circle()
-        .fill(Color(red: 255/255, green: 252/255, blue: 0/255))
-        .frame(width: 28, height: 28)
-      Image(systemName: "ghost.fill")
-        .font(TickFont.bodyFunc(14))
-        .foregroundColor(.black)
-    }
-  }
-}
-
-struct MessengerIcon: View {
-  var body: some View {
-    ZStack {
-      Circle()
-        .fill(LinearGradient(colors: [Color.blue, Color.purple], startPoint: .topLeading, endPoint: .bottomTrailing))
-        .frame(width: 28, height: 28)
-      Image(systemName: "bubble.left.fill")
-        .font(TickFont.captionFunc(13))
-        .foregroundColor(.white)
-    }
-  }
-}
-
-struct WhatsappIcon: View {
-  var body: some View {
-    ZStack {
-      Circle()
-        .fill(Color(red: 37/255, green: 211/255, blue: 102/255))
-        .frame(width: 28, height: 28)
-      Image(systemName: "phone.fill")
-        .font(TickFont.captionFunc(12))
-        .foregroundColor(.white)
-    }
-  }
-}
-
-struct TelegramIcon: View {
-  var body: some View {
-    ZStack {
-      Circle()
-        .fill(Color(red: 0/255, green: 136/255, blue: 204/255))
-        .frame(width: 28, height: 28)
-      Image(systemName: "paperplane.fill")
-        .font(TickFont.captionFunc(12))
-        .foregroundColor(.white)
-        .offset(x: -1, y: 0)
-    }
-  }
-}
 
 struct ChatGptIcon: View {
   var body: some View {

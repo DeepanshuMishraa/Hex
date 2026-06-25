@@ -22,7 +22,7 @@ struct HexApp: App {
         MenuBarExtra {
             CheckForUpdatesView()
             MenuBarCopyLastTranscriptButton()
-            Button("Settings...") {
+            Button("Settings") {
                 appDelegate.presentSettingsView()
             }.keyboardShortcut(",")
 			Divider()
@@ -37,7 +37,7 @@ struct HexApp: App {
 			.commands {
 				CommandGroup(after: .appInfo) {
 					CheckForUpdatesView()
-					Button("Settings...") {
+					Button("Settings") {
 						appDelegate.presentSettingsView()
 					}.keyboardShortcut(",")
 				}
