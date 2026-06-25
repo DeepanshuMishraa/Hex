@@ -2322,6 +2322,25 @@ struct HelpTabView: View {
         RoundedRectangle(cornerRadius: 16)
           .stroke(Color.primary.opacity(0.04), lineWidth: 1)
       )
+      
+      VStack(alignment: .leading, spacing: 8) {
+        Text("ABOUT TICK")
+          .font(TickFont.headingFunc(10, weight: .bold))
+          .foregroundStyle(TickColor.textSecondary)
+        
+        Text("Tick is a fork of [hex](https://hex.kitlangton.com) and in case of any issues contact [Deepanshu](mailto:dipxsy@duck.com).")
+          .font(TickFont.captionFunc(13))
+          .foregroundStyle(TickColor.textPrimary)
+          .accentColor(TickColor.brand)
+      }
+      .padding(20)
+      .frame(maxWidth: .infinity, alignment: .leading)
+      .background(Color.primary.opacity(0.01))
+      .cornerRadius(16)
+      .overlay(
+        RoundedRectangle(cornerRadius: 16)
+          .stroke(Color.primary.opacity(0.04), lineWidth: 1)
+      )
     }
   }
 }
