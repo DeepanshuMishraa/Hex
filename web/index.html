@@ -6,10 +6,10 @@
   <title>Tick — On-device voice-to-text dictation for macOS</title>
   <meta name="description" content="Tick is a native, offline-first voice transcription utility for macOS. Press a hotkey, dictate, and auto-paste text formatted perfectly for any app.">
   
-  <!-- Fonts -->
+  <!-- Fonts: Fraunces (Editorial Serif) & Geist (Geometric Sans) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600&family=Geist:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@300;400;500&display=swap" rel="stylesheet">
   
   <script>document.documentElement.classList.add('js-enabled');</script>
   
@@ -36,6 +36,8 @@
         
         <div class="nav-links">
           <a href="#features" class="nav-link">/features</a>
+          <a href="#workflow" class="nav-link">/workflow</a>
+          <a href="#models" class="nav-link">/models</a>
           <a href="#shortcuts" class="nav-link">/shortcuts</a>
           <a href="#privacy" class="nav-link">/privacy</a>
           <a href="https://hex-updates.s3.amazonaws.com/hex-latest.dmg" class="nav-btn-pill">
@@ -66,7 +68,7 @@
         </h1>
         
         <p class="hero-desc">
-          A minimalist utility that transcribes voice input and writes it directly into your active window. Zero lag, zero telemetry, full offline security.
+          An editorial, handcrafted dictation tool for macOS. Transcribe your voice in real time and paste it directly into your active window. Full offline security with zero network telemetry.
         </p>
         
         <div class="hero-actions">
@@ -144,6 +146,12 @@
   <!-- Features Bento Section (Asymmetrical Bento Grid) -->
   <section id="features" class="features-section scroll-reveal">
     <div class="features-container">
+      <div class="section-header centered">
+        <span class="section-meta">// THE_CORE_UTILITY</span>
+        <h2 class="section-title">Designed for focus.</h2>
+        <p class="section-subtitle">Tactile workflows, raw hardware acceleration, and robust application formatting rules.</p>
+      </div>
+
       <div class="features-grid">
         <!-- Feature 1: Speed (col-3) -->
         <div class="feature-shell col-3">
@@ -251,6 +259,148 @@
     </div>
   </section>
 
+  <!-- Pipeline Workflow Section -->
+  <section id="workflow" class="workflow-section scroll-reveal">
+    <div class="workflow-container">
+      <div class="section-header centered">
+        <span class="section-meta">// THE_PIPELINE</span>
+        <h2 class="section-title">Zero clicks. Pure typing.</h2>
+        <p class="section-subtitle">How Tick automates your spoken thoughts into the active document.</p>
+      </div>
+      
+      <div class="workflow-grid">
+        <!-- Step 1 -->
+        <div class="workflow-step">
+          <div class="step-num">01</div>
+          <h4 class="step-title">Trigger shortcut</h4>
+          <p class="step-desc">Hold <kbd class="kbd-key light">⌥</kbd> + <kbd class="kbd-key light">Space</kbd>. Audio capturing begins instantly with a haptic notification sound.</p>
+        </div>
+        <!-- Step 2 -->
+        <div class="workflow-step">
+          <div class="step-num">02</div>
+          <h4 class="step-title">Local Translation</h4>
+          <p class="step-desc">The Core ML engine transcribes your voice directly in-memory using Whisper or Parakeet models.</p>
+        </div>
+        <!-- Step 3 -->
+        <div class="workflow-step">
+          <div class="step-num">03</div>
+          <h4 class="step-title">Format Syntax</h4>
+          <p class="step-desc">Tick analyzes the focused window. Shell commands, Slack chats, or notes are formatted on-the-fly.</p>
+        </div>
+        <!-- Step 4 -->
+        <div class="workflow-step">
+          <div class="step-num">04</div>
+          <h4 class="step-title">Auto-Paste</h4>
+          <p class="step-desc">The formatted text is typed directly into your active cursor position. The system plays a completion chime.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Model Manager Section (Settings Mockup) -->
+  <section id="models" class="models-section scroll-reveal">
+    <div class="models-container">
+      <div class="models-split">
+        <div class="models-text">
+          <span class="section-meta">// CORE_ML_MODELS</span>
+          <h2 class="section-title">Tailor your speed and precision.</h2>
+          <p class="models-desc">Choose from optimized on-device models. From featherweight models for instant command entry to heavy weights for precise long-form transcriptions.</p>
+          <div class="model-meta-stats">
+            <div class="stat-bubble">
+              <span class="stat-value">100%</span>
+              <span class="stat-lbl">Offline</span>
+            </div>
+            <div class="stat-bubble">
+              <span class="stat-value">Sub-100ms</span>
+              <span class="stat-lbl">Latency</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Native Settings Window Mockup (Double Bezel) -->
+        <div class="window-shell model-window">
+          <div class="window-core">
+            <div class="window-header">
+              <div class="window-controls">
+                <span class="control close"></span>
+                <span class="control minimize"></span>
+                <span class="control expand"></span>
+              </div>
+              <div class="window-title-pill">
+                <span class="pill-text">Tick Settings — Models</span>
+              </div>
+              <div class="window-right-meta">v0.7.1</div>
+            </div>
+            
+            <div class="window-body-models">
+              <!-- Model Rows -->
+              <div class="model-list-mock">
+                <!-- Parakeet (Active) -->
+                <div class="model-row-mock active">
+                  <div class="model-row-info">
+                    <span class="model-radio active"></span>
+                    <div class="model-details">
+                      <span class="model-name">Parakeet TDT v3 <span class="model-tag">Default</span></span>
+                      <span class="model-sub">Multilingual • FluidAudio Core ML</span>
+                    </div>
+                  </div>
+                  <div class="model-row-right">
+                    <span class="model-accuracy">Accuracy: ★★★★★</span>
+                    <span class="model-size">610 MB</span>
+                    <span class="model-status-btn active">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="check-icon">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    </span>
+                  </div>
+                </div>
+                
+                <!-- Whisper Medium -->
+                <div class="model-row-mock">
+                  <div class="model-row-info">
+                    <span class="model-radio"></span>
+                    <div class="model-details">
+                      <span class="model-name">Whisper Medium</span>
+                      <span class="model-sub">English-only • WhisperKit Core ML</span>
+                    </div>
+                  </div>
+                  <div class="model-row-right">
+                    <span class="model-accuracy">Accuracy: ★★★★☆</span>
+                    <span class="model-size">1.5 GB</span>
+                    <span class="model-status-btn">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="download-icon">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                      </svg>
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Whisper Large v3 (Downloading) -->
+                <div class="model-row-mock downloading">
+                  <div class="model-row-info">
+                    <span class="model-radio"></span>
+                    <div class="model-details">
+                      <span class="model-name">Whisper Large v3</span>
+                      <span class="model-sub">Multilingual • WhisperKit Core ML</span>
+                    </div>
+                  </div>
+                  <div class="model-row-right">
+                    <span class="model-accuracy">Accuracy: ★★★★★</span>
+                    <span class="model-size">3.1 GB</span>
+                    <div class="download-progress-container">
+                      <div class="download-progress-bar" style="width: 64%;"></div>
+                    </div>
+                    <span class="download-percentage">64%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- Shortcuts Section (Double-Bezel split grid) -->
   <section id="shortcuts" class="shortcuts-section scroll-reveal">
     <div class="shortcuts-container">
@@ -329,6 +479,33 @@
               <p class="privacy-card-text">We do not log transcripts, track usage stats, or record analytics. There are no tracking scripts or third-party cookies anywhere in the app or on this site.</p>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Accordion FAQ Section -->
+  <section id="faq" class="faq-section scroll-reveal">
+    <div class="faq-container">
+      <div class="section-header centered">
+        <span class="section-meta">// FAQS</span>
+        <h2 class="section-title">Frequently Asked Questions</h2>
+      </div>
+      
+      <div class="faq-list">
+        <div class="faq-item">
+          <h4 class="faq-question">How does App-Aware formatting operate?</h4>
+          <p class="faq-answer">Tick inspects the focused macOS application bundle identifier on trigger. If the active app is a terminal emulator or IDE (like VS Code or Terminal), it formats dictation into syntax-valid CLI options or code structures. If the app is a messenger (like Slack), it preserves natural conversation strings.</p>
+        </div>
+        
+        <div class="faq-item">
+          <h4 class="faq-question">Are custom Whisper models supported?</h4>
+          <p class="faq-answer">Yes. You can import any custom Core ML-compiled Whisper model directly through the settings interface. The app scans your local directory and adds them to the available model list automatically.</p>
+        </div>
+
+        <div class="faq-item">
+          <h4 class="faq-question">Where are models saved on disk?</h4>
+          <p class="faq-answer">Whisper models are saved in standard app cache support paths: <code>~/Library/Application Support/com.dipxsy.Tick/models/</code>. Parakeet models reside inside the sandbox container's FluidAudio paths.</p>
         </div>
       </div>
     </div>
