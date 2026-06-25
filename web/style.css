@@ -1560,6 +1560,10 @@ button {
     grid-template-columns: 1fr;
     gap: 40px;
   }
+  
+  .window-body-models {
+    padding: 16px;
+  }
 }
 
 @media (max-width: 768px) {
@@ -1614,6 +1618,35 @@ button {
   }
 }
 
+@media (max-width: 600px) {
+  .model-row-mock {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  
+  .model-row-right {
+    width: 100%;
+    justify-content: space-between;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    padding-top: 12px;
+  }
+  
+  .compare-row {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .compare-input {
+    width: 100%;
+  }
+  
+  .compare-output {
+    width: 100%;
+    text-align: left;
+  }
+}
+
 @media (max-width: 480px) {
   .hero-actions {
     flex-direction: column;
@@ -1634,5 +1667,31 @@ button {
     flex-direction: column;
     gap: 24px;
     text-align: center;
+  }
+  
+  /* Stack isolation diagram vertically for mobile viewports */
+  .isolation-diagram {
+    flex-direction: column;
+    gap: 16px;
+    padding: 24px;
+  }
+  
+  .node-line, .line-cross {
+    height: 32px;
+    width: 1.5px;
+    margin: 4px auto;
+  }
+  
+  .node-line::after {
+    top: auto;
+    bottom: 0;
+    right: -2.5px;
+    transform: rotate(135deg);
+  }
+  
+  .line-cross::before {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
   }
 }
