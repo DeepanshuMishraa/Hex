@@ -22,6 +22,7 @@ struct TranscriptionFeature {
     var isRecording: Bool = false
     var isTranscribing: Bool = false
     var isPrewarming: Bool = false
+    var isLocked: Bool = false
     var error: String?
     var recordingStartTime: Date?
     var meter: Meter = .init(averagePower: 0, peakPower: 0)
@@ -41,9 +42,10 @@ struct TranscriptionFeature {
     // Hotkey actions
     case hotKeyPressed
     case hotKeyReleased
+    case setLocked(Bool)
 
     // Recording flow
-    case startRecording
+    case startRecording(isLocked: Bool)
     case stopRecording
 
     // Cancel/discard flow
@@ -107,10 +109,14 @@ struct TranscriptionFeature {
         // the delayed "startRecording" effect if we never actually started.
         return handleHotKeyReleased(isRecording: state.isRecording)
 
+      case let .setLocked(isLocked):
+        state.isLocked = isLocked
+        return .none
+
       // MARK: - Recording Flow
 
-      case .startRecording:
-        return handleStartRecording(&state)
+      case let .startRecording(isLocked):
+        return handleStartRecording(&state, isLocked: isLocked)
 
       case .stopRecording:
         return handleStopRecording(&state)
@@ -180,6 +186,7 @@ private extension TranscriptionFeature {
         hotKeyProcessor.useDoubleTapOnly = useDoubleTapOnly
         hotKeyProcessor.minimumKeyTime = hexSettings.minimumKeyTime
 
+        let shouldIntercept: Bool
         switch inputEvent {
         case .keyboard(let keyEvent):
           // If Escape is pressed with no modifiers while idle, let's treat that as `cancel`.
@@ -187,43 +194,44 @@ private extension TranscriptionFeature {
              hotKeyProcessor.state == .idle
           {
             Task { await send(.cancel) }
-            return false
-          }
+            shouldIntercept = false
+          } else {
+            // Process the key event
+            switch hotKeyProcessor.process(keyEvent: keyEvent) {
+            case .startRecording:
+              // If double-tap lock is triggered, we start recording immediately
+              if hotKeyProcessor.state == .doubleTapLock {
+                Task { await send(.startRecording(isLocked: true)) }
+              } else {
+                Task { await send(.hotKeyPressed) }
+              }
+              // If the hotkey is purely modifiers, return false to keep it from interfering with normal usage
+              // But if useDoubleTapOnly is true, always intercept the key
+              shouldIntercept = useDoubleTapOnly || keyEvent.key != nil
 
-          // Process the key event
-          switch hotKeyProcessor.process(keyEvent: keyEvent) {
-          case .startRecording:
-            // If double-tap lock is triggered, we start recording immediately
-            if hotKeyProcessor.state == .doubleTapLock {
-              Task { await send(.startRecording) }
-            } else {
-              Task { await send(.hotKeyPressed) }
+            case .stopRecording:
+              Task { await send(.hotKeyReleased) }
+              shouldIntercept = false // or `true` if you want to intercept
+
+            case .cancel:
+              Task { await send(.cancel) }
+              shouldIntercept = true
+
+            case .discard:
+              Task { await send(.discard) }
+              shouldIntercept = false // Don't intercept - let the key chord reach other apps
+
+            case .none:
+              // If we detect repeated same chord, maybe intercept.
+              if let pressedKey = keyEvent.key,
+                 pressedKey == hotKeyProcessor.hotkey.key,
+                 keyEvent.modifiers == hotKeyProcessor.hotkey.modifiers
+              {
+                shouldIntercept = true
+              } else {
+                shouldIntercept = false
+              }
             }
-            // If the hotkey is purely modifiers, return false to keep it from interfering with normal usage
-            // But if useDoubleTapOnly is true, always intercept the key
-            return useDoubleTapOnly || keyEvent.key != nil
-
-          case .stopRecording:
-            Task { await send(.hotKeyReleased) }
-            return false // or `true` if you want to intercept
-
-          case .cancel:
-            Task { await send(.cancel) }
-            return true
-
-          case .discard:
-            Task { await send(.discard) }
-            return false // Don't intercept - let the key chord reach other apps
-
-          case .none:
-            // If we detect repeated same chord, maybe intercept.
-            if let pressedKey = keyEvent.key,
-               pressedKey == hotKeyProcessor.hotkey.key,
-               keyEvent.modifiers == hotKeyProcessor.hotkey.modifiers
-            {
-              return true
-            }
-            return false
           }
 
         case .mouseClick:
@@ -231,14 +239,20 @@ private extension TranscriptionFeature {
           switch hotKeyProcessor.processMouseClick() {
           case .cancel:
             Task { await send(.cancel) }
-            return false // Don't intercept the click itself
+            shouldIntercept = false // Don't intercept the click itself
           case .discard:
             Task { await send(.discard) }
-            return false // Don't intercept the click itself
+            shouldIntercept = false // Don't intercept the click itself
           case .startRecording, .stopRecording, .none:
-            return false
+            shouldIntercept = false
           }
         }
+
+        // Sync the lock state back to the reducer
+        let isCurrentLocked = hotKeyProcessor.state == .doubleTapLock
+        Task { await send(.setLocked(isCurrentLocked)) }
+        
+        return shouldIntercept
       }
 
       defer { token.cancel() }
@@ -266,7 +280,7 @@ private extension TranscriptionFeature {
   func handleHotKeyPressed(isTranscribing: Bool) -> Effect<Action> {
     // If already transcribing, cancel first. Otherwise start recording immediately.
     let maybeCancel = isTranscribing ? Effect.send(Action.cancel) : .none
-    let startRecording = Effect.send(Action.startRecording)
+    let startRecording = Effect.send(Action.startRecording(isLocked: false))
     return .merge(maybeCancel, startRecording)
   }
 
@@ -279,7 +293,7 @@ private extension TranscriptionFeature {
 // MARK: - Recording Handlers
 
 private extension TranscriptionFeature {
-  func handleStartRecording(_ state: inout State) -> Effect<Action> {
+  func handleStartRecording(_ state: inout State, isLocked: Bool) -> Effect<Action> {
     guard state.modelBootstrapState.isModelReady else {
       return .merge(
         .send(.modelMissing),
@@ -287,6 +301,7 @@ private extension TranscriptionFeature {
       )
     }
     state.isRecording = true
+    state.isLocked = isLocked
     let startTime = Date()
     state.recordingStartTime = startTime
     
@@ -315,6 +330,7 @@ private extension TranscriptionFeature {
 
   func handleStopRecording(_ state: inout State) -> Effect<Action> {
     state.isRecording = false
+    state.isLocked = false
     
     let stopTime = now
     let startTime = state.recordingStartTime
@@ -551,6 +567,7 @@ private extension TranscriptionFeature {
     state.isTranscribing = false
     state.isRecording = false
     state.isPrewarming = false
+    state.isLocked = false
 
     return .merge(
       .cancel(id: CancelID.transcription),
@@ -568,6 +585,7 @@ private extension TranscriptionFeature {
   func handleDiscard(_ state: inout State) -> Effect<Action> {
     state.isRecording = false
     state.isPrewarming = false
+    state.isLocked = false
 
     // Silently discard - no sound effect
     return .run { [sleepManagement] _ in
@@ -600,7 +618,10 @@ struct TranscriptionView: View {
   var body: some View {
     TranscriptionIndicatorView(
       status: status,
-      meter: store.meter
+      isLocked: store.isLocked,
+      meter: store.meter,
+      sourceAppBundleID: store.sourceAppBundleID,
+      sourceAppName: store.sourceAppName
     )
     .task {
       await store.send(.task).finish()

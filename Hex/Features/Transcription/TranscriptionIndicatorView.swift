@@ -67,7 +67,21 @@ struct TranscriptionIndicatorView: View {
   }
 
   var status: Status
+  var isLocked: Bool
   var meter: Meter
+  var sourceAppBundleID: String? = nil
+  var sourceAppName: String? = nil
+
+  private var appIcon: NSImage? {
+    guard let bundleID = sourceAppBundleID else { return nil }
+    if let app = NSRunningApplication.runningApplications(withBundleIdentifier: bundleID).first {
+      return app.icon
+    }
+    if let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleID) {
+      return NSWorkspace.shared.icon(forFile: url.path)
+    }
+    return nil
+  }
 
   // MARK: - Sizing
   private let extensionWidth: CGFloat = 40
@@ -77,30 +91,28 @@ struct TranscriptionIndicatorView: View {
   @State private var geometry = NotchGeometry(hasNotch: false, notchWidth: 120, notchHeight: 32, menuBarHeight: 24)
 
   var body: some View {
+    let targetHeight = isLocked ? (geometry.notchHeight + 30) : geometry.notchHeight
     ZStack(alignment: .top) {
+      // Black housing that blends with the notch's own black bezel.
+      // The height animates from 0 to target height for a premium slide-down effect.
+      UnevenRoundedRectangle(
+        topLeadingRadius: 0,
+        bottomLeadingRadius: 12,
+        bottomTrailingRadius: 12,
+        topTrailingRadius: 0
+      )
+      .fill(Color.black)
+      .frame(width: geometry.notchWidth + extensionWidth * 2, height: isActive ? targetHeight : 0)
+      
       if isActive {
-        // Black housing that blends with the notch's own black bezel.
-        // Only shown when the indicator is active.
-        UnevenRoundedRectangle(
-          topLeadingRadius: 0,
-          bottomLeadingRadius: 10,
-          bottomTrailingRadius: 10,
-          topTrailingRadius: 0
-        )
-        .fill(Color.black)
-        .frame(width: geometry.notchWidth + extensionWidth * 2, height: geometry.notchHeight)
-        .transition(.move(edge: .top).combined(with: .opacity))
-      }
-
-      // Content — aligned to the left of the notch (in the left extension)
-      if isActive {
+        // Top row: content aligned to the left of the notch
         HStack(spacing: 0) {
           Group {
             switch status {
             case .hidden:
               EmptyView()
             case .optionKeyPressed, .prewarming:
-              IdleDot(color: .white.opacity(0.6))
+              IdleDot(color: TickColor.brandMid.opacity(0.8))
             case .recording:
               NotchWaveform(meter: meter, color: .white)
             case .transcribing:
@@ -112,14 +124,51 @@ struct TranscriptionIndicatorView: View {
           Spacer() // Covers the notch width + right extension
         }
         .frame(width: geometry.notchWidth + extensionWidth * 2, height: geometry.notchHeight)
+        .padding(.top, 0)
+        
+        // Bottom row: centered app icon + app name (only shown in lock mode)
+        if isLocked {
+          HStack(spacing: 6) {
+            if let icon = appIcon {
+              Image(nsImage: icon)
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 16, height: 16)
+                .cornerRadius(3.5)
+                .overlay(
+                  RoundedRectangle(cornerRadius: 3.5)
+                    .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                )
+                .shadow(color: .black.opacity(0.3), radius: 1.5, x: 0, y: 1)
+            } else {
+              Image(systemName: "mic.fill")
+                .font(.system(size: 9, weight: .semibold))
+                .foregroundColor(.white)
+                .frame(width: 16, height: 16)
+                .background(TickColor.brandMid)
+                .cornerRadius(3.5)
+                .shadow(color: TickColor.brandMid.opacity(0.3), radius: 1.5, x: 0, y: 1)
+            }
+            
+            Text(sourceAppName ?? "Listening")
+              .font(TickFont.bodyFunc(10.5))
+              .foregroundColor(.white.opacity(0.9))
+              .lineLimit(1)
+          }
+          .frame(width: geometry.notchWidth + extensionWidth * 2, height: 30)
+          .padding(.top, geometry.notchHeight)
+          .transition(.opacity.combined(with: .move(edge: .bottom)))
+        }
       }
     }
-    .frame(width: geometry.notchWidth + extensionWidth * 2, height: geometry.notchHeight)
-    .animation(.spring(response: 0.35, dampingFraction: 0.8), value: status)
+    .frame(width: geometry.notchWidth + extensionWidth * 2, height: targetHeight)
+    .clipped()
+    .animation(.spring(response: 0.3, dampingFraction: 0.8), value: isActive)
+    .animation(.spring(response: 0.35, dampingFraction: 0.8), value: isLocked)
     .onAppear {
       updateGeometry()
     }
-    .onChange(of: status) { _ in
+    .onChange(of: status) {
       updateGeometry()
     }
     .enableInjection()
@@ -153,6 +202,31 @@ struct IdleDot: View {
   }
 }
 
+// MARK: - Three Dots Indicator
+//
+// A pulsing 3-dot indicator for lock mode recording.
+
+struct ThreeDotsIndicator: View {
+  @State private var activeDotIndex = 0
+  private let timer = Timer.publish(every: 0.3, on: .main, in: .common).autoconnect()
+
+  var body: some View {
+    HStack(spacing: 3) {
+      ForEach(0..<3) { index in
+        Circle()
+          .fill(Color.white)
+          .frame(width: 4, height: 4)
+          .opacity(activeDotIndex == index ? 1.0 : 0.4)
+      }
+    }
+    .onReceive(timer) { _ in
+      withAnimation(.easeInOut(duration: 0.25)) {
+        activeDotIndex = (activeDotIndex + 1) % 3
+      }
+    }
+  }
+}
+
 // MARK: - Notch Waveform
 //
 // Four small white bars that react to the live audio meter in real time.
@@ -166,10 +240,35 @@ struct NotchWaveform: View {
   var isTranscribing: Bool = false
 
   private let barCount = 4
-  private let barWidth: CGFloat = 2.5
-  private let barSpacing: CGFloat = 4
+  private let barWidth: CGFloat = 2.0
+  private let barSpacing: CGFloat = 2.5
   private let maxBarHeight: CGFloat = 14
   private let minBarHeight: CGFloat = 3
+  
+  // Specific multipliers for each of the 4 bars to form a natural vocal shape
+  private let barMultipliers: [Double] = [0.5, 1.0, 0.8, 0.4]
+
+  // Spectrum colors for recording (vibrant Apple-Intelligence-style warmth)
+  private let recordingColors: [Color] = [
+    Color(red: 0.486, green: 0.227, blue: 0.929), // Brand violet (#7c3aed)
+    Color(red: 0.843, green: 0.176, blue: 0.612), // Magenta / purple
+    Color(red: 0.941, green: 0.302, blue: 0.302), // Vibrant coral / red
+    Color(red: 0.961, green: 0.565, blue: 0.239)  // Sunset orange
+  ]
+
+  // Spectrum colors for transcribing (teal -> indigo -> violet cool spectrum)
+  private let transcribingColors: [Color] = [
+    Color(red: 0.180, green: 0.620, blue: 0.620), // Teal (#2e9e9e)
+    Color(red: 0.141, green: 0.478, blue: 0.843), // Blue (#247ad7)
+    Color(red: 0.478, green: 0.298, blue: 0.898), // Indigo (#7a4ce5)
+    Color(red: 0.706, green: 0.557, blue: 0.969)  // Light violet (#b48ef7)
+  ]
+
+  private func barColor(for index: Int) -> Color {
+    let colors = isTranscribing ? transcribingColors : recordingColors
+    return colors[index % colors.count]
+  }
+  
   @State private var smoothedLevels: [Double] = []
   @State private var phase: Double = 0
 
@@ -179,12 +278,12 @@ struct NotchWaveform: View {
     HStack(spacing: barSpacing) {
       ForEach(0..<barCount, id: \.self) { index in
         Capsule()
-          .fill(color)
+          .fill(barColor(for: index))
           .frame(width: barWidth, height: barHeight(for: index))
       }
     }
     .onAppear { ensureLevels() }
-    .onChange(of: meter) { newMeter in
+    .onChange(of: meter) { _, newMeter in
       if !isTranscribing {
         updateLevels(for: newMeter)
       }
@@ -206,26 +305,34 @@ struct NotchWaveform: View {
 
   private func updateLevels(for newMeter: Meter) {
     ensureLevels()
-    let average = min(1.0, newMeter.averagePower * 3.0)
-    let peak = min(1.0, newMeter.peakPower * 3.0)
+    
+    // Decibel/amplitude scaling for vocal frequencies
+    // Typically, room noise is below 0.002. Voice signals range from 0.005 to 0.12.
+    let noiseFloor: Double = 0.002
+    let maxHeadroom: Double = 0.12 // Lower limit so normal speaking registers high
+    
+    let avgNormalized = (newMeter.averagePower - noiseFloor) / (maxHeadroom - noiseFloor)
+    let average = min(1.0, max(0.0, avgNormalized))
+    
+    let peakNormalized = (newMeter.peakPower - noiseFloor) / (maxHeadroom - noiseFloor)
+    let peak = min(1.0, max(0.0, peakNormalized))
+    
+    // Apply power-law curve to boost low-mid volumes for organic responsiveness
+    let curveAverage = pow(average, 0.7)
+    let curvePeak = pow(peak, 0.7)
 
     var newLevels = smoothedLevels
     for i in 0..<barCount {
-      // Each bar reacts to a different frequency band — center bars are
-      // more sensitive, edge bars are slightly attenuated. This gives the
-      // wave a "shape" rather than every bar moving in lockstep.
-      let position = Double(i) / Double(barCount - 1) // 0...1
-      let bandCenter = 0.5 - abs(position - 0.5) * 0.6 // 0.5...0.2...0.5
-      let sensitivity = 0.4 + bandCenter * 0.6
-      let target = average * sensitivity
-      let peakBoost = peak > target + 0.1 ? (peak - target) * 0.6 : 0
+      let multiplier = barMultipliers[i]
+      let target = curveAverage * multiplier
+      let peakBoost = curvePeak > target + 0.1 ? (curvePeak - target) * 0.5 * multiplier : 0
       let newValue = max(target, peakBoost)
 
-      // Fast attack, slow release
+      // Fast snappy attack, smooth natural release
       let prev = newLevels[i]
       let smoothed = newValue > prev
-        ? min(newValue, prev + 0.5)   // attack: jump up fast
-        : max(newValue, prev * 0.78)  // release: fall slowly
+        ? newValue // instant snappy attack
+        : max(newValue, prev * 0.85) // smooth, elegant release (decay)
       newLevels[i] = smoothed
     }
     smoothedLevels = newLevels
@@ -248,14 +355,23 @@ struct NotchWaveform: View {
   VStack(spacing: 24) {
     TranscriptionIndicatorView(
       status: .optionKeyPressed,
+      isLocked: false,
       meter: Meter(averagePower: 0, peakPower: 0)
     )
     TranscriptionIndicatorView(
       status: .recording,
+      isLocked: false,
       meter: Meter(averagePower: 0.5, peakPower: 0.7)
     )
     TranscriptionIndicatorView(
+      status: .recording,
+      isLocked: true,
+      meter: Meter(averagePower: 0.5, peakPower: 0.7),
+      sourceAppName: "OpenSpotify"
+    )
+    TranscriptionIndicatorView(
       status: .transcribing,
+      isLocked: false,
       meter: Meter(averagePower: 0.2, peakPower: 0.3)
     )
   }

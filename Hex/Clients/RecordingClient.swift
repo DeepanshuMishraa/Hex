@@ -357,6 +357,9 @@ actor RecordingClientLive {
   /// Tracks output device mute states for restoration after recording
   private var mutedDeviceStates: [MutedDeviceState] = []
 
+  /// Tracks the original default input device to restore after recording
+  private var originalDefaultInputDeviceID: AudioDeviceID?
+
   private struct MutedDeviceState {
     let deviceID: AudioDeviceID
     let deviceName: String
@@ -407,7 +410,7 @@ actor RecordingClientLive {
 
   /// Gets the current system default input device name
   func getDefaultInputDeviceName() async -> String? {
-    guard let deviceID = getDefaultInputDevice() else { return nil }
+    guard let deviceID = getBuiltInInputDevice() ?? getDefaultInputDevice() else { return nil }
     if let cached = deviceCache[deviceID], cached.hasInput, let name = cached.name {
       return name
     }
@@ -775,6 +778,36 @@ actor RecordingClientLive {
     return deviceID
   }
 
+  /// Finds the MacBook's built-in microphone device.
+  private func getBuiltInInputDevice() -> AudioDeviceID? {
+    let devices = getAllAudioDevices()
+    for device in devices {
+      guard deviceHasInput(deviceID: device) else { continue }
+      
+      // Check if it's the built-in device via transport type selector
+      var transportType: UInt32 = 0
+      var size = UInt32(MemoryLayout<UInt32>.size)
+      var address = audioPropertyAddress(kAudioDevicePropertyTransportType, scope: kAudioDevicePropertyScopeInput)
+      let status = AudioObjectGetPropertyData(device, &address, 0, nil, &size, &transportType)
+      
+      if status == noErr && transportType == 0x626c746e { // 'bltn'
+        return device
+      }
+    }
+    
+    // Fallback: search for built-in or MacBook patterns in the device name
+    for device in devices {
+      guard deviceHasInput(deviceID: device) else { continue }
+      if let name = getDeviceName(deviceID: device)?.lowercased() {
+        if name.contains("built-in") || name.contains("macbook") || name.contains("internal") {
+          return device
+        }
+      }
+    }
+    
+    return nil
+  }
+
   private func resolvePreferredInputDevice() -> AudioDeviceID? {
     if let selectedDeviceIDString = hexSettings.selectedMicrophoneID,
        let selectedDeviceID = AudioDeviceID(selectedDeviceIDString) {
@@ -783,11 +816,11 @@ actor RecordingClientLive {
         return selectedDeviceID
       }
 
-      recordingLogger.notice("Selected device \(selectedDeviceID) missing; using system default")
-      return nil
+      recordingLogger.notice("Selected device \(selectedDeviceID) missing; using built-in microphone default")
+      return getBuiltInInputDevice() ?? getDefaultInputDevice()
     }
 
-    return nil
+    return getBuiltInInputDevice() ?? getDefaultInputDevice()
   }
 
   private func formatDuration(_ duration: TimeInterval?) -> String {
@@ -819,6 +852,11 @@ actor RecordingClientLive {
     if let primedDevice = lastPrimedDeviceID, primedDevice != currentDefaultDevice {
       recordingLogger.notice("Default input changed from \(primedDevice) to \(currentDefaultDevice ?? 0); invalidating primed state")
       invalidatePrimedState()
+    }
+
+    // Save the original default input device if we haven't saved it yet
+    if originalDefaultInputDeviceID == nil {
+      originalDefaultInputDeviceID = currentDefaultDevice
     }
 
     if let targetDeviceID {
@@ -997,15 +1035,16 @@ actor RecordingClientLive {
       let wasMuted = getDeviceMuteState(deviceID: device)
       let deviceName = getDeviceName(deviceID: device) ?? "Device \(device)"
 
+      let originalVolume = getDeviceOutputVolume(deviceID: device)
       if setDeviceMuteState(deviceID: device, muted: true) {
         states.append(MutedDeviceState(
           deviceID: device,
           deviceName: deviceName,
           wasPreviouslyMuted: wasMuted,
           usedHardwareMute: true,
-          previousVolume: 0
+          previousVolume: originalVolume
         ))
-        mediaLogger.notice("Muted output device \(deviceName) via hardware mute")
+        mediaLogger.notice("Muted output device \(deviceName) via hardware mute (volume was \(originalVolume))")
       } else {
         let volume = getDeviceOutputVolume(deviceID: device)
         if volume > 0.01 {
@@ -1036,6 +1075,13 @@ actor RecordingClientLive {
         if !state.wasPreviouslyMuted {
           setDeviceMuteState(deviceID: state.deviceID, muted: false)
           mediaLogger.notice("Unmuted output device \(state.deviceName) via hardware mute")
+          
+          // CRITICAL: Restore original volume level in addition to unmuting, because some
+          // audio drivers or macOS itself reset/keep the volume at 0 upon unmuting.
+          if state.previousVolume > 0.01 {
+            setDeviceOutputVolume(deviceID: state.deviceID, volume: state.previousVolume)
+            mediaLogger.notice("Restored volume on unmuted device \(state.deviceName) to \(String(format: "%.2f", state.previousVolume))")
+          }
         } else {
           mediaLogger.debug("Skipping unmute for device \(state.deviceName) - was already muted before recording")
         }
@@ -1286,17 +1332,28 @@ actor RecordingClientLive {
     let shouldResumeMedia = didPauseMedia
     let shouldResumeViaMediaRemote = didPauseViaMediaRemote
     let hasMutedDevicesToRestore = !mutedDeviceStates.isEmpty
+    let originalInput = originalDefaultInputDeviceID
 
-    if !playersToResume.isEmpty || shouldResumeMedia || shouldResumeViaMediaRemote || hasMutedDevicesToRestore {
+    if !playersToResume.isEmpty || shouldResumeMedia || shouldResumeViaMediaRemote || hasMutedDevicesToRestore || originalInput != nil {
       Task {
+        if let originalInput = originalInput {
+          let currentDefault = getDefaultInputDevice()
+          if currentDefault != originalInput {
+            recordingLogger.notice("Restoring system default input device to \(originalInput)")
+            setInputDevice(deviceID: originalInput)
+          }
+        }
+
         if hasMutedDevicesToRestore {
           unmuteMutedOutputDevices()
         }
-        else if !playersToResume.isEmpty {
+        
+        if !playersToResume.isEmpty {
           mediaLogger.notice("Resuming players: \(playersToResume.joined(separator: ", "))")
           await resumeMediaApplications(playersToResume)
         }
-        else if shouldResumeViaMediaRemote {
+        
+        if shouldResumeViaMediaRemote {
           if mediaRemoteController?.send(.play) == true {
             mediaLogger.notice("Resuming media via MediaRemote")
           } else {
@@ -1305,8 +1362,7 @@ actor RecordingClientLive {
               sendMediaKey()
             }
           }
-        }
-        else if shouldResumeMedia {
+        } else if shouldResumeMedia {
           await MainActor.run {
             sendMediaKey()
           }
@@ -1354,6 +1410,7 @@ actor RecordingClientLive {
     didPauseMedia = false
     didPauseViaMediaRemote = false
     mutedDeviceStates = []
+    originalDefaultInputDeviceID = nil
   }
 
   @discardableResult
@@ -1450,7 +1507,7 @@ actor RecordingClientLive {
         let peakPower = r.peakPower(forChannel: 0)
         let peakNormalized = pow(10, peakPower / 20.0)
         meterContinuation.yield(Meter(averagePower: Double(averageNormalized), peakPower: Double(peakNormalized)))
-        try? await Task.sleep(for: .milliseconds(100))
+        try? await Task.sleep(for: .milliseconds(30))
       }
     }
   }
