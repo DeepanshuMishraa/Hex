@@ -315,8 +315,12 @@ button {
 
 /* --- Hero Section --- */
 .hero {
-  padding-top: calc(var(--navbar-height) + 120px);
-  padding-bottom: 110px;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  padding-top: calc(var(--navbar-height) + 40px);
+  padding-bottom: 40px;
   position: relative;
 }
 
@@ -328,6 +332,7 @@ button {
   grid-template-columns: 1.15fr 0.85fr;
   align-items: center;
   gap: 64px;
+  width: 100%;
 }
 
 .hero-content {
