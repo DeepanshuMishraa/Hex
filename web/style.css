@@ -353,9 +353,9 @@ button {
 /* Hero Heading (Geist Mono Semibold) */
 .hero-title {
   font-family: var(--font-display);
-  font-size: 68px;
+  font-size: 48px;
   font-weight: 600;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.03em;
   line-height: 1.05;
   color: var(--text-primary);
   margin-bottom: 24px;
