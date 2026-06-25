@@ -1,32 +1,35 @@
-/* --- Handcrafted Warm Monospace Design System (Tick macOS App theme) --- */
+/* --- Handcrafted Warm Monospace Structural Grid (Bolder Theme) --- */
 :root {
   --font-sans: 'Geist Mono', SFMono-Regular, Consolas, monospace;
   --font-display: 'Geist Mono', SFMono-Regular, Consolas, monospace;
   --font-mono: 'Geist Mono', SFMono-Regular, Consolas, monospace;
   
-  /* Color Tokens matching HexDesignSystem.swift - Monochromatic Slate */
+  /* Monochromatic Color Tokens (Slate/Off-White) */
   --bg-canvas: #f7f4ec;        /* off-white canvas */
   --bg-hero: #fdf8e2;          /* cream hero card */
   --bg-stat: #f3f3f5;          /* light grey stat */
   --bg-card: #ffffff;          /* white surface card */
   --text-primary: #0a0a0c;
-  --text-secondary: #5c5c63;
-  --text-muted: #94939b;
+  --text-secondary: #2c2c35;   /* darker slate for readability */
+  --text-muted: #5c5c63;
   --brand: #0a0a0c;            /* black accent */
-  --brand-soft: rgba(0, 0, 0, 0.04);  /* soft tag */
+  --brand-soft: rgba(0, 0, 0, 0.04);
   --brand-mid: #5c5c63;
   
-  --border-primary: rgba(0, 0, 0, 0.08);
-  --border-secondary: rgba(0, 0, 0, 0.04);
-  --border-strong: rgba(0, 0, 0, 0.14);
+  /* Bold Structural Outline System */
+  --border-thick: 2px solid #0a0a0c;
+  --border-thin: 1.5px solid #0a0a0c;
+  --shadow-offset: 8px 8px 0px #0a0a0c;
+  --shadow-offset-hover: 11px 11px 0px #0a0a0c;
+  --shadow-offset-button: 4px 4px 0px #0a0a0c;
   
   /* Layout Dimensions */
   --max-width: 1040px;
   --navbar-height: 52px;
   
   /* Spring Transition Curve */
-  --spring-transition: all 650ms cubic-bezier(0.16, 1, 0.3, 1);
-  --fast-transition: all 250ms cubic-bezier(0.16, 1, 0.3, 1);
+  --spring-transition: all 500ms cubic-bezier(0.16, 1, 0.3, 1);
+  --fast-transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* --- Base & Reset Styles --- */
@@ -63,9 +66,9 @@ body::before {
   width: 100vw;
   height: 100vh;
   background: 
-    radial-gradient(circle at 50% -20%, rgba(255, 255, 255, 0.4), transparent 50%),
-    radial-gradient(circle at 10% 80%, rgba(255, 255, 255, 0.2), transparent 35%),
-    radial-gradient(circle at 90% 80%, rgba(255, 255, 255, 0.2), transparent 35%);
+    radial-gradient(circle at 50% -20%, rgba(255, 255, 255, 0.5), transparent 50%),
+    radial-gradient(circle at 10% 80%, rgba(255, 255, 255, 0.3), transparent 35%),
+    radial-gradient(circle at 90% 80%, rgba(255, 255, 255, 0.3), transparent 35%);
   z-index: -1;
   pointer-events: none;
 }
@@ -127,17 +130,15 @@ button {
 }
 
 .navbar {
-  background-color: rgba(247, 244, 236, 0.8);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid var(--border-primary);
+  background-color: var(--bg-canvas);
+  border: var(--border-thick);
   border-radius: 9999px;
   width: 100%;
   max-width: 680px;
   height: var(--navbar-height);
   display: flex;
   align-items: center;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  box-shadow: 4px 4px 0px #0a0a0c;
   pointer-events: auto;
   transition: var(--spring-transition);
   overflow: hidden;
@@ -145,7 +146,7 @@ button {
 
 /* Morph expanded state for mobile menu */
 .navbar.expanded {
-  border-radius: 28px;
+  border-radius: 24px;
   height: 240px;
   align-items: flex-start;
   padding-top: 12px;
@@ -178,11 +179,10 @@ button {
   gap: 8px;
 }
 
-/* Custom logo styling with brand violet */
 .logo-svg {
   width: 16px;
   height: 16px;
-  color: var(--brand);
+  color: var(--text-primary);
 }
 
 .logo-text {
@@ -210,15 +210,17 @@ button {
 .nav-link {
   color: var(--text-secondary);
   transition: var(--fast-transition);
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: -0.01em;
 }
 
 .nav-link:hover {
   color: var(--brand);
+  text-decoration: underline;
+  text-underline-offset: 4px;
 }
 
-/* Floating Pill Button with Trailing Arrow Icon Inside */
+/* Monospace Pill Button with Trailing Arrow */
 .nav-btn-pill {
   display: inline-flex;
   align-items: center;
@@ -230,12 +232,14 @@ button {
   font-size: 11px;
   font-weight: 600;
   font-family: var(--font-mono);
+  border: 1px solid var(--text-primary);
   transition: var(--spring-transition);
 }
 
 .nav-btn-pill:hover {
   transform: scale(1.02);
-  background-color: var(--brand);
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
 }
 
 .btn-arrow-wrapper {
@@ -249,15 +253,19 @@ button {
   transition: var(--spring-transition);
 }
 
+.nav-btn-pill:hover .btn-arrow-wrapper {
+  background-color: var(--text-primary);
+  color: #ffffff;
+}
+
 .arrow-svg {
   width: 10px;
   height: 10px;
-  color: #ffffff;
+  color: currentColor;
 }
 
 .nav-btn-pill:hover .btn-arrow-wrapper {
   transform: translate(2px, -2px);
-  background-color: rgba(255, 255, 255, 0.25);
 }
 
 /* Hamburger toggle for mobile */
@@ -332,7 +340,7 @@ button {
   display: inline-flex;
   padding: 4px 10px;
   background-color: var(--brand-soft);
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border: var(--border-thin);
   border-radius: 9999px;
   font-family: var(--font-mono);
   font-size: 10px;
@@ -342,27 +350,30 @@ button {
   margin-bottom: 24px;
 }
 
-/* Editorial Heading (Geist Sans Display) */
+/* Massive Monospace Bold Heading */
 .hero-title {
   font-family: var(--font-display);
-  font-size: 68px;
-  font-weight: 700;
-  letter-spacing: -0.04em;
-  line-height: 1.05;
+  font-size: min(8vw, 84px);
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  line-height: 0.95;
   color: var(--text-primary);
   margin-bottom: 24px;
 }
 
 .hero-title .text-gradient {
-  color: var(--brand);
+  text-decoration: underline;
+  text-decoration-color: var(--text-primary);
+  text-underline-offset: 8px;
 }
 
 .hero-desc {
-  font-size: 17px;
+  font-size: 15px;
   line-height: 1.6;
   color: var(--text-secondary);
   margin-bottom: 40px;
   max-width: 480px;
+  font-weight: 500;
 }
 
 .hero-actions {
@@ -372,55 +383,69 @@ button {
   margin-bottom: 36px;
 }
 
+/* Bold Brutalist Buttons */
 .btn-primary-pill {
   display: inline-flex;
   align-items: center;
   gap: 12px;
   background-color: var(--text-primary);
   color: #ffffff;
-  padding: 8px 8px 8px 24px;
+  padding: 10px 10px 10px 24px;
   border-radius: 9999px;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
   font-family: var(--font-mono);
-  border: 1px solid var(--text-primary);
-  transition: var(--spring-transition);
+  border: var(--border-thick);
+  transition: var(--fast-transition);
+  box-shadow: var(--shadow-offset-button);
 }
 
 .btn-primary-pill .btn-arrow-wrapper {
-  width: 30px;
-  height: 30px;
-  background-color: rgba(255, 255, 255, 0.15);
+  width: 28px;
+  height: 28px;
+  background-color: rgba(255, 255, 255, 0.2);
   color: #ffffff;
 }
 
 .btn-primary-pill:hover {
-  background-color: var(--brand);
-  border-color: var(--brand);
-  transform: scale(1.015);
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px #0a0a0c;
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
 }
 
 .btn-primary-pill:hover .btn-arrow-wrapper {
+  background-color: var(--text-primary);
+  color: #ffffff;
   transform: translate(2px, -2px);
+}
+
+.btn-primary-pill:active {
+  transform: translate(2px, 2px);
+  box-shadow: 0px 0px 0px #0a0a0c;
 }
 
 .btn-secondary-pill {
   background-color: var(--bg-card);
-  border: 1px solid var(--border-primary);
-  color: var(--text-secondary);
+  border: var(--border-thick);
+  color: var(--text-primary);
   padding: 14px 28px;
   border-radius: 9999px;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
   font-family: var(--font-mono);
-  transition: var(--spring-transition);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+  transition: var(--fast-transition);
+  box-shadow: var(--shadow-offset-button);
 }
 
 .btn-secondary-pill:hover {
-  color: var(--text-primary);
-  border-color: var(--text-primary);
-  transform: scale(1.015);
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px #0a0a0c;
+}
+
+.btn-secondary-pill:active {
+  transform: translate(2px, 2px);
+  box-shadow: 0px 0px 0px #0a0a0c;
 }
 
 .hero-badge {
@@ -435,14 +460,14 @@ button {
 }
 
 .badge-dot {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  background-color: var(--brand);
-  box-shadow: 0 0 6px var(--brand);
+  background-color: var(--text-primary);
+  border: 1px solid var(--text-primary);
 }
 
-/* --- Hero Visual (Double-Bezel Nested Wrapper) --- */
+/* --- Hero Visual (Double-Bezel Outline Layout) --- */
 .hero-visual {
   display: flex;
   justify-content: center;
@@ -453,23 +478,23 @@ button {
   width: 100%;
   max-width: 350px;
   aspect-ratio: 1;
-  background-color: rgba(0, 0, 0, 0.02);
-  border: 1px solid var(--border-primary);
-  border-radius: 40px;
+  background-color: var(--bg-canvas);
+  border: var(--border-thick);
+  border-radius: 28px;
   padding: 8px;
+  box-shadow: var(--shadow-offset);
 }
 
 .visual-core {
   width: 100%;
   height: 100%;
   background-color: var(--bg-hero); /* Warm cream card */
-  border: 1px solid var(--border-primary);
-  border-radius: 32px;
+  border: var(--border-thin);
+  border-radius: 20px;
   display: flex;
   justify-content: center;
   align-items: center;
   position: relative;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 12px 30px rgba(0, 0, 0, 0.04);
 }
 
 .hex-wireframe {
@@ -485,23 +510,22 @@ button {
   width: 70%;
   height: 70%;
   object-fit: contain;
-  border-radius: 24px;
+  border-radius: 16px;
   animation: float 6s ease-in-out infinite;
   z-index: 3;
-  filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.06));
 }
 
 @keyframes float {
-  0% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(-8px) rotate(1deg); }
-  100% { transform: translateY(0px) rotate(0deg); }
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+  100% { transform: translateY(0px); }
 }
 
 /* --- Interactive Showcase Window (Double-Bezel) --- */
 .demo-section {
   padding: 120px 0;
-  border-top: 1px solid var(--border-primary);
-  border-bottom: 1px solid var(--border-primary);
+  border-top: var(--border-thick);
+  border-bottom: var(--border-thick);
   background-color: var(--bg-hero);
   position: relative;
 }
@@ -518,24 +542,30 @@ button {
 .window-shell {
   width: 100%;
   max-width: 800px;
-  background-color: rgba(0, 0, 0, 0.02);
-  border: 1px solid var(--border-primary);
-  border-radius: 28px;
+  background-color: var(--bg-canvas);
+  border: var(--border-thick);
+  border-radius: 24px;
   padding: 8px;
+  box-shadow: var(--shadow-offset);
+  transition: var(--spring-transition);
+}
+
+.window-shell:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: var(--shadow-offset-hover);
 }
 
 .window-core {
   width: 100%;
   background-color: var(--bg-card);
-  border: 1px solid var(--border-primary);
-  border-radius: 20px;
+  border: var(--border-thin);
+  border-radius: 16px;
   overflow: hidden;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 20px 40px rgba(0, 0, 0, 0.03);
 }
 
 .window-header {
   height: 48px;
-  border-bottom: 1px solid var(--border-primary);
+  border-bottom: var(--border-thin);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -553,7 +583,7 @@ button {
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  border: 1px solid rgba(0, 0, 0, 0.04);
+  border: 1px solid #000;
 }
 
 .close { background-color: #ef4444; }
@@ -563,8 +593,8 @@ button {
 .window-title-pill {
   font-family: var(--font-mono);
   font-size: 11px;
-  font-weight: 600;
-  color: var(--text-secondary);
+  font-weight: 700;
+  color: var(--text-primary);
   letter-spacing: -0.01em;
 }
 
@@ -594,13 +624,13 @@ button {
 
 .demo-input-text {
   font-size: 20px;
-  font-weight: 400;
+  font-weight: 600;
   text-align: center;
   color: var(--text-primary);
   max-width: 600px;
   line-height: 1.5;
   margin-bottom: 40px;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
   min-height: 80px;
   white-space: pre-wrap;
   transition: var(--fast-transition);
@@ -610,12 +640,11 @@ button {
   font-family: var(--font-mono);
   font-size: 16px;
   background-color: var(--bg-stat);
-  border: 1px solid var(--border-primary);
+  border: var(--border-thin);
   padding: 6px 12px;
   border-radius: 6px;
   letter-spacing: normal;
   color: var(--text-primary);
-  box-shadow: inset 0 1px 0 #fff;
 }
 
 .visualizer-container {
@@ -627,18 +656,16 @@ button {
 }
 
 .wave-bar {
-  width: 2px;
+  width: 3px;
   height: 4px;
-  background-color: var(--brand);
-  opacity: 0.2;
+  background-color: var(--text-primary);
+  opacity: 0.25;
   border-radius: 1px;
   transition: var(--fast-transition);
 }
 
 .visualizer-container.recording .wave-bar {
-  opacity: 0.9;
-  background-color: var(--brand);
-  filter: drop-shadow(0 0 2px var(--brand-mid));
+  opacity: 1;
 }
 
 .visualizer-container.recording .wave-bar.animate-1 { animation: pulseWave 0.7s infinite alternate ease-in-out; }
@@ -662,24 +689,18 @@ button {
   padding: 0 24px;
 }
 
-.features-grid {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 24px;
-}
-
 .feature-shell {
-  background-color: rgba(0, 0, 0, 0.02);
-  border: 1px solid var(--border-primary);
-  border-radius: 28px;
-  padding: 6px;
+  background-color: var(--bg-canvas);
+  border: var(--border-thick);
+  border-radius: 24px;
+  padding: 8px;
+  box-shadow: var(--shadow-offset);
   transition: var(--spring-transition);
 }
 
 .feature-shell:hover {
-  transform: translateY(-4px);
-  border-color: rgba(0, 0, 0, 0.12);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.02);
+  transform: translate(-3px, -3px);
+  box-shadow: var(--shadow-offset-hover);
 }
 
 /* Apply Asymmetry */
@@ -693,14 +714,13 @@ button {
 
 .feature-core {
   background-color: var(--bg-card);
-  border: 1px solid var(--border-primary);
-  border-radius: 22px;
+  border: var(--border-thin);
+  border-radius: 16px;
   padding: 40px;
   height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 4px 16px rgba(0, 0, 0, 0.01);
   position: relative;
   overflow: hidden;
 }
@@ -711,9 +731,9 @@ button {
 
 .feature-meta {
   font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 600;
-  color: var(--brand);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-primary);
   margin-bottom: 16px;
   letter-spacing: 0.1em;
   display: block;
@@ -721,18 +741,19 @@ button {
 
 .feature-title {
   font-family: var(--font-display);
-  font-size: 22px;
-  font-weight: 500;
+  font-size: 24px;
+  font-weight: 700;
   color: var(--text-primary);
   margin-bottom: 12px;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.03em;
 }
 
 .feature-desc {
-  font-size: 14px;
+  font-size: 13.5px;
   line-height: 1.6;
   color: var(--text-secondary);
   max-width: 540px;
+  font-weight: 500;
 }
 
 /* Embedded Micro-Mockups inside large bento cards */
@@ -743,7 +764,7 @@ button {
 
 .compare-mockup {
   background-color: var(--bg-canvas);
-  border: 1px solid var(--border-primary);
+  border: var(--border-thin);
   border-radius: 12px;
   padding: 20px;
   font-family: var(--font-mono);
@@ -757,7 +778,7 @@ button {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
   padding-bottom: 10px;
 }
 
@@ -782,7 +803,7 @@ button {
 
 .compare-output {
   color: var(--text-primary);
-  font-weight: 600;
+  font-weight: 700;
   text-align: right;
 }
 
@@ -795,7 +816,7 @@ button {
   align-items: center;
   justify-content: space-around;
   background-color: var(--bg-canvas);
-  border: 1px solid var(--border-primary);
+  border: var(--border-thin);
   border-radius: 12px;
   padding: 24px;
   position: relative;
@@ -815,11 +836,11 @@ button {
   height: 36px;
   border-radius: 50%;
   background-color: var(--bg-card);
-  border: 1px solid var(--border-primary);
+  border: var(--border-thin);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--brand);
+  color: var(--text-primary);
 }
 
 .node-label {
@@ -833,7 +854,7 @@ button {
 .node-line {
   height: 1px;
   flex: 1;
-  background-color: var(--border-primary);
+  background-color: var(--text-primary);
   margin: 0 12px;
   position: relative;
 }
@@ -841,18 +862,18 @@ button {
 .node-line::after {
   content: '';
   position: absolute;
-  top: -2px;
+  top: -2.5px;
   right: 0;
   width: 5px;
   height: 5px;
-  border-top: 1px solid var(--border-primary);
-  border-right: 1px solid var(--border-primary);
+  border-top: 1.5px solid var(--text-primary);
+  border-right: 1.5px solid var(--text-primary);
   transform: rotate(45deg);
 }
 
 .diagram-node.blocked .node-icon {
   background-color: rgba(239, 68, 68, 0.05);
-  border-color: rgba(239, 68, 68, 0.2);
+  border-color: #ef4444;
   color: #ef4444;
 }
 
@@ -863,7 +884,7 @@ button {
 .line-cross {
   height: 1px;
   flex: 1;
-  background: repeating-linear-gradient(90deg, rgba(239, 68, 68, 0.3), rgba(239, 68, 68, 0.3) 4px, transparent 4px, transparent 8px);
+  background: repeating-linear-gradient(90deg, #ef4444, #ef4444 4px, transparent 4px, transparent 8px);
   margin: 0 12px;
   position: relative;
 }
@@ -871,7 +892,7 @@ button {
 .line-cross::before {
   content: '✕';
   position: absolute;
-  top: -8px;
+  top: -8.5px;
   left: 50%;
   transform: translateX(-50%);
   color: #ef4444;
@@ -893,9 +914,9 @@ button {
 
 .section-meta {
   font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 600;
-  color: var(--brand);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-primary);
   letter-spacing: 0.12em;
   display: block;
   margin-bottom: 16px;
@@ -904,21 +925,22 @@ button {
 .section-title {
   font-family: var(--font-display);
   font-size: 38px;
-  font-weight: 500;
-  letter-spacing: -0.02em;
+  font-weight: 700;
+  letter-spacing: -0.03em;
   color: var(--text-primary);
 }
 
 .section-subtitle {
-  font-size: 15px;
+  font-size: 14px;
   color: var(--text-secondary);
   margin-top: 16px;
+  font-weight: 500;
 }
 
 /* --- Workflow / Timeline Section --- */
 .workflow-section {
   padding: 140px 0;
-  border-top: 1px solid var(--border-primary);
+  border-top: var(--border-thick);
   background-color: var(--bg-card);
 }
 
@@ -945,9 +967,10 @@ button {
 .step-num {
   font-family: var(--font-mono);
   font-size: 14px;
-  font-weight: 600;
-  color: var(--brand);
-  background-color: var(--brand-soft);
+  font-weight: 700;
+  color: #ffffff;
+  background-color: var(--text-primary);
+  border: var(--border-thin);
   width: 32px;
   height: 32px;
   border-radius: 50%;
@@ -958,20 +981,21 @@ button {
 
 .step-title {
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-primary);
 }
 
 .step-desc {
-  font-size: 13.5px;
+  font-size: 13px;
   line-height: 1.6;
   color: var(--text-secondary);
+  font-weight: 500;
 }
 
 /* --- Shortcuts Section (Double-Bezel List + Split Grid) --- */
 .shortcuts-section {
   padding: 140px 0;
-  border-top: 1px solid var(--border-primary);
+  border-top: var(--border-thick);
 }
 
 .shortcuts-container {
@@ -985,18 +1009,24 @@ button {
 }
 
 .shortcuts-shell {
-  background-color: rgba(0, 0, 0, 0.02);
-  border: 1px solid var(--border-primary);
-  border-radius: 28px;
-  padding: 6px;
+  background-color: var(--bg-canvas);
+  border: var(--border-thick);
+  border-radius: 24px;
+  padding: 8px;
+  box-shadow: var(--shadow-offset);
+  transition: var(--spring-transition);
+}
+
+.shortcuts-shell:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: var(--shadow-offset-hover);
 }
 
 .shortcuts-core {
   background-color: var(--bg-card);
-  border: 1px solid var(--border-primary);
-  border-radius: 22px;
+  border: var(--border-thin);
+  border-radius: 16px;
   overflow: hidden;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 10px 30px rgba(0, 0, 0, 0.01);
 }
 
 .shortcuts-list {
@@ -1009,12 +1039,12 @@ button {
   justify-content: space-between;
   align-items: center;
   padding: 32px;
-  border-bottom: 1px solid var(--border-primary);
+  border-bottom: var(--border-thin);
   transition: var(--fast-transition);
 }
 
 .shortcut-row:hover {
-  background-color: rgba(0, 0, 0, 0.005);
+  background-color: rgba(0, 0, 0, 0.015);
 }
 
 .shortcut-row:last-child {
@@ -1027,7 +1057,7 @@ button {
 
 .shortcut-name {
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-primary);
   margin-bottom: 6px;
 }
@@ -1036,6 +1066,7 @@ button {
   font-size: 13px;
   line-height: 1.5;
   color: var(--text-secondary);
+  font-weight: 500;
 }
 
 .shortcut-keys {
@@ -1044,18 +1075,18 @@ button {
   gap: 6px;
 }
 
-/* Tactile 3D mechanical keycaps (Light Theme) */
+/* Tactile 3D mechanical keycaps (Structural Outlines) */
 .kbd-key {
   font-family: var(--font-mono);
   font-size: 13px;
-  font-weight: 500;
-  background: linear-gradient(180deg, #ffffff 0%, #f3f3f5 100%);
-  border: 1px solid var(--border-primary);
-  border-bottom: 3px solid rgba(0, 0, 0, 0.15);
-  border-radius: 8px;
+  font-weight: 700;
+  background: #ffffff;
+  border: var(--border-thin);
+  border-bottom: 4px solid var(--text-primary);
+  border-radius: 6px;
   padding: 5px 10px;
   color: var(--text-primary);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03), inset 0 1px 0 #fff;
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.05);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1065,21 +1096,21 @@ button {
 }
 
 .kbd-key.light {
-  background: linear-gradient(180deg, #ffffff 0%, #fcfbf9 100%);
-  border-bottom: 3px solid rgba(0, 0, 0, 0.12);
+  background: #ffffff;
+  border-bottom: 4px solid var(--text-primary);
 }
 
 .plus {
   font-size: 12px;
   color: var(--text-muted);
   font-family: var(--font-mono);
-  font-weight: 500;
+  font-weight: 600;
 }
 
-/* --- Models Downloader Section --- */
+/* --- Models Downloader Section (Double-Bezel) --- */
 .models-section {
   padding: 140px 0;
-  border-top: 1px solid var(--border-primary);
+  border-top: var(--border-thick);
   background-color: var(--bg-canvas);
 }
 
@@ -1103,11 +1134,12 @@ button {
 }
 
 .models-desc {
-  font-size: 15px;
+  font-size: 14px;
   line-height: 1.6;
   color: var(--text-secondary);
   margin-top: 16px;
   margin-bottom: 36px;
+  font-weight: 500;
 }
 
 .model-meta-stats {
@@ -1120,18 +1152,18 @@ button {
   flex-direction: column;
   gap: 4px;
   background-color: var(--bg-card);
-  border: 1px solid var(--border-primary);
+  border: var(--border-thick);
   border-radius: 12px;
   padding: 16px 20px;
   min-width: 120px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.01);
+  box-shadow: var(--shadow-offset-button);
 }
 
 .stat-value {
   font-family: var(--font-display);
   font-size: 20px;
-  font-weight: 500;
-  color: var(--brand);
+  font-weight: 700;
+  color: var(--text-primary);
 }
 
 .stat-lbl {
@@ -1140,6 +1172,7 @@ button {
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  font-weight: 700;
 }
 
 /* Model Download UI window */
@@ -1164,14 +1197,13 @@ button {
   align-items: center;
   padding: 16px;
   background-color: var(--bg-card);
-  border: 1px solid var(--border-primary);
+  border: var(--border-thin);
   border-radius: 12px;
   transition: var(--fast-transition);
 }
 
 .model-row-mock.active {
-  border-color: var(--brand);
-  background-color: var(--brand-soft);
+  background-color: var(--bg-hero);
 }
 
 .model-row-info {
@@ -1184,15 +1216,11 @@ button {
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  border: 1px solid var(--text-muted);
+  border: var(--border-thin);
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.model-radio.active {
-  border-color: var(--brand);
 }
 
 .model-radio.active::after {
@@ -1200,7 +1228,7 @@ button {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background-color: var(--brand);
+  background-color: var(--text-primary);
 }
 
 .model-details {
@@ -1211,7 +1239,7 @@ button {
 
 .model-name {
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-primary);
   display: flex;
   align-items: center;
@@ -1220,17 +1248,18 @@ button {
 
 .model-tag {
   font-size: 9px;
-  background-color: var(--brand);
+  background-color: var(--text-primary);
   color: #fff;
   padding: 1px 5px;
   border-radius: 4px;
-  font-weight: normal;
+  font-weight: 700;
   text-transform: uppercase;
 }
 
 .model-sub {
   font-size: 11px;
   color: var(--text-secondary);
+  font-weight: 500;
 }
 
 .model-row-right {
@@ -1241,8 +1270,9 @@ button {
 
 .model-accuracy {
   font-size: 11px;
-  color: var(--brand);
+  color: var(--text-primary);
   font-family: var(--font-mono);
+  font-weight: 700;
 }
 
 .model-size {
@@ -1251,6 +1281,7 @@ button {
   font-family: var(--font-mono);
   width: 60px;
   text-align: right;
+  font-weight: 600;
 }
 
 .model-status-btn {
@@ -1260,15 +1291,14 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-muted);
-  border: 1px solid var(--border-primary);
+  color: var(--text-primary);
+  border: var(--border-thin);
   background-color: var(--bg-card);
   cursor: pointer;
 }
 
 .model-status-btn.active {
-  background-color: var(--brand);
-  border-color: var(--brand);
+  background-color: var(--text-primary);
   color: #ffffff;
 }
 
@@ -1279,29 +1309,29 @@ button {
 
 /* Downloading State */
 .model-row-mock.downloading {
-  border-color: var(--border-primary);
   background-color: var(--bg-stat);
 }
 
 .download-progress-container {
   width: 80px;
   height: 6px;
-  background-color: rgba(0,0,0,0.06);
+  background-color: rgba(0,0,0,0.08);
+  border: 1px solid var(--text-primary);
   border-radius: 9999px;
   overflow: hidden;
 }
 
 .download-progress-bar {
   height: 100%;
-  background-color: var(--brand);
+  background-color: var(--text-primary);
   border-radius: 9999px;
 }
 
 .download-percentage {
   font-size: 11px;
   font-family: var(--font-mono);
-  color: var(--brand);
-  font-weight: 600;
+  color: var(--text-primary);
+  font-weight: 700;
   width: 32px;
   text-align: right;
 }
@@ -1309,7 +1339,7 @@ button {
 /* --- Privacy Section (Double-Bezel Split Grid) --- */
 .privacy-section {
   padding: 140px 0;
-  border-top: 1px solid var(--border-primary);
+  border-top: var(--border-thick);
   background-color: var(--bg-hero);
 }
 
@@ -1329,6 +1359,7 @@ button {
   font-size: 16px;
   line-height: 1.6;
   color: var(--text-secondary);
+  font-weight: 500;
 }
 
 .privacy-grid {
@@ -1338,23 +1369,29 @@ button {
 }
 
 .privacy-shell {
-  background-color: rgba(0,0,0,0.02);
-  border: 1px solid var(--border-primary);
+  background-color: var(--bg-canvas);
+  border: var(--border-thick);
   border-radius: 24px;
-  padding: 6px;
+  padding: 8px;
+  box-shadow: var(--shadow-offset);
+  transition: var(--spring-transition);
+}
+
+.privacy-shell:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: var(--shadow-offset-hover);
 }
 
 .privacy-core {
   background-color: var(--bg-card);
-  border: 1px solid var(--border-primary);
+  border: var(--border-thin);
   border-radius: 18px;
   padding: 32px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 4px 16px rgba(0, 0, 0, 0.01);
 }
 
 .privacy-card-title {
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-primary);
   margin-bottom: 10px;
   letter-spacing: -0.01em;
@@ -1364,12 +1401,13 @@ button {
   font-size: 13.5px;
   line-height: 1.6;
   color: var(--text-secondary);
+  font-weight: 500;
 }
 
 /* --- Accordion FAQ Section --- */
 .faq-section {
   padding: 140px 0;
-  border-top: 1px solid var(--border-primary);
+  border-top: var(--border-thick);
   background-color: var(--bg-card);
 }
 
@@ -1388,7 +1426,7 @@ button {
 }
 
 .faq-item {
-  border-bottom: 1px solid var(--border-primary);
+  border-bottom: var(--border-thin);
   padding-bottom: 24px;
 }
 
@@ -1399,7 +1437,7 @@ button {
 
 .faq-question {
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-primary);
   margin-bottom: 10px;
 }
@@ -1408,11 +1446,12 @@ button {
   font-size: 13.5px;
   line-height: 1.6;
   color: var(--text-secondary);
+  font-weight: 500;
 }
 
 /* --- Footer --- */
 .footer {
-  border-top: 1px solid var(--border-primary);
+  border-top: var(--border-thick);
   padding: 64px 0;
   background-color: var(--bg-stat);
 }
@@ -1444,23 +1483,25 @@ button {
   font-family: var(--font-mono);
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  font-weight: 700;
 }
 
 .footer-text {
   font-size: 12px;
   color: var(--text-secondary);
+  font-weight: 600;
 }
 
 .footer-link {
-  color: var(--brand);
+  color: var(--text-primary);
   text-decoration: underline;
   text-underline-offset: 3px;
   transition: var(--fast-transition);
-  font-weight: 500;
+  font-weight: 700;
 }
 
 .footer-link:hover {
-  color: var(--text-primary);
+  color: var(--text-muted);
 }
 
 /* --- Responsive Adjustments & Media Queries --- */
@@ -1530,7 +1571,7 @@ button {
     font-size: 13px;
     width: 100%;
     padding: 8px 0;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+    border-bottom: var(--border-thin);
   }
   
   .nav-links .nav-btn-pill {
@@ -1539,7 +1580,7 @@ button {
   }
 
   .hero-title {
-    font-size: 48px;
+    font-size: 40px;
   }
   
   .window-body {
