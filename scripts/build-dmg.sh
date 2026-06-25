@@ -17,6 +17,7 @@ echo -e "${BLUE}Cleaning previous build artifacts...${NC}"
 rm -rf ./build
 rm -f ./*.dmg
 rm -f ./web/*.dmg
+rm -f ./web/public/*.dmg
 
 # Build the scheme in Release configuration with ad-hoc signing
 echo -e "${BLUE}Compiling Xcode project in Release mode...${NC}"
@@ -67,9 +68,10 @@ hdiutil create -volname "$APP_NAME" \
 # Clean up staging directory
 rm -rf "$STAGING_DIR"
 
-# Copy the DMG to the web directory for downloading
-echo -e "${BLUE}Copying DMG to website directory...${NC}"
-cp "$DMG_FILE" "./web/tick.dmg"
+# Copy the DMG to the web public directory for downloading
+echo -e "${BLUE}Copying DMG to website public directory...${NC}"
+mkdir -p "./web/public"
+cp "$DMG_FILE" "./web/public/tick.dmg"
 
-echo -e "${GREEN}Successfully generated production DMG: $DMG_FILE and copied to ./web/tick.dmg${NC}"
+echo -e "${GREEN}Successfully generated production DMG: $DMG_FILE and copied to ./web/public/tick.dmg${NC}"
 echo -e "${GREEN}You can open this DMG and drag the app to your /Applications folder to run the production release build.${NC}"
