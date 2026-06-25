@@ -460,6 +460,134 @@ h1, h2, h3, h4 {
   color: var(--text-secondary);
 }
 
+/* --- Section Common Header --- */
+.section-header {
+  margin-bottom: 56px;
+}
+
+.section-meta {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+  display: block;
+  margin-bottom: 12px;
+}
+
+.section-title {
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  color: var(--text-primary);
+}
+
+/* --- Shortcuts Section --- */
+.shortcuts-section {
+  padding: 100px 0;
+  border-top: 1px solid var(--border-secondary);
+}
+
+.shortcuts-container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.shortcuts-list {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border-primary);
+  border-radius: var(--border-radius);
+}
+
+.shortcut-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 32px;
+  border-bottom: 1px solid var(--border-secondary);
+}
+
+.shortcut-row:last-child {
+  border-bottom: none;
+}
+
+.shortcut-desc {
+  max-width: 60%;
+}
+
+.shortcut-name {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.shortcut-detail {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.shortcut-keys {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.plus {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+/* --- Privacy Section --- */
+.privacy-section {
+  padding: 100px 0;
+  border-top: 1px solid var(--border-secondary);
+  background-color: #fafafa;
+}
+
+.privacy-container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.privacy-body {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: 64px;
+}
+
+.privacy-lead {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.privacy-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+}
+
+.privacy-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.privacy-card-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.privacy-card-text {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
 /* --- Footer --- */
 .footer {
   border-top: 1px solid var(--border-primary);
@@ -526,6 +654,11 @@ h1, h2, h3, h4 {
     gap: 40px;
   }
   
+  .privacy-body {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  
   .footer-container {
     flex-direction: column;
     gap: 20px;
@@ -548,6 +681,17 @@ h1, h2, h3, h4 {
   
   .demo-input-text {
     font-size: 18px;
+  }
+  
+  .shortcut-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 20px 24px;
+  }
+  
+  .shortcut-desc {
+    max-width: 100%;
   }
 }
 
