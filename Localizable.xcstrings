@@ -23,6 +23,12 @@
         }
       }
     },
+    "12:04 PM" : {
+
+    },
+    "A" : {
+
+    },
     "About" : {
       "comment" : "Settings -> About Section headline",
       "extractionState" : "stale",
@@ -65,6 +71,9 @@
     "Add Snippet Shortcut" : {
 
     },
+    "Alex" : {
+
+    },
     "App-Aware detects the active application and adapts formatting" : {
 
     },
@@ -80,9 +89,6 @@
       }
     },
     "Audio feedback for recording actions" : {
-
-    },
-    "Available on desktop in English. iOS and more languages coming soon" : {
 
     },
     "Back" : {
@@ -164,6 +170,9 @@
           }
         }
       }
+    },
+    "Configure how your transcriptions are formatted. Choose the style that best matches where you speak, and Tick will automatically format spelling, capitalization, and punctuation." : {
+
     },
     "Copied" : {
       "comment" : "Transcription from history copied.",
@@ -289,6 +298,9 @@
     "e.g. Whispr or Flow" : {
 
     },
+    "Email Draft" : {
+
+    },
     "Ensure Hex can access your microphone and system accessibility features." : {
       "comment" : "Footer for permissions section in settings",
       "extractionState" : "stale",
@@ -371,6 +383,15 @@
         }
       }
     },
+    "hey, are you free for lunch tomorrow? let's do 12 if that works for you" : {
+
+    },
+    "Hey, are you free for lunch tomorrow? Let's do 12 if that works for you" : {
+
+    },
+    "Hey, are you free for lunch tomorrow? Let's do 12 if that works for you." : {
+
+    },
     "Hide Sidebar" : {
 
     },
@@ -414,9 +435,6 @@
           }
         }
       }
-    },
-    "J" : {
-
     },
     "Keep transcriptions and audio recordings for later access" : {
 
@@ -804,9 +822,6 @@
 
     },
     "The stuff you shouldn't have to re-type." : {
-
-    },
-    "This style applies in the personal messengers" : {
 
     },
     "Tick" : {

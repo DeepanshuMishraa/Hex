@@ -253,6 +253,17 @@ struct AppView: View {
   @State private var isStatsPresented = false
   @State private var isPersonalisationWizardPresented = false
 
+  // Cached stats to prevent expensive main-thread sorting and reductions on every body evaluation
+  @State private var cachedWordCount: Int = 0
+  @State private var cachedDailyStreak: Int = 0
+  @State private var cachedAverageWPM: Int = 0
+  @State private var cachedUniqueAppsCount: Int = 1
+  @State private var cachedDisplayTranscripts: [Transcript] = []
+
+  @State private var lastProcessedHistoryCount: Int = -1
+  @State private var lastProcessedHistoryFirstId: UUID? = nil
+  @State private var lastProcessedHistoryLastId: UUID? = nil
+
   private var userName: String {
     let name = NSFullUserName()
     if name.isEmpty {
@@ -262,68 +273,79 @@ struct AppView: View {
     return name.components(separatedBy: " ").first ?? "Yuxuan"
   }
 
-  private var wordCount: Int {
-    store.state.history.transcriptionHistory.history.reduce(0) { count, transcript in
-      count + transcript.text.split(separator: " ").count
-    }
-  }
+  private var wordCount: Int { cachedWordCount }
+  private var dailyStreak: Int { cachedDailyStreak }
+  private var averageWPM: Int { cachedAverageWPM }
+  private var uniqueAppsCount: Int { cachedUniqueAppsCount }
+  private var displayTranscripts: [Transcript] { cachedDisplayTranscripts }
 
-  private var dailyStreak: Int {
-    let history = store.state.history.transcriptionHistory.history
-    guard !history.isEmpty else { return 0 }
+  private func updateStatsIfNeeded() {
+    let currentHistory = store.state.history.transcriptionHistory.history
     
-    let calendar = Calendar.current
-    let dates = Set(history.map { calendar.startOfDay(for: $0.timestamp) })
-    let today = calendar.startOfDay(for: Date())
+    // Check if we need to recalculate
+    if currentHistory.count == lastProcessedHistoryCount,
+       currentHistory.first?.id == lastProcessedHistoryFirstId,
+       currentHistory.last?.id == lastProcessedHistoryLastId {
+      return
+    }
     
-    var currentCheckDate = today
-    var streak = 0
+    // Recalculate word count
+    let count = currentHistory.reduce(0) { c, t in c + t.text.split(separator: " ").count }
     
-    if !dates.contains(today) {
-      guard let yesterday = calendar.date(byAdding: .day, value: -1, to: today) else { return 0 }
-      if !dates.contains(yesterday) {
-        return 0
+    // Recalculate streak
+    let streak: Int
+    if currentHistory.isEmpty {
+      streak = 0
+    } else {
+      let calendar = Calendar.current
+      let dates = Set(currentHistory.map { calendar.startOfDay(for: $0.timestamp) })
+      let today = calendar.startOfDay(for: Date())
+      var currentCheckDate = today
+      var currentStreak = 0
+      if !dates.contains(today) {
+        if let yesterday = calendar.date(byAdding: .day, value: -1, to: today), dates.contains(yesterday) {
+          currentCheckDate = yesterday
+        } else {
+          currentCheckDate = today
+        }
       }
-      currentCheckDate = yesterday
+      while dates.contains(currentCheckDate) {
+        currentStreak += 1
+        guard let prevDate = calendar.date(byAdding: .day, value: -1, to: currentCheckDate) else { break }
+        currentCheckDate = prevDate
+      }
+      streak = currentStreak
     }
     
-    while dates.contains(currentCheckDate) {
-      streak += 1
-      guard let prevDate = calendar.date(byAdding: .day, value: -1, to: currentCheckDate) else { break }
-      currentCheckDate = prevDate
-    }
-    
-    return streak
-  }
-
-  private var averageWPM: Int {
-    let history = store.state.history.transcriptionHistory.history
-    guard !history.isEmpty else { return 0 }
-    
-    var totalWords = 0
-    var totalSeconds: Double = 0.0
-    
-    for transcript in history {
-      let words = transcript.text.split(separator: " ").count
-      if transcript.duration > 0.5 && words > 0 {
-        totalWords += words
-        totalSeconds += transcript.duration
+    // Recalculate WPM
+    let wpm: Int
+    if currentHistory.isEmpty {
+      wpm = 0
+    } else {
+      var totalWords = 0
+      var totalSeconds: Double = 0.0
+      for transcript in currentHistory {
+        let words = transcript.text.split(separator: " ").count
+        if transcript.duration > 0.5 && words > 0 {
+          totalWords += words
+          totalSeconds += transcript.duration
+        }
+      }
+      if totalSeconds > 1.0 {
+        let rawWpm = Double(totalWords) / (totalSeconds / 60.0)
+        wpm = min(250, max(0, Int(round(rawWpm))))
+      } else {
+        wpm = 0
       }
     }
     
-    guard totalSeconds > 1.0 else { return 0 }
-    let wpm = Double(totalWords) / (totalSeconds / 60.0)
-    return min(250, max(0, Int(round(wpm))))
-  }
-
-  private var uniqueAppsCount: Int {
-    let history = store.state.history.transcriptionHistory.history
-    let appNames = Set(history.compactMap { $0.sourceAppName })
-    return max(1, appNames.count)
-  }
-
-  private var displayTranscripts: [Transcript] {
-    if store.state.history.transcriptionHistory.history.isEmpty {
+    // Recalculate unique apps
+    let appNames = Set(currentHistory.compactMap { $0.sourceAppName })
+    let appsCount = max(1, appNames.count)
+    
+    // Sort and cache display transcripts
+    let sortedTranscripts: [Transcript]
+    if currentHistory.isEmpty {
       let calendar = Calendar.current
       let today = Date()
       
@@ -369,10 +391,22 @@ struct AppView: View {
         audioPath: URL(fileURLWithPath: ""),
         duration: 4.0
       )
-      return [t1, t2, t3, t4, t5, t6]
+      sortedTranscripts = [t1, t2, t3, t4, t5, t6]
     } else {
-      return store.state.history.transcriptionHistory.history.sorted(by: { $0.timestamp < $1.timestamp })
+      sortedTranscripts = currentHistory.sorted(by: { $0.timestamp < $1.timestamp })
     }
+    
+    // Update state
+    cachedWordCount = count
+    cachedDailyStreak = streak
+    cachedAverageWPM = wpm
+    cachedUniqueAppsCount = appsCount
+    cachedDisplayTranscripts = sortedTranscripts
+    
+    // Update checkpoint values
+    lastProcessedHistoryCount = currentHistory.count
+    lastProcessedHistoryFirstId = currentHistory.first?.id
+    lastProcessedHistoryLastId = currentHistory.last?.id
   }
 
   var body: some View {
@@ -422,6 +456,12 @@ struct AppView: View {
     }
     .task {
       await store.send(.task).finish()
+    }
+    .onAppear {
+      updateStatsIfNeeded()
+    }
+    .onChange(of: store.state.history.transcriptionHistory.history) { _, _ in
+      updateStatsIfNeeded()
     }
   }
 
