@@ -689,6 +689,12 @@ button {
   padding: 0 24px;
 }
 
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 32px;
+}
+
 .feature-shell {
   background-color: var(--bg-canvas);
   border: var(--border-thick);
