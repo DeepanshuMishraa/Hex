@@ -20,12 +20,18 @@
   <div class="nav-shell scroll-reveal">
     <nav class="navbar">
       <div class="nav-container">
-        <div class="nav-logo">
-          <svg class="logo-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          <span class="logo-text">tick.</span>
+        <div class="nav-header-row">
+          <div class="nav-logo">
+            <svg class="logo-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span class="logo-text">tick.</span>
+          </div>
+          <button class="nav-toggle" id="menu-toggle" aria-label="Toggle Menu">
+            <span class="nav-toggle-icon"></span>
+          </button>
         </div>
+        
         <div class="nav-links">
           <a href="#features" class="nav-link">/features</a>
           <a href="#shortcuts" class="nav-link">/shortcuts</a>
@@ -54,7 +60,7 @@
         
         <h1 class="hero-title">
           Speak it.<br>
-          Type it.
+          <span class="text-gradient">Type it.</span>
         </h1>
         
         <p class="hero-desc">
@@ -94,7 +100,7 @@
   </header>
 
   <!-- Interactive Terminal Showcase (Double-Bezel nested) -->
-  <section class="demo-section scroll-reveal">
+  <section class="demo-section scroll-reveal" id="demo">
     <div class="demo-container">
       <div class="window-shell">
         <div class="window-core">
@@ -133,50 +139,117 @@
     </div>
   </section>
 
-  <!-- Features Bento Section (Double-Bezel cards) -->
+  <!-- Features Bento Section (Asymmetrical Bento Grid) -->
   <section id="features" class="features-section scroll-reveal">
     <div class="features-container">
       <div class="features-grid">
-        <!-- Feature 1 -->
-        <div class="feature-shell">
+        <!-- Feature 1: Speed (col-3) -->
+        <div class="feature-shell col-3">
           <div class="feature-core">
-            <span class="feature-meta">// 01_SPEED</span>
-            <h3 class="feature-title">Native Performance</h3>
-            <p class="feature-desc">Transcribe instantly. Custom Whisper execution optimized for Apple Silicon guarantees sub-100ms response times.</p>
+            <div class="feature-text-block">
+              <span class="feature-meta">// 01_SPEED</span>
+              <h3 class="feature-title">Native Performance</h3>
+              <p class="feature-desc">Transcribe instantly. Custom Whisper execution optimized for Apple Silicon guarantees sub-100ms response times.</p>
+            </div>
           </div>
         </div>
         
-        <!-- Feature 2 -->
-        <div class="feature-shell">
+        <!-- Feature 2: Flow (col-3) -->
+        <div class="feature-shell col-3">
           <div class="feature-core">
-            <span class="feature-meta">// 02_CONTEXT</span>
-            <h3 class="feature-title">App-Aware Syntax</h3>
-            <p class="feature-desc">Automatically parses dictation style based on destination. Emits shell command logic, markdown notes, or conversational text.</p>
+            <div class="feature-text-block">
+              <span class="feature-meta">// 02_FLOW</span>
+              <h3 class="feature-title">Tactile Workflows</h3>
+              <p class="feature-desc">Designed as a background daemon. A single global key combination captures, formats, and types your thoughts with zero clicks.</p>
+            </div>
           </div>
         </div>
         
-        <!-- Feature 3 -->
-        <div class="feature-shell">
+        <!-- Feature 3: Context / App-Aware (col-6) -->
+        <div class="feature-shell col-6">
           <div class="feature-core">
-            <span class="feature-meta">// 03_SECURITY</span>
-            <h3 class="feature-title">Absolute Isolation</h3>
-            <p class="feature-desc">Transcriptions are processed entirely in memory on your Mac. No network logs, no telemetry, and complete system privacy.</p>
+            <div class="feature-text-block">
+              <span class="feature-meta">// 03_CONTEXT</span>
+              <h3 class="feature-title">App-Aware Syntax</h3>
+              <p class="feature-desc">Automatically parses dictation style based on destination. Emits shell command logic, markdown notes, or conversational text depending on active application focus.</p>
+            </div>
+            <div class="feature-preview">
+              <div class="compare-mockup">
+                <div class="compare-row">
+                  <span class="compare-label">Dictation Input</span>
+                  <span class="compare-input">"git commit this is a good landing page"</span>
+                </div>
+                <div class="compare-row">
+                  <span class="compare-label">Terminal Output</span>
+                  <span class="compare-output cmd">git commit -m "this is a good landing page"</span>
+                </div>
+                <div class="compare-row">
+                  <span class="compare-label">Slack Output</span>
+                  <span class="compare-output">"git commit this is a good landing page"</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         
-        <!-- Feature 4 -->
-        <div class="feature-shell">
+        <!-- Feature 4: Security (col-6) -->
+        <div class="feature-shell col-6">
           <div class="feature-core">
-            <span class="feature-meta">// 04_FLOW</span>
-            <h3 class="feature-title">Tactile Workflows</h3>
-            <p class="feature-desc">Designed as a background daemon. A single global key combination captures, formats, and types your thoughts with zero clicks.</p>
+            <div class="feature-text-block">
+              <span class="feature-meta">// 04_SECURITY</span>
+              <h3 class="feature-title">Absolute Isolation</h3>
+              <p class="feature-desc">Transcriptions are processed entirely in memory on your Mac. No network logs, no telemetry, and complete system privacy.</p>
+            </div>
+            <div class="feature-preview">
+              <div class="isolation-diagram">
+                <div class="diagram-node">
+                  <div class="node-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:16px; height:16px;">
+                      <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+                      <path d="M19 10v1a7 7 0 0 1-14 0v-1M12 19v4M8 23h8"/>
+                    </svg>
+                  </div>
+                  <span class="node-label">Mic Input</span>
+                </div>
+                <div class="node-line"></div>
+                <div class="diagram-node">
+                  <div class="node-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:16px; height:16px;">
+                      <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.44 2.5 2.5 0 0 1 0-3.12 3 3 0 0 1 0-3.88 2.5 2.5 0 0 1 0-3.12A2.5 2.5 0 0 1 9.5 2Z"/>
+                      <path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.44 2.5 2.5 0 0 0 0-3.12 3 3 0 0 0 0-3.88 2.5 2.5 0 0 0 0-3.12A2.5 2.5 0 0 0 14.5 2Z"/>
+                    </svg>
+                  </div>
+                  <span class="node-label">Core ML</span>
+                </div>
+                <div class="node-line"></div>
+                <div class="diagram-node">
+                  <div class="node-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:16px; height:16px;">
+                      <rect x="2" y="3" width="20" height="14" rx="2" />
+                      <line x1="8" y1="21" x2="16" y2="21" />
+                      <line x1="12" y1="17" x2="12" y2="21" />
+                    </svg>
+                  </div>
+                  <span class="node-label">Active App</span>
+                </div>
+                <div class="line-cross"></div>
+                <div class="diagram-node blocked">
+                  <div class="node-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:16px; height:16px;">
+                      <path d="M17.5 19A3.5 3.5 0 0 0 21 15.5c0-2.79-3.25-3.5-3.25-3.5a7 7 0 1 0-11.85 2c0 .09.06.41.06.5A3.5 3.5 0 0 0 9.5 19h8Z" />
+                    </svg>
+                  </div>
+                  <span class="node-label">Cloud</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Shortcuts Section (Double-Bezel list) -->
+  <!-- Shortcuts Section (Double-Bezel split grid) -->
   <section id="shortcuts" class="shortcuts-section scroll-reveal">
     <div class="shortcuts-container">
       <div class="section-header">
@@ -231,15 +304,14 @@
   <!-- Privacy Section (Double-Bezel split) -->
   <section id="privacy" class="privacy-section scroll-reveal">
     <div class="privacy-container">
-      <div class="section-header">
-        <span class="section-meta">// DATA_ISOLATION</span>
-        <h2 class="section-title">Your data stays yours.</h2>
-      </div>
-      
       <div class="privacy-body">
-        <p class="privacy-lead">
-          Tick is built to be a pure tool. We believe developer utilities should respect system isolation and secure input by default.
-        </p>
+        <div class="section-header">
+          <span class="section-meta">// DATA_ISOLATION</span>
+          <h2 class="section-title">Your data stays yours.</h2>
+          <p class="privacy-lead" style="margin-top: 24px;">
+            Tick is built to be a pure tool. We believe developer utilities should respect system isolation and secure input by default.
+          </p>
+        </div>
         
         <div class="privacy-grid">
           <div class="privacy-shell">

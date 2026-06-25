@@ -39,47 +39,61 @@ document.addEventListener('DOMContentLoaded', () => {
     const scenario = scenarios[currentScenarioIndex];
     
     // Update active app pill title
-    windowTitlePill.innerHTML = `
-      <span class="pill-text">${scenario.pillText}</span>
-    `;
+    if (windowTitlePill) {
+      windowTitlePill.innerHTML = `<span class="pill-text">${scenario.pillText}</span>`;
+    }
     
     // 1. Start Dictation (waveform animates)
-    visualizerEl.classList.add('recording');
-    typingTextEl.innerHTML = '"';
+    if (visualizerEl) {
+      visualizerEl.classList.add('recording');
+    }
+    if (typingTextEl) {
+      typingTextEl.innerHTML = '"';
+    }
     
     // Type the spoken text letter by letter
     const spokenText = scenario.spoken;
     for (let i = 0; i < spokenText.length; i++) {
-      typingTextEl.innerHTML = '"' + spokenText.substring(0, i + 1) + '|"';
+      if (typingTextEl) {
+        typingTextEl.innerHTML = '"' + spokenText.substring(0, i + 1) + '|"';
+      }
       // Vary typing speed slightly for realism
       await delay(35 + Math.random() * 45);
     }
     
     // Remove the cursor bar at the end of spoken
-    typingTextEl.innerHTML = '"' + spokenText + '"';
+    if (typingTextEl) {
+      typingTextEl.innerHTML = '"' + spokenText + '"';
+    }
     
     // 2. Stop Dictation (waveform stops)
     await delay(500);
-    visualizerEl.classList.remove('recording');
+    if (visualizerEl) {
+      visualizerEl.classList.remove('recording');
+    }
     
     // Subtle loading pause
-    typingTextEl.innerHTML = '"' + spokenText + '" <span class="processing-dot">...</span>';
+    if (typingTextEl) {
+      typingTextEl.innerHTML = '"' + spokenText + '" <span class="processing-dot">...</span>';
+    }
     await delay(800);
     
     // 3. Apply App-Aware AI Post-processing conversion
-    if (scenario.isHTML) {
-      typingTextEl.innerHTML = scenario.transformed;
-    } else {
-      // Simple pre-tag styling for linebreaks in emails
-      if (scenario.app === 'Gmail') {
-        typingTextEl.style.fontSize = '16px';
-        typingTextEl.style.textAlign = 'left';
-        typingTextEl.style.fontFamily = 'var(--font-sans)';
-        typingTextEl.innerHTML = scenario.transformed.replace(/\n/g, '<br>');
-      } else {
-        typingTextEl.style.fontSize = '22px';
-        typingTextEl.style.textAlign = 'center';
+    if (typingTextEl) {
+      if (scenario.isHTML) {
         typingTextEl.innerHTML = scenario.transformed;
+      } else {
+        // Simple pre-tag styling for linebreaks in emails
+        if (scenario.app === 'Gmail') {
+          typingTextEl.style.fontSize = '15px';
+          typingTextEl.style.textAlign = 'left';
+          typingTextEl.style.fontFamily = 'var(--font-sans)';
+          typingTextEl.innerHTML = scenario.transformed.replace(/\n/g, '<br>');
+        } else {
+          typingTextEl.style.fontSize = '20px';
+          typingTextEl.style.textAlign = 'center';
+          typingTextEl.innerHTML = scenario.transformed;
+        }
       }
     }
     
@@ -87,9 +101,11 @@ document.addEventListener('DOMContentLoaded', () => {
     await delay(scenario.readTime);
     
     // Reset styles for next scenario
-    typingTextEl.style.fontSize = '';
-    typingTextEl.style.textAlign = '';
-    typingTextEl.style.fontFamily = '';
+    if (typingTextEl) {
+      typingTextEl.style.fontSize = '';
+      typingTextEl.style.textAlign = '';
+      typingTextEl.style.fontFamily = '';
+    }
     
     // Move to next scenario
     currentScenarioIndex = (currentScenarioIndex + 1) % scenarios.length;
@@ -116,18 +132,47 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // Watch Demo button scrolls to demo section
+  const watchBtn = document.getElementById('watch-btn');
+  if (watchBtn) {
+    watchBtn.addEventListener('click', () => {
+      const demoSection = document.getElementById('demo');
+      if (demoSection) {
+        demoSection.scrollIntoView({
+          behavior: 'smooth'
+        });
+      }
+    });
+  }
+
+  // Mobile menu morphing toggle logic
+  const menuToggle = document.getElementById('menu-toggle');
+  const navbar = document.querySelector('.navbar');
+  if (menuToggle && navbar) {
+    menuToggle.addEventListener('click', () => {
+      navbar.classList.toggle('expanded');
+    });
+
+    // Close menu when clicking nav links
+    document.querySelectorAll('.nav-link').forEach(link => {
+      link.addEventListener('click', () => {
+        navbar.classList.remove('expanded');
+      });
+    });
+  }
+
   // Scroll reveal animation with IntersectionObserver
   const observerOptions = {
     root: null,
     rootMargin: '0px',
-    threshold: 0.12
+    threshold: 0.1
   };
 
   const revealObserver = new IntersectionObserver((entries, observer) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         entry.target.classList.add('active');
-        // Once visible, stop tracking to keep state
+        // Once visible, stop tracking
         observer.unobserve(entry.target);
       }
     });
