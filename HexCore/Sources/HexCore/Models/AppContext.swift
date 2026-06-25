@@ -32,7 +32,9 @@ public enum AppCategory: String, Codable, CaseIterable, Equatable, Sendable {
 			The user is dictating into a terminal/command-line application. Format the output strictly as a raw shell command or sequence of commands:
 			- Return ONLY the executable command line. Do NOT wrap the command in markdown code fences or blocks (e.g., do NOT use ```bash or ```).
 			- Convert spoken punctuation or names into code syntax: e.g. "dash dash" to "--", "hyphen" to "-", "slash" to "/", "dot" to ".", "space" to " ", "star" to "*".
-			- Use lowercase for command names, parameters, and flags unless specifically stated or required (e.g., "git add dot" → "git add .", "git commit status message" → "git commit -m \"status message\"").
+			- Use lowercase for command names, parameters, and flags unless specifically stated or required (e.g., "git add dot" → "git add .").
+			- Transform colloquial dictation of a command message (like "git commit this UI is so good" or "git commit message this is great") into the correct flag syntax: e.g., `git commit -m "this UI is so good"`, `git commit -m "this is great"`.
+			- Convert colloquial commands into their actual executable forms (e.g., "create directory src" → "mkdir src", "list files" → "ls", "push branch" → "git push").
 			- Remove all filler words, self-corrections, and conversational explanations completely.
 			- Do not add periods, punctuation, or other sentence-ending characters at the end of the command line.
 			- If dictating multiple commands, separate them onto their own lines or join them with "&&" depending on context.
@@ -40,10 +42,11 @@ public enum AppCategory: String, Codable, CaseIterable, Equatable, Sendable {
 		case .email:
 			return """
 			The user is dictating into an email application. Format the output strictly as a well-structured email message:
-			- Format the greeting (e.g., "Dear Name,", "Hi Name,") on its own line at the start, followed by a blank line.
+			- If the user's dictation is short or outlines an instruction (e.g., "email John about the launch tomorrow"), expand it into a short but complete email structure. You are explicitly authorized to add standard structural text (like "Dear John,", "Hope you are well.", "Best regards,") to make it a valid, professional email layout.
+			- Format the greeting (e.g., "Dear Name,", "Hi Name,") on its own line at the start, followed by a blank line. If the recipient name is unknown or not specified, use a friendly generic greeting like "Hi," or "Dear Team,".
 			- Separate body paragraphs with clean blank lines for readability.
 			- Use a professional yet natural tone.
-			- Add a sign-off (e.g., "Best regards,", "Thanks,", "Sincerely,") on its own line at the end only if the dictation implies closing.
+			- Add a sign-off (e.g., "Best regards,", "Thanks,", "Sincerely,") on its own line at the end.
 			- Remove all spoken formatting cues (like "new line", "comma", "period", "bullet point") and replace them with actual formatting.
 			- Clean up filler words and self-corrections.
 			"""

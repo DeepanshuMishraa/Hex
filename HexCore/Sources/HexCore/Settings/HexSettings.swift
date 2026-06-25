@@ -97,11 +97,11 @@ Output rules:
 		let lower = host.lowercased()
 		if lower.contains("mail.google.com") || lower.contains("gmail.com") {
 			return """
-			- The user is in Gmail: strictly format as a professional email. Put the greeting (e.g. "Dear ...," or "Hi ...,") on its own line followed by a blank line, separate body paragraphs with blank lines, and put the sign-off (e.g. "Best regards,", "Thanks,") on its own line at the bottom.
+			- The user is in Gmail: strictly format as a professional email. Even if the transcription is a short instruction or brief note (e.g., "tell John I am on my way"), you MUST expand and structure it into a complete email format: greeting (e.g., "Hi John,"), body (e.g., "I wanted to let you know that I am on my way."), and sign-off (e.g., "Best regards,"). You are explicitly authorized to add standard structural email layouts.
 			"""
 		} else if lower.contains("outlook.") || lower.contains("mail.yahoo.com") {
 			return """
-			- The user is in an email client (Outlook/Yahoo): format as a professional email with a greeting on its own line, body paragraphs separated by blank lines, and a closing sign-off on its own line.
+			- The user is in an email client (Outlook/Yahoo): format as a professional email. If the dictation is a short message or instruction, expand and structure it with a greeting, spaced body paragraphs, and an appropriate closing sign-off.
 			"""
 		} else if lower.contains("slack.com") || lower.contains("discord.com") {
 			return """
