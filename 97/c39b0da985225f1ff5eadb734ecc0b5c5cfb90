@@ -1,0 +1,19 @@
+web/index.html
+  s_a2fc89b1f0447c::t_03d218691b7593 8-10
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "97c39b0da985225f1ff5eadb734ecc0b5c5cfb90",
+  "prompts": {},
+  "sessions": {
+    "s_a2fc89b1f0447c": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "019f01c6-fc8c-7984-8a0a-bfe48fd15e40",
+        "model": "deepseek-v4-flash"
+      },
+      "human_author": "Deepanshu Mishra <d4deepanshu723@gmail.com>"
+    }
+  }
+}
